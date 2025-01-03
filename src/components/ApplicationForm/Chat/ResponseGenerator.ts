@@ -9,29 +9,31 @@ export const generateResponse = async (input: string): Promise<string> => {
         service_name: 'OPENAI_API_KEY'
       });
 
-    if (error || !data || typeof data !== 'object') {
+    if (error) {
       console.error('Error fetching OpenAI API key:', error);
       return "I apologize, but I'm having trouble accessing my configuration. Please try again in a moment.";
     }
 
-    // Safely type check and extract the API key
-    const config = {
-      OPENAI_API_KEY: Object.values(data)[0] as string
-    };
-
-    if (!config.OPENAI_API_KEY) {
-      console.error('OpenAI API key not found in config');
+    if (!data || typeof data !== 'object') {
+      console.error('Invalid response format from get_service_config');
       return "I apologize, but I'm having trouble accessing my configuration. Please try again in a moment.";
+    }
+
+    const apiKey = Object.values(data)[0];
+    
+    if (!apiKey || typeof apiKey !== 'string') {
+      console.error('OpenAI API key not found or invalid in config');
+      return "I apologize, but I'm having trouble accessing my configuration. Please ensure the OpenAI API key is properly set.";
     }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.OPENAI_API_KEY}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
