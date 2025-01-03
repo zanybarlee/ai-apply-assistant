@@ -8,6 +8,11 @@ import { ChatInput } from "./Chat/ChatInput";
 import { type Message, type TextGenerationResult } from "./Chat/types";
 import { AnalysisResults } from "./AnalysisResults";
 
+type ClassificationResult = {
+  label: string;
+  score: number;
+}[];
+
 export const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -28,15 +33,15 @@ export const AIAssistant = () => {
         { device: "webgpu" }
       );
 
-      const result = await classifier(text);
+      const result = await classifier(text) as ClassificationResult;
       const analysisResults = [
         {
           label: "Application Completeness",
-          score: result[0].score
+          score: result[0]?.score || 0
         },
         {
           label: "Eligibility Match",
-          score: Math.min(1, result[0].score * 1.2)
+          score: Math.min(1, (result[0]?.score || 0) * 1.2)
         }
       ];
 
