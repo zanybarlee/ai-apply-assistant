@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+import { DocumentAnalysis } from "./DocumentAnalysis";
 
 interface ApplicationDetailsProps {
   formData: {
@@ -37,7 +37,6 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
     }
   };
 
-  // Calculate minimum years of experience based on certification level
   const calculateMinExperience = () => {
     const today = new Date();
     const completionDate = new Date(formData.timeline);
@@ -50,12 +49,11 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedDate = new Date(e.target.value);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time part for accurate date comparison
+    today.setHours(0, 0, 0, 0);
     
     const fiveYearsAgo = new Date();
     fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
 
-    // Calculate the maximum allowed date (3 years from today)
     const maxAllowedDate = new Date();
     maxAllowedDate.setFullYear(maxAllowedDate.getFullYear() + 3);
 
@@ -80,7 +78,6 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
     onChange("timeline", e.target.value);
   };
 
-  // Calculate max date (3 years from today)
   const maxDate = new Date();
   maxDate.setFullYear(maxDate.getFullYear() + 3);
   const maxDateString = maxDate.toISOString().split('T')[0];
@@ -160,13 +157,9 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
         <p className="text-sm text-gray-500">Application must be made within 5 years of completion</p>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="additionalInfo">Additional Information</Label>
-        <Textarea
-          id="additionalInfo"
-          className="min-h-[120px] transition-all duration-200 focus:ring-accent"
-          placeholder="Please provide any additional information relevant to your application..."
-        />
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold mb-4">Document Analysis</h3>
+        <DocumentAnalysis />
       </div>
     </div>
   );
