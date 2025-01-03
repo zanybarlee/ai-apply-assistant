@@ -6,3 +6,7 @@ export interface Message {
 export interface TextGenerationResult {
   generated_text: string;
 }
+
+export interface ServiceConfigResponse {
+  OPENAI_API_KEY: string;
+}

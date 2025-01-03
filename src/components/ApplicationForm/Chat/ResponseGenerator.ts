@@ -1,10 +1,5 @@
-import { TextGenerationResult } from "./types";
+import { TextGenerationResult, ServiceConfigResponse } from "./types";
 import { supabase } from "@/integrations/supabase/client";
-
-interface ServiceConfigResponse {
-  data: { OPENAI_API_KEY: string } | null;
-  error: Error | null;
-}
 
 export const generateResponse = async (input: string): Promise<string> => {
   try {
@@ -14,7 +9,10 @@ export const generateResponse = async (input: string): Promise<string> => {
         service_name: 'OPENAI_API_KEY'
       });
 
-    if (error || !data?.OPENAI_API_KEY) {
+    // Cast the response data to our expected type
+    const config = data as ServiceConfigResponse;
+
+    if (error || !config?.OPENAI_API_KEY) {
       console.error('Error fetching OpenAI API key:', error);
       return "I apologize, but I'm having trouble accessing my configuration. Please try again in a moment.";
     }
@@ -23,7 +21,7 @@ export const generateResponse = async (input: string): Promise<string> => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${data.OPENAI_API_KEY}`
+        'Authorization': `Bearer ${config.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
