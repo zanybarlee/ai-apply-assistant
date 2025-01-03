@@ -5,7 +5,7 @@ export const generateResponse = async (input: string): Promise<string> => {
   try {
     const generator = await pipeline(
       'text-generation',
-      'microsoft/DialoGPT-small',
+      'Xenova/distilbert-base-uncased',
       { 
         device: "webgpu"
       }
