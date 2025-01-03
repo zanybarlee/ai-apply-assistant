@@ -5,20 +5,7 @@ export const generateResponse = async (input: string): Promise<string> => {
   try {
     console.log('Starting response generation process...');
     
-    // First, check if we can connect to Supabase
-    const { data: testData, error: testError } = await supabase
-      .from('application_settings')
-      .select('key')
-      .limit(1);
-
-    if (testError) {
-      console.error('Error connecting to Supabase:', testError);
-      return "I apologize, but I'm having trouble connecting to the database. Please try again in a moment.";
-    }
-
-    console.log('Successfully connected to Supabase, fetching API key...');
-
-    // Now fetch the API key
+    // Fetch the API key directly from application_settings
     const { data, error } = await supabase
       .from('application_settings')
       .select('value')
@@ -30,20 +17,9 @@ export const generateResponse = async (input: string): Promise<string> => {
       return "I apologize, but I'm having trouble accessing my configuration. Please try again in a moment.";
     }
 
-    console.log('API key fetch response:', {
-      found: !!data,
-      hasValue: !!(data && data.value),
-      isEmpty: data && data.value ? data.value.trim() === '' : true
-    });
-
-    if (!data || !data.value) {
-      console.error('OpenAI API key not found in application_settings');
-      return "I apologize, but I'm having trouble accessing my configuration. Please ensure the OpenAI API key is properly set in the application settings.";
-    }
-
-    if (data.value.trim() === '') {
-      console.error('OpenAI API key is empty');
-      return "The OpenAI API key appears to be empty. Please set a valid API key in the application settings.";
+    if (!data?.value) {
+      console.error('OpenAI API key not found or empty');
+      return "I apologize, but the OpenAI API key appears to be missing or invalid. Please ensure it's properly configured.";
     }
 
     console.log('Making request to OpenAI API...');
@@ -72,8 +48,8 @@ export const generateResponse = async (input: string): Promise<string> => {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      console.error('OpenAI API error:', error);
+      const errorData = await response.json();
+      console.error('OpenAI API error:', errorData);
       return "I apologize, but I'm having trouble processing your request. Please try again or refer to the IBF guidelines.";
     }
 
