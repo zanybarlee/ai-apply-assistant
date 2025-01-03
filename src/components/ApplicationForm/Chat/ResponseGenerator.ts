@@ -9,14 +9,14 @@ interface ServiceConfigResponse {
 export const generateResponse = async (input: string): Promise<string> => {
   try {
     // Fetch the API key from Supabase config
-    const { data, error: configError } = await supabase
+    const { data, error } = await supabase
       .rpc('get_service_config', {
         service_name: 'OPENAI_API_KEY'
-      }) as unknown as ServiceConfigResponse;
+      });
 
-    if (configError || !data?.OPENAI_API_KEY) {
-      console.error('Error fetching OpenAI API key:', configError);
-      return "Please ensure your OpenAI API key is properly configured in the project settings.";
+    if (error || !data?.OPENAI_API_KEY) {
+      console.error('Error fetching OpenAI API key:', error);
+      return "I apologize, but I'm having trouble accessing my configuration. Please try again in a moment.";
     }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
