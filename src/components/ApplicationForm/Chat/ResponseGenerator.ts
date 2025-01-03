@@ -5,10 +5,9 @@ export const generateResponse = async (input: string): Promise<string> => {
   try {
     const generator = await pipeline(
       'text-generation',
-      'Xenova/gpt2', // Changed to a working model
+      'microsoft/DialoGPT-small',
       { 
-        device: "webgpu",
-        quantized: false
+        device: "webgpu"
       }
     );
 
