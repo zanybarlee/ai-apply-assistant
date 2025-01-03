@@ -9,11 +9,18 @@ export const generateResponse = async (input: string): Promise<string> => {
         service_name: 'OPENAI_API_KEY'
       });
 
-    // Cast the response data to our expected type
-    const config = data as ServiceConfigResponse;
-
-    if (error || !config?.OPENAI_API_KEY) {
+    if (error || !data || typeof data !== 'object') {
       console.error('Error fetching OpenAI API key:', error);
+      return "I apologize, but I'm having trouble accessing my configuration. Please try again in a moment.";
+    }
+
+    // Safely type check and extract the API key
+    const config = {
+      OPENAI_API_KEY: Object.values(data)[0] as string
+    };
+
+    if (!config.OPENAI_API_KEY) {
+      console.error('OpenAI API key not found in config');
       return "I apologize, but I'm having trouble accessing my configuration. Please try again in a moment.";
     }
 
