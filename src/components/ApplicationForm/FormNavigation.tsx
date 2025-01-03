@@ -14,7 +14,7 @@ export const FormNavigation = ({ currentStep, onNext, onBack }: FormNavigationPr
         variant="outline"
         onClick={onBack}
         disabled={currentStep === 0}
-        className="bg-transparent border-white/30 text-white hover:bg-white/10 transition-all duration-200"
+        className="bg-white border-secondary text-secondary hover:bg-secondary/10 transition-all duration-200"
       >
         Back
       </Button>
