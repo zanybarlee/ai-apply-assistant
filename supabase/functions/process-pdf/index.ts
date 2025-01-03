@@ -25,7 +25,12 @@ serve(async (req) => {
     }
 
     // Download the PDF file
-    const pdfResponse = await fetch(fileUrl)
+    const pdfResponse = await fetch(fileUrl, {
+      headers: {
+        'Accept': 'application/pdf'
+      }
+    })
+    
     if (!pdfResponse.ok) {
       console.error('Failed to download PDF:', pdfResponse.status, pdfResponse.statusText)
       throw new Error(`Failed to download PDF: ${pdfResponse.status} ${pdfResponse.statusText}`)
