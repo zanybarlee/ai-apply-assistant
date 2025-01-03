@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, Send } from "lucide-react";
-import { pipeline } from "@huggingface/transformers";
+import { pipeline, TextGenerationOutput } from "@huggingface/transformers";
 
 interface Message {
   role: 'assistant' | 'user';
@@ -30,7 +30,6 @@ export const AIAssistant = () => {
     setIsLoading(true);
 
     try {
-      // Initialize the text generation pipeline
       const generator = await pipeline(
         'text-generation',
         'onnx-community/distilgpt2',
@@ -46,9 +45,17 @@ export const AIAssistant = () => {
         num_return_sequences: 1,
       });
 
+      // Handle both array and single result cases
+      const generatedText = Array.isArray(result) 
+        ? result[0].generated_text 
+        : result.generated_text;
+
+      const responseText = generatedText.split(prompt)[1]?.trim() || 
+        "I apologize, but I couldn't generate a specific response. Please refer to the IBF guidelines for accurate information.";
+
       const assistantMessage = {
         role: 'assistant' as const,
-        content: result[0].generated_text.split(prompt)[1].trim()
+        content: responseText
       };
 
       setMessages(prev => [...prev, assistantMessage]);
