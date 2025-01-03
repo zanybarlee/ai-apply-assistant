@@ -23,6 +23,7 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
 
     setIsUploading(true);
     try {
+      // Upload file to Supabase Storage
       const fileName = `${crypto.randomUUID()}.pdf`;
       const { error: uploadError, data } = await supabase.storage
         .from('certification_documents')
@@ -30,29 +31,28 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
 
       if (uploadError) throw uploadError;
 
+      // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from('certification_documents')
         .getPublicUrl(fileName);
 
       console.log('Uploaded file URL:', publicUrl);
 
-      // Process the PDF using our Edge Function
-      const response = await supabase.functions.invoke('process-pdf', {
+      // Process the PDF using Edge Function
+      const { data: processedData, error: processError } = await supabase.functions.invoke('process-pdf', {
         body: { fileUrl: publicUrl },
       });
 
-      console.log('Edge function response:', response);
-
-      if (response.error) {
-        throw new Error(`Failed to process PDF: ${response.error.message}`);
+      if (processError) {
+        console.error('Edge function error:', processError);
+        throw new Error(`Failed to process PDF: ${processError.message}`);
       }
 
-      const { data: { text } } = response;
-      if (!text) {
+      if (!processedData?.text) {
         throw new Error('No text extracted from PDF');
       }
 
-      onTextExtracted(text);
+      onTextExtracted(processedData.text);
 
       toast({
         title: "Document Processed",
@@ -62,7 +62,7 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
       console.error('Upload error:', error);
       toast({
         title: "Processing Failed",
-        description: "There was an error processing your document. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error processing your document. Please try again.",
         variant: "destructive",
       });
     } finally {
