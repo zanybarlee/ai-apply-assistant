@@ -1,18 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Send } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { pipeline } from "@huggingface/transformers";
-
-interface Message {
-  role: 'assistant' | 'user';
-  content: string;
-}
-
-interface TextGenerationResult {
-  generated_text: string;
-}
+import { ChatMessage } from "./Chat/ChatMessage";
+import { ChatInput } from "./Chat/ChatInput";
+import { type Message, type TextGenerationResult } from "./Chat/types";
 
 export const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +29,7 @@ export const AIAssistant = () => {
     try {
       const generator = await pipeline(
         'text-generation',
-        'Xenova/distilgpt2',  // Using a public model from Xenova
+        'Xenova/distilgpt2',
         { device: 'cpu' }
       );
 
@@ -88,22 +81,7 @@ export const AIAssistant = () => {
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
               {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex ${
-                    message.role === 'assistant' ? 'justify-start' : 'justify-end'
-                  }`}
-                >
-                  <div
-                    className={`rounded-lg p-3 max-w-[80%] ${
-                      message.role === 'assistant'
-                        ? 'bg-gray-100'
-                        : 'bg-blue-500 text-white'
-                    }`}
-                  >
-                    {message.content}
-                  </div>
-                </div>
+                <ChatMessage key={index} message={message} />
               ))}
               {isLoading && (
                 <div className="flex justify-start">
@@ -115,19 +93,12 @@ export const AIAssistant = () => {
             </div>
           </ScrollArea>
 
-          <div className="p-4 border-t">
-            <div className="flex gap-2">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask a question..."
-                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              />
-              <Button onClick={handleSend} disabled={isLoading}>
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          <ChatInput
+            input={input}
+            isLoading={isLoading}
+            onInputChange={setInput}
+            onSend={handleSend}
+          />
         </div>
       ) : (
         <Button
