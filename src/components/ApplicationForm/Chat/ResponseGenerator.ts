@@ -1,20 +1,25 @@
 import { TextGenerationResult } from "./types";
+import { supabase } from "@/integrations/supabase/client";
 
 export const generateResponse = async (input: string): Promise<string> => {
   try {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return "Please provide your OpenAI API key in the project settings to use the AI assistant.";
+    // Fetch the API key from Supabase config
+    const { data: { OPENAI_API_KEY }, error: configError } = await supabase
+      .rpc('get_service_config', { service_name: 'OPENAI_API_KEY' });
+
+    if (configError || !OPENAI_API_KEY) {
+      console.error('Error fetching OpenAI API key:', configError);
+      return "Please ensure your OpenAI API key is properly configured in the project settings.";
     }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Authorization': `Bearer ${OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
