@@ -34,7 +34,7 @@ export const DocumentAnalysis = () => {
       // Initialize the zero-shot classification pipeline
       const classifier = await pipeline(
         "zero-shot-classification",
-        "facebook/bart-large-mnli",
+        "Xenova/bart-large-mnli",
         {
           device: "webgpu",
           revision: "main"
