@@ -5,8 +5,11 @@ export const generateResponse = async (input: string): Promise<string> => {
   try {
     const generator = await pipeline(
       'text-generation',
-      'Xenova/distilgpt2',
-      { device: "webgpu" }
+      'Xenova/gpt2', // Changed to a working model
+      { 
+        device: "webgpu",
+        quantized: false
+      }
     );
 
     const prompt = `Answer this question about IBF certification: ${input}
@@ -16,6 +19,9 @@ export const generateResponse = async (input: string): Promise<string> => {
     const result = await generator(prompt, {
       max_length: 100,
       num_return_sequences: 1,
+      temperature: 0.7,
+      top_k: 50,
+      top_p: 0.9,
     }) as TextGenerationResult | TextGenerationResult[];
 
     const generatedText = Array.isArray(result) 
