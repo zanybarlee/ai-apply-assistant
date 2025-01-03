@@ -24,7 +24,7 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
     setIsUploading(true);
     try {
       const fileName = `${crypto.randomUUID()}.pdf`;
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data } = await supabase.storage
         .from('certification_documents')
         .upload(fileName, file);
 
@@ -34,21 +34,24 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
         .from('certification_documents')
         .getPublicUrl(fileName);
 
+      console.log('Uploaded file URL:', publicUrl);
+
       // Process the PDF using our Edge Function
-      const response = await fetch(`${process.env.SUPABASE_URL}/functions/v1/process-pdf`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({ fileUrl: publicUrl }),
+      const response = await supabase.functions.invoke('process-pdf', {
+        body: { fileUrl: publicUrl },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to process PDF');
+      console.log('Edge function response:', response);
+
+      if (response.error) {
+        throw new Error(`Failed to process PDF: ${response.error.message}`);
       }
 
-      const { text } = await response.json();
+      const { data: { text } } = response;
+      if (!text) {
+        throw new Error('No text extracted from PDF');
+      }
+
       onTextExtracted(text);
 
       toast({
