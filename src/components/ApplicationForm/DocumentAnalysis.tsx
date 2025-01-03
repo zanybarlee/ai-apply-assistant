@@ -2,7 +2,9 @@ import { useState } from "react";
 import { pipeline } from "@huggingface/transformers";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentInput } from "./DocumentInput";
+import { DocumentUpload } from "./DocumentUpload";
 import { AnalysisResults } from "./AnalysisResults";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type ZeroShotResult = {
   sequence: string;
@@ -77,14 +79,29 @@ export const DocumentAnalysis = () => {
     }
   };
 
+  const handleTextFromUpload = (uploadedText: string) => {
+    setText(uploadedText);
+  };
+
   return (
     <div className="space-y-6">
-      <DocumentInput
-        text={text}
-        isAnalyzing={isAnalyzing}
-        onTextChange={setText}
-        onAnalyze={analyzeDocument}
-      />
+      <Tabs defaultValue="text" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="text">Enter Text</TabsTrigger>
+          <TabsTrigger value="upload">Upload Document</TabsTrigger>
+        </TabsList>
+        <TabsContent value="text">
+          <DocumentInput
+            text={text}
+            isAnalyzing={isAnalyzing}
+            onTextChange={setText}
+            onAnalyze={analyzeDocument}
+          />
+        </TabsContent>
+        <TabsContent value="upload">
+          <DocumentUpload onTextExtracted={handleTextFromUpload} />
+        </TabsContent>
+      </Tabs>
       <AnalysisResults analysis={analysis} />
     </div>
   );
