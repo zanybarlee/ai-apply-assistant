@@ -2,6 +2,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 interface ApplicationDetailsProps {
   formData: {
@@ -15,11 +16,42 @@ interface ApplicationDetailsProps {
 }
 
 export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsProps) => {
+  const { toast } = useToast();
+
+  // Suggest TSCs coverage based on industry
+  const handleIndustryChange = (value: string) => {
+    onChange("industry", value);
+    const suggestedTSCs = {
+      banking: 85,
+      "capital-markets": 80,
+      insurance: 75,
+      "asset-management": 78,
+    }[value];
+
+    if (suggestedTSCs) {
+      onChange("tscsCovered", suggestedTSCs);
+      toast({
+        title: "TSCs Coverage Updated",
+        description: `Suggested coverage for ${value} industry has been applied.`,
+      });
+    }
+  };
+
+  // Calculate minimum years of experience based on certification level
+  const calculateMinExperience = () => {
+    const today = new Date();
+    const completionDate = new Date(formData.timeline);
+    const yearsSinceCompletion = Math.floor(
+      (today.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24 * 365)
+    );
+    return Math.max(0, 3 - yearsSinceCompletion);
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn">
       <div className="space-y-2">
         <Label htmlFor="industry">Industry Segment</Label>
-        <Select onValueChange={(value) => onChange("industry", value)}>
+        <Select onValueChange={handleIndustryChange} value={formData.industry}>
           <SelectTrigger>
             <SelectValue placeholder="Select your industry segment" />
           </SelectTrigger>
@@ -65,7 +97,13 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           onChange={(e) => onChange("amount", e.target.value)}
           className="transition-all duration-200 focus:ring-accent"
           placeholder="Enter years of experience"
+          min={calculateMinExperience()}
         />
+        {calculateMinExperience() > 0 && (
+          <p className="text-sm text-amber-600">
+            Minimum {calculateMinExperience()} years of experience required based on completion date
+          </p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="completionDate">Course Completion Date</Label>
@@ -75,6 +113,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           value={formData.timeline}
           onChange={(e) => onChange("timeline", e.target.value)}
           className="transition-all duration-200 focus:ring-accent"
+          max={new Date().toISOString().split("T")[0]}
         />
         <p className="text-sm text-gray-500">Application must be made within 5 years of completion</p>
       </div>
