@@ -28,7 +28,8 @@ serve(async (req) => {
     const pdfResponse = await fetch(fileUrl, {
       headers: {
         'Accept': 'application/pdf',
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'User-Agent': 'Supabase Function'
       }
     })
     

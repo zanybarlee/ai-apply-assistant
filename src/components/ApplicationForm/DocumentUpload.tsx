@@ -43,7 +43,7 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
 
       console.log('File uploaded successfully, URL:', publicUrl);
 
-      // Process the PDF using Edge Function with retries
+      // Process the PDF using Edge Function with retries and timeout
       console.log('Calling process-pdf function...');
       const maxRetries = 3;
       let attempt = 0;
@@ -52,9 +52,15 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
 
       while (attempt < maxRetries) {
         try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
           const response = await supabase.functions.invoke('process-pdf', {
             body: { fileUrl: publicUrl },
+            signal: controller.signal,
           });
+          
+          clearTimeout(timeout);
           
           if (response.error) throw response.error;
           processedData = response.data;
@@ -64,7 +70,9 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
           processError = error;
           attempt++;
           if (attempt < maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+            // Exponential backoff with jitter
+            const backoff = Math.min(1000 * Math.pow(2, attempt) + Math.random() * 1000, 10000);
+            await new Promise(resolve => setTimeout(resolve, backoff));
           }
         }
       }
