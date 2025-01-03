@@ -31,12 +31,11 @@ export const DocumentAnalysis = () => {
 
     setIsAnalyzing(true);
     try {
-      // Initialize the zero-shot classification pipeline with a simpler model
+      // Initialize the zero-shot classification pipeline
       const classifier = await pipeline(
         "zero-shot-classification",
         "facebook/bart-large-mnli",
         {
-          quantized: false,
           device: "webgpu",
           revision: "main"
         }
