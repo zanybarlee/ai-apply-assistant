@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from "@/components/ui/navigation-menu";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
@@ -15,9 +16,9 @@ const Index = () => {
               </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuLink className="text-secondary hover:text-primary transition-colors" href="#">
+              <Link to="/certification" className="text-secondary hover:text-primary transition-colors">
                 For Individuals
-              </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuLink className="text-secondary hover:text-primary transition-colors" href="#">
@@ -54,9 +55,11 @@ const Index = () => {
             <p className="text-white/90 text-lg">
               Discover how we're transforming the financial sector workforce for a sustainable future.
             </p>
-            <Button className="bg-primary text-secondary hover:bg-primary/90">
-              Find out more
-            </Button>
+            <Link to="/certification">
+              <Button className="bg-primary text-secondary hover:bg-primary/90">
+                Apply for Certification
+              </Button>
+            </Link>
           </div>
           <div className="relative">
             <img 
