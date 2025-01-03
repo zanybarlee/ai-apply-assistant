@@ -1,0 +1,47 @@
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+interface CertificationLevelProps {
+  formData: {
+    certificationLevel: string;
+    yearsOfExperience: string;
+  };
+  onChange: (field: string, value: string) => void;
+}
+
+export const CertificationLevel = ({ formData, onChange }: CertificationLevelProps) => {
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      <div className="space-y-4">
+        <Label>Select Certification Level</Label>
+        <RadioGroup
+          value={formData.certificationLevel}
+          onValueChange={(value) => onChange("certificationLevel", value)}
+          className="space-y-4"
+        >
+          <div className="flex items-start space-x-3">
+            <RadioGroupItem value="qualified" id="qualified" />
+            <div className="space-y-1">
+              <Label htmlFor="qualified" className="font-medium">IBF Qualified (Level 1)</Label>
+              <p className="text-sm text-gray-500">For new entrants with less than 3 years of experience</p>
+            </div>
+          </div>
+          <div className="flex items-start space-x-3">
+            <RadioGroupItem value="advanced-2" id="advanced-2" />
+            <div className="space-y-1">
+              <Label htmlFor="advanced-2" className="font-medium">IBF Advanced (Level 2)</Label>
+              <p className="text-sm text-gray-500">For practitioners with 3 to 7 years of relevant experience</p>
+            </div>
+          </div>
+          <div className="flex items-start space-x-3">
+            <RadioGroupItem value="advanced-3" id="advanced-3" />
+            <div className="space-y-1">
+              <Label htmlFor="advanced-3" className="font-medium">IBF Advanced (Level 3)</Label>
+              <p className="text-sm text-gray-500">For practitioners with 8+ years of relevant experience</p>
+            </div>
+          </div>
+        </RadioGroup>
+      </div>
+    </div>
+  );
+};
