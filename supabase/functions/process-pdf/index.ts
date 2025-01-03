@@ -24,12 +24,12 @@ serve(async (req) => {
       throw new Error('No file URL provided')
     }
 
-    // Download the PDF file with proper headers
+    // Download the PDF file with proper headers and no-cors mode
     const pdfResponse = await fetch(fileUrl, {
       headers: {
-        'Accept': 'application/pdf',
-        'Content-Type': 'application/pdf',
-      }
+        'Accept': '*/*',
+      },
+      mode: 'no-cors'
     })
     
     if (!pdfResponse.ok) {
