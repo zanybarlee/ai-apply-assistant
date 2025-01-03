@@ -7,6 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
+type ZeroShotResult = {
+  sequence: string;
+  labels: string[];
+  scores: number[];
+};
+
 export const DocumentAnalysis = () => {
   const [text, setText] = useState("");
   const [analysis, setAnalysis] = useState<{ label: string; score: number }[]>([]);
@@ -45,7 +51,7 @@ export const DocumentAnalysis = () => {
       // Perform classification
       const result = await classifier(text, labels, {
         multi_label: true,
-      });
+      }) as ZeroShotResult;
 
       // Format and set results
       const formattedResults = labels.map((label, index) => ({
