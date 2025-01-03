@@ -31,11 +31,11 @@ export const DocumentAnalysis = () => {
 
     setIsAnalyzing(true);
     try {
-      // Initialize the zero-shot classification pipeline
+      // Initialize the zero-shot classification pipeline with WebGPU
       const classifier = await pipeline(
         "zero-shot-classification",
         "Xenova/all-MiniLM-L6-v2",
-        { device: "cpu" }
+        { device: "webgpu" }
       );
 
       // Define possible categories relevant to IBF certification
