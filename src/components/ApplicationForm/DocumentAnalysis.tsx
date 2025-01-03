@@ -31,11 +31,15 @@ export const DocumentAnalysis = () => {
 
     setIsAnalyzing(true);
     try {
-      // Initialize the zero-shot classification pipeline with WebGPU
+      // Initialize the zero-shot classification pipeline with a simpler model
       const classifier = await pipeline(
         "zero-shot-classification",
-        "Xenova/all-MiniLM-L6-v2",
-        { device: "webgpu" }
+        "facebook/bart-large-mnli",
+        {
+          quantized: false,
+          device: "webgpu",
+          revision: "main"
+        }
       );
 
       // Define possible categories relevant to IBF certification
@@ -48,13 +52,17 @@ export const DocumentAnalysis = () => {
         "Compliance",
       ];
 
+      console.log("Starting classification...");
       // Perform classification
       const result = await classifier(text, labels, {
         multi_label: true,
+        hypothesis_template: "This text is about {}."
       }) as ZeroShotResult;
 
+      console.log("Classification result:", result);
+
       // Format and set results
-      const formattedResults = labels.map((label, index) => ({
+      const formattedResults = result.labels.map((label, index) => ({
         label,
         score: Number(result.scores[index]),
       })).sort((a, b) => b.score - a.score);
