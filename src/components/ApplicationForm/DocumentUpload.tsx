@@ -23,22 +23,28 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
 
     setIsUploading(true);
     try {
+      console.log('Starting file upload process...');
+      
       // Upload file to Supabase Storage
       const fileName = `${crypto.randomUUID()}.pdf`;
       const { error: uploadError, data } = await supabase.storage
         .from('certification_documents')
         .upload(fileName, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw new Error(`Failed to upload file: ${uploadError.message}`);
+      }
 
       // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from('certification_documents')
         .getPublicUrl(fileName);
 
-      console.log('Uploaded file URL:', publicUrl);
+      console.log('File uploaded successfully, URL:', publicUrl);
 
       // Process the PDF using Edge Function
+      console.log('Calling process-pdf function...');
       const { data: processedData, error: processError } = await supabase.functions.invoke('process-pdf', {
         body: { fileUrl: publicUrl },
       });
@@ -52,6 +58,7 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
         throw new Error('No text extracted from PDF');
       }
 
+      console.log('PDF processed successfully');
       onTextExtracted(processedData.text);
 
       toast({
