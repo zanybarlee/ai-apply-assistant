@@ -47,8 +47,11 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        text: data.text,
-        status: 'success'
+        data: {
+          text: data.text,
+          status: 'success'
+        },
+        error: null
       }),
       { 
         headers: { 
@@ -63,9 +66,12 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        details: error.stack,
-        status: 'error'
+        data: null,
+        error: {
+          message: error.message,
+          details: error.stack,
+          status: 'error'
+        }
       }),
       { 
         headers: { 
