@@ -36,7 +36,7 @@ export const AIAssistant = () => {
     try {
       const generator = await pipeline(
         'text-generation',
-        'onnx-community/distilgpt2',
+        'Xenova/distilgpt2',  // Using a public model from Xenova
         { device: 'cpu' }
       );
 
