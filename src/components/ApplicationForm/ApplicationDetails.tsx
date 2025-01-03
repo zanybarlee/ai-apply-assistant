@@ -49,11 +49,14 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const date = new Date(e.target.value);
+    const selectedDate = new Date(e.target.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time part for accurate date comparison
+    
     const fiveYearsAgo = new Date();
     fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
 
-    if (date > new Date()) {
+    if (selectedDate > today) {
       toast({
         title: "Invalid Date",
         description: "Completion date cannot be in the future.",
@@ -62,7 +65,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
       return;
     }
 
-    if (date < fiveYearsAgo) {
+    if (selectedDate < fiveYearsAgo) {
       toast({
         title: "Date Out of Range",
         description: "Application must be made within 5 years of completion.",
@@ -73,6 +76,9 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
 
     onChange("timeline", e.target.value);
   };
+
+  // Get today's date in YYYY-MM-DD format for max attribute
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -140,7 +146,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           value={formData.timeline}
           onChange={handleDateChange}
           className="transition-all duration-200 focus:ring-accent"
-          max={new Date().toISOString().split("T")[0]}
+          max={today}
           placeholder="dd/mm/yyyy"
         />
         <p className="text-sm text-gray-500">Application must be made within 5 years of completion</p>
