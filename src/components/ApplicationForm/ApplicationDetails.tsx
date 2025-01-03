@@ -56,10 +56,13 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
     const fiveYearsAgo = new Date();
     fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
 
-    if (selectedDate > today) {
+    // Get the maximum allowed date (end of 2024)
+    const maxAllowedDate = new Date('2024-12-31');
+
+    if (selectedDate > maxAllowedDate) {
       toast({
         title: "Invalid Date",
-        description: "Completion date cannot be in the future.",
+        description: "Completion date cannot be beyond 2024.",
         variant: "destructive",
       });
       return;
@@ -77,8 +80,8 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
     onChange("timeline", e.target.value);
   };
 
-  // Get today's date in YYYY-MM-DD format for max attribute
-  const today = new Date().toISOString().split('T')[0];
+  // Set max date to end of 2024
+  const maxDate = "2024-12-31";
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -146,7 +149,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           value={formData.timeline}
           onChange={handleDateChange}
           className="transition-all duration-200 focus:ring-accent"
-          max={today}
+          max={maxDate}
           placeholder="dd/mm/yyyy"
         />
         <p className="text-sm text-gray-500">Application must be made within 5 years of completion</p>
