@@ -4,6 +4,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+interface ProcessPDFResponse {
+  data: {
+    text: string;
+    status: string;
+  };
+  error: null;
+}
+
 export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: string) => void }) => {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
@@ -53,7 +61,7 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
       while (attempt < maxRetries) {
         try {
           // Set up timeout using Promise.race
-          const functionPromise = supabase.functions.invoke('process-pdf', {
+          const functionPromise = supabase.functions.invoke<ProcessPDFResponse>('process-pdf', {
             body: { fileUrl: publicUrl },
           });
 
@@ -61,9 +69,9 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
             setTimeout(() => reject(new Error('Function timeout')), 30000);
           });
 
-          const response = await Promise.race([functionPromise, timeoutPromise]);
+          const response = await Promise.race([functionPromise, timeoutPromise]) as ProcessPDFResponse;
           
-          if ('error' in response) throw response.error;
+          if ('error' in response && response.error) throw response.error;
           processedData = response.data;
           break;
         } catch (error) {
