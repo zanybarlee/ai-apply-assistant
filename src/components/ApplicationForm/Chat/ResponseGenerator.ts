@@ -1,13 +1,18 @@
 import { TextGenerationResult } from "./types";
 import { supabase } from "@/integrations/supabase/client";
 
+interface ServiceConfigResponse {
+  data: { OPENAI_API_KEY: string } | null;
+  error: Error | null;
+}
+
 export const generateResponse = async (input: string): Promise<string> => {
   try {
     // Fetch the API key from Supabase config
     const { data, error: configError } = await supabase
       .rpc('get_service_config', {
         service_name: 'OPENAI_API_KEY'
-      });
+      }) as unknown as ServiceConfigResponse;
 
     if (configError || !data?.OPENAI_API_KEY) {
       console.error('Error fetching OpenAI API key:', configError);
