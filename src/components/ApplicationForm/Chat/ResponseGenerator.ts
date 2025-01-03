@@ -6,9 +6,10 @@ export const generateResponse = async (input: string): Promise<string> => {
     console.log('Fetching OpenAI API key from Supabase...');
     
     const { data, error } = await supabase
-      .rpc('get_service_config', {
-        service_name: 'OPENAI_API_KEY'
-      });
+      .from('application_settings')
+      .select('value')
+      .eq('key', 'OPENAI_API_KEY')
+      .single();
 
     if (error) {
       console.error('Error fetching OpenAI API key:', error);
@@ -17,15 +18,8 @@ export const generateResponse = async (input: string): Promise<string> => {
 
     console.log('API key response:', data ? 'Received' : 'Not found');
 
-    if (!data || typeof data !== 'object') {
-      console.error('Invalid response format from get_service_config');
-      return "I apologize, but I'm having trouble accessing my configuration. Please try again in a moment.";
-    }
-
-    const apiKey = Object.values(data)[0];
-    
-    if (!apiKey || typeof apiKey !== 'string') {
-      console.error('OpenAI API key not found or invalid in config');
+    if (!data || !data.value) {
+      console.error('OpenAI API key not found in application_settings');
       return "I apologize, but I'm having trouble accessing my configuration. Please ensure the OpenAI API key is properly set.";
     }
 
@@ -35,7 +29,7 @@ export const generateResponse = async (input: string): Promise<string> => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Authorization': `Bearer ${data.value}`
       },
       body: JSON.stringify({
         model: 'gpt-4',
