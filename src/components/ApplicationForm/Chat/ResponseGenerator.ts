@@ -4,10 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 export const generateResponse = async (input: string): Promise<string> => {
   try {
     // Fetch the API key from Supabase config
-    const { data: { OPENAI_API_KEY }, error: configError } = await supabase
-      .rpc('get_service_config', { service_name: 'OPENAI_API_KEY' });
+    const { data, error: configError } = await supabase
+      .rpc('get_service_config', {
+        service_name: 'OPENAI_API_KEY'
+      }) as { data: { OPENAI_API_KEY: string } | null, error: Error | null };
 
-    if (configError || !OPENAI_API_KEY) {
+    if (configError || !data?.OPENAI_API_KEY) {
       console.error('Error fetching OpenAI API key:', configError);
       return "Please ensure your OpenAI API key is properly configured in the project settings.";
     }
@@ -16,7 +18,7 @@ export const generateResponse = async (input: string): Promise<string> => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`
+        'Authorization': `Bearer ${data.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
         model: 'gpt-4',
@@ -41,8 +43,8 @@ export const generateResponse = async (input: string): Promise<string> => {
       return "I apologize, but I'm having trouble processing your request. Please try again or refer to the IBF guidelines.";
     }
 
-    const data = await response.json();
-    return data.choices[0].message.content;
+    const data_response = await response.json();
+    return data_response.choices[0].message.content;
   } catch (error) {
     console.error('Error generating response:', error);
     return "I apologize, but I'm having trouble processing your request. Please try again or refer to the IBF guidelines.";
