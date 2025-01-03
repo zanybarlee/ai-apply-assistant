@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { PersonalInfo } from "@/components/ApplicationForm/PersonalInfo";
 import { ApplicationDetails } from "@/components/ApplicationForm/ApplicationDetails";
 import { CertificationLevel } from "@/components/ApplicationForm/CertificationLevel";
 import { Review } from "@/components/ApplicationForm/Review";
+import { validatePersonalInfo, validateCertificationLevel, validateApplicationDetails } from "@/utils/certificationValidation";
 
 const STEPS = ["Personal Info", "Certification Level", "Application Details", "Review"];
 
@@ -22,88 +23,22 @@ const Index = () => {
     purpose: "",
     amount: "",
     timeline: "",
+    industry: "",
+    tscsCovered: 0,
   });
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const validateStep = () => {
     switch (currentStep) {
-      case 0: // Personal Info
-        if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
-          toast({
-            title: "Missing Information",
-            description: "Please fill in all personal information fields.",
-            variant: "destructive",
-          });
-          return false;
-        }
-        if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-          toast({
-            title: "Invalid Email",
-            description: "Please enter a valid email address.",
-            variant: "destructive",
-          });
-          return false;
-        }
-        return true;
-
-      case 1: // Certification Level
-        if (!formData.certificationLevel) {
-          toast({
-            title: "Missing Selection",
-            description: "Please select a certification level.",
-            variant: "destructive",
-          });
-          return false;
-        }
-        return true;
-
-      case 2: // Application Details
-        const yearsOfExperience = parseInt(formData.amount);
-        
-        if (!formData.purpose || !formData.amount || !formData.timeline) {
-          toast({
-            title: "Missing Information",
-            description: "Please fill in all application details.",
-            variant: "destructive",
-          });
-          return false;
-        }
-
-        // Certification level-specific experience validation
-        if (formData.certificationLevel === "advanced-2" && yearsOfExperience < 3) {
-          toast({
-            title: "Experience Requirement",
-            description: "IBF Advanced (Level 2) requires at least 3 years of experience.",
-            variant: "destructive",
-          });
-          return false;
-        }
-
-        if (formData.certificationLevel === "advanced-3" && yearsOfExperience < 8) {
-          toast({
-            title: "Experience Requirement",
-            description: "IBF Advanced (Level 3) requires at least 8 years of experience.",
-            variant: "destructive",
-          });
-          return false;
-        }
-
-        // Validate completion date is in the future
-        const completionDate = new Date(formData.timeline);
-        if (completionDate <= new Date()) {
-          toast({
-            title: "Invalid Date",
-            description: "Course completion date must be in the future.",
-            variant: "destructive",
-          });
-          return false;
-        }
-
-        return true;
-
+      case 0:
+        return validatePersonalInfo(formData);
+      case 1:
+        return validateCertificationLevel(formData);
+      case 2:
+        return validateApplicationDetails(formData);
       default:
         return true;
     }
@@ -142,6 +77,8 @@ const Index = () => {
       purpose: "",
       amount: "",
       timeline: "",
+      industry: "",
+      tscsCovered: 0,
     });
     setCurrentStep(0);
   };

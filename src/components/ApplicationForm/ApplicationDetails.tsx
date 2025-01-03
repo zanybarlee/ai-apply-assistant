@@ -8,8 +8,10 @@ interface ApplicationDetailsProps {
     purpose: string;
     amount: string;
     timeline: string;
+    industry?: string;
+    tscsCovered?: number;
   };
-  onChange: (field: string, value: string) => void;
+  onChange: (field: string, value: string | number) => void;
 }
 
 export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsProps) => {
@@ -41,6 +43,20 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
         />
       </div>
       <div className="space-y-2">
+        <Label htmlFor="tscsCovered">TSCs Coverage (%)</Label>
+        <Input
+          id="tscsCovered"
+          type="number"
+          min="0"
+          max="100"
+          value={formData.tscsCovered || ""}
+          onChange={(e) => onChange("tscsCovered", parseInt(e.target.value))}
+          className="transition-all duration-200 focus:ring-accent"
+          placeholder="Enter percentage of TSCs covered"
+        />
+        <p className="text-sm text-gray-500">Must cover at least 75% of TSCs for your role</p>
+      </div>
+      <div className="space-y-2">
         <Label htmlFor="experience">Years of Experience</Label>
         <Input
           id="experience"
@@ -60,6 +76,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           onChange={(e) => onChange("timeline", e.target.value)}
           className="transition-all duration-200 focus:ring-accent"
         />
+        <p className="text-sm text-gray-500">Application must be made within 5 years of completion</p>
       </div>
       <div className="space-y-2">
         <Label htmlFor="additionalInfo">Additional Information</Label>
