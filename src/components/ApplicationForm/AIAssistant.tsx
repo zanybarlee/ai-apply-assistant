@@ -2,16 +2,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle } from "lucide-react";
-import { pipeline } from "@huggingface/transformers";
 import { ChatMessage } from "./Chat/ChatMessage";
 import { ChatInput } from "./Chat/ChatInput";
-import { type Message, type TextGenerationResult } from "./Chat/types";
+import { type Message } from "./Chat/types";
 import { AnalysisResults } from "./AnalysisResults";
-
-type ClassificationResult = {
-  label: string;
-  score: number;
-}[];
+import { analyzeApplication } from "./Chat/ApplicationAnalyzer";
+import { generateResponse } from "./Chat/ResponseGenerator";
+import { type AnalysisResult } from "./Chat/AITypes";
 
 export const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,35 +20,7 @@ export const AIAssistant = () => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [analysis, setAnalysis] = useState<{ label: string; score: number }[]>([]);
-
-  const analyzeApplication = async (text: string) => {
-    try {
-      const classifier = await pipeline(
-        'text-classification',
-        'Xenova/distilbert-base-uncased-finetuned-sst-2-english',
-        { device: "webgpu" }
-      );
-
-      const result = await classifier(text) as ClassificationResult;
-      const analysisResults = [
-        {
-          label: "Application Completeness",
-          score: result[0]?.score || 0
-        },
-        {
-          label: "Eligibility Match",
-          score: Math.min(1, (result[0]?.score || 0) * 1.2)
-        }
-      ];
-
-      setAnalysis(analysisResults);
-      return analysisResults;
-    } catch (error) {
-      console.error('Error analyzing application:', error);
-      return [];
-    }
-  };
+  const [analysis, setAnalysis] = useState<AnalysisResult[]>([]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -62,28 +31,7 @@ export const AIAssistant = () => {
     setIsLoading(true);
 
     try {
-      const generator = await pipeline(
-        'text-generation',
-        'Xenova/distilgpt2',
-        { device: "webgpu" }
-      );
-
-      const prompt = `Answer this question about IBF certification: ${input}
-      Context: IBF certification requires 75% TSCs coverage, completion of IBF-STS accredited courses, and application within 5 years.
-      Level 1 (Qualified) has no minimum experience, Level 2 needs 3-7 years, Level 3 needs 8+ years.`;
-
-      const result = await generator(prompt, {
-        max_length: 100,
-        num_return_sequences: 1,
-      }) as TextGenerationResult | TextGenerationResult[];
-
-      const generatedText = Array.isArray(result) 
-        ? result[0]?.generated_text 
-        : result?.generated_text;
-
-      const responseText = generatedText?.split(prompt)[1]?.trim() || 
-        "I apologize, but I couldn't generate a specific response. Please refer to the IBF guidelines for accurate information.";
-
+      const responseText = await generateResponse(input);
       const assistantMessage = {
         role: 'assistant' as const,
         content: responseText
@@ -91,13 +39,12 @@ export const AIAssistant = () => {
 
       setMessages(prev => [...prev, assistantMessage]);
 
-      // Analyze the application context if the input contains relevant information
       if (input.length > 50) {
-        await analyzeApplication(input);
+        const analysisResults = await analyzeApplication(input);
+        setAnalysis(analysisResults);
       }
-
     } catch (error) {
-      console.error('Error generating response:', error);
+      console.error('Error in chat interaction:', error);
       const errorMessage = {
         role: 'assistant' as const,
         content: "I apologize, but I'm having trouble processing your request. Please try again or refer to the IBF guidelines for accurate information."
