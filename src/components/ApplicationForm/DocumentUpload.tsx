@@ -43,18 +43,34 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
 
       console.log('File uploaded successfully, URL:', publicUrl);
 
-      // Process the PDF using Edge Function
+      // Process the PDF using Edge Function with retries
       console.log('Calling process-pdf function...');
-      const { data: processedData, error: processError } = await supabase.functions.invoke('process-pdf', {
-        body: { fileUrl: publicUrl },
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const maxRetries = 3;
+      let attempt = 0;
+      let processedData = null;
+      let processError = null;
 
-      if (processError) {
-        console.error('Edge function error:', processError);
-        throw new Error(`Failed to process PDF: ${processError.message}`);
+      while (attempt < maxRetries) {
+        try {
+          const response = await supabase.functions.invoke('process-pdf', {
+            body: { fileUrl: publicUrl },
+          });
+          
+          if (response.error) throw response.error;
+          processedData = response.data;
+          break;
+        } catch (error) {
+          console.error(`Attempt ${attempt + 1} failed:`, error);
+          processError = error;
+          attempt++;
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+          }
+        }
+      }
+
+      if (processError && !processedData) {
+        throw new Error(`Failed to process PDF after ${maxRetries} attempts: ${processError.message}`);
       }
 
       if (!processedData?.text) {

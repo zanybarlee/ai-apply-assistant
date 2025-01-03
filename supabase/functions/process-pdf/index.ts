@@ -24,10 +24,11 @@ serve(async (req) => {
       throw new Error('No file URL provided')
     }
 
-    // Download the PDF file
+    // Download the PDF file with proper headers
     const pdfResponse = await fetch(fileUrl, {
       headers: {
-        'Accept': 'application/pdf'
+        'Accept': 'application/pdf',
+        'Cache-Control': 'no-cache'
       }
     })
     
