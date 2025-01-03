@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +8,7 @@ import { CertificationLevel } from "@/components/ApplicationForm/CertificationLe
 import { Review } from "@/components/ApplicationForm/Review";
 import { AIAssistant } from "@/components/ApplicationForm/AIAssistant";
 import { validatePersonalInfo, validateCertificationLevel, validateApplicationDetails } from "@/utils/certificationValidation";
+import { savePreferences, getPreferences } from "@/utils/userPreferences";
 
 const STEPS = ["Personal Info", "Certification Level", "Application Details", "Review"];
 
@@ -28,8 +29,32 @@ const Index = () => {
     tscsCovered: 0,
   });
 
+  // Load saved preferences on initial render
+  useEffect(() => {
+    const prefs = getPreferences();
+    if (prefs.lastVisitedStep !== undefined) {
+      setCurrentStep(prefs.lastVisitedStep);
+    }
+    if (prefs.industry || prefs.certificationLevel) {
+      setFormData(prev => ({
+        ...prev,
+        industry: prefs.industry || prev.industry,
+        certificationLevel: prefs.certificationLevel || prev.certificationLevel,
+      }));
+    }
+  }, []);
+
   const handleInputChange = (field: string, value: string | number) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const newData = { ...prev, [field]: value };
+      
+      // Save relevant preferences when they change
+      if (field === 'industry' || field === 'certificationLevel') {
+        savePreferences({ [field]: value });
+      }
+      
+      return newData;
+    });
   };
 
   const validateStep = () => {
@@ -51,7 +76,9 @@ const Index = () => {
     }
 
     if (currentStep < STEPS.length - 1) {
-      setCurrentStep((prev) => prev + 1);
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      savePreferences({ lastVisitedStep: nextStep });
     } else {
       handleSubmit();
     }
@@ -59,7 +86,9 @@ const Index = () => {
 
   const handleBack = () => {
     if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+      savePreferences({ lastVisitedStep: prevStep });
     }
   };
 
@@ -68,6 +97,8 @@ const Index = () => {
       title: "Application Submitted",
       description: "We'll review your certification application and get back to you soon.",
     });
+    // Clear preferences after successful submission
+    savePreferences({ lastVisitedStep: 0 });
     setFormData({
       firstName: "",
       lastName: "",
@@ -105,7 +136,9 @@ const Index = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-primary mb-2">IBF Certification Application</h1>
           <p className="text-gray-600">
-            Please complete the form below to apply for IBF certification
+            {currentStep > 0 && formData.firstName 
+              ? `Welcome back, ${formData.firstName}! Continue your application.`
+              : "Please complete the form below to apply for IBF certification"}
           </p>
         </div>
 
