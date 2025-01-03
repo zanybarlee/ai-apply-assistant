@@ -118,31 +118,33 @@ export const FormContainer = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#002B22] to-[#004D40] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <FormHeader currentStep={currentStep} firstName={formData.firstName} />
-        <Card className="p-6 sm:p-8 bg-white shadow-sm">
-          {renderStep()}
-          <FormNavigation 
-            currentStep={currentStep}
-            onNext={() => {
-              if (!validateStep()) return;
-              if (currentStep < STEPS.length - 1) {
-                const nextStep = currentStep + 1;
-                setCurrentStep(nextStep);
-                savePreferences({ lastVisitedStep: nextStep });
-              } else {
-                handleSubmit();
-              }
-            }}
-            onBack={() => {
-              if (currentStep > 0) {
-                const prevStep = currentStep - 1;
-                setCurrentStep(prevStep);
-                savePreferences({ lastVisitedStep: prevStep });
-              }
-            }}
-          />
+        <Card className="p-6 sm:p-8 bg-white/10 backdrop-blur-lg border border-white/20 shadow-xl">
+          <div className="space-y-6">
+            {renderStep()}
+            <FormNavigation 
+              currentStep={currentStep}
+              onNext={() => {
+                if (!validateStep()) return;
+                if (currentStep < STEPS.length - 1) {
+                  const nextStep = currentStep + 1;
+                  setCurrentStep(nextStep);
+                  savePreferences({ lastVisitedStep: nextStep });
+                } else {
+                  handleSubmit();
+                }
+              }}
+              onBack={() => {
+                if (currentStep > 0) {
+                  const prevStep = currentStep - 1;
+                  setCurrentStep(prevStep);
+                  savePreferences({ lastVisitedStep: prevStep });
+                }
+              }}
+            />
+          </div>
         </Card>
       </div>
     </div>

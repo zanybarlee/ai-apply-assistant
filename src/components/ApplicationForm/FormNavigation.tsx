@@ -14,13 +14,13 @@ export const FormNavigation = ({ currentStep, onNext, onBack }: FormNavigationPr
         variant="outline"
         onClick={onBack}
         disabled={currentStep === 0}
-        className="transition-all duration-200 hover:bg-gray-100"
+        className="bg-transparent border-white/30 text-white hover:bg-white/10 transition-all duration-200"
       >
         Back
       </Button>
       <Button
         onClick={onNext}
-        className="bg-primary hover:bg-primary/90 transition-all duration-200"
+        className="bg-[#C5D82D] hover:bg-[#D4E157] text-gray-900 transition-all duration-200"
       >
         {currentStep === STEPS.length - 1 ? "Submit" : "Next"}
       </Button>
