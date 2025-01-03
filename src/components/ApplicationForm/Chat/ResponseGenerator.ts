@@ -5,30 +5,30 @@ export const generateResponse = async (input: string): Promise<string> => {
   try {
     console.log('Starting response generation process...');
     
-    // Fetch the API key directly from application_settings
-    const { data, error } = await supabase
+    // Fetch the API key from application_settings
+    const { data: settingsData, error: settingsError } = await supabase
       .from('application_settings')
-      .select('value')
+      .select('*')
       .eq('key', 'OPENAI_API_KEY')
       .single();
 
-    if (error) {
-      console.error('Error fetching OpenAI API key:', error);
-      return "I apologize, but I'm having trouble accessing my configuration. Please try again in a moment.";
+    if (settingsError) {
+      console.error('Error fetching settings:', settingsError);
+      throw new Error('Failed to fetch API key from settings');
     }
 
-    if (!data?.value) {
-      console.error('OpenAI API key not found or empty');
-      return "I apologize, but the OpenAI API key appears to be missing or invalid. Please ensure it's properly configured.";
+    if (!settingsData || !settingsData.value) {
+      console.error('API key not found in settings');
+      throw new Error('OpenAI API key not found in settings');
     }
 
-    console.log('Making request to OpenAI API...');
+    console.log('API key retrieved successfully');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${data.value}`
+        'Authorization': `Bearer ${settingsData.value}`
       },
       body: JSON.stringify({
         model: 'gpt-4',
@@ -50,14 +50,14 @@ export const generateResponse = async (input: string): Promise<string> => {
     if (!response.ok) {
       const errorData = await response.json();
       console.error('OpenAI API error:', errorData);
-      return "I apologize, but I'm having trouble processing your request. Please try again or refer to the IBF guidelines.";
+      throw new Error('Failed to get response from OpenAI');
     }
 
-    const data_response = await response.json();
+    const data = await response.json();
     console.log('Successfully received response from OpenAI');
-    return data_response.choices[0].message.content;
+    return data.choices[0].message.content;
   } catch (error) {
-    console.error('Error generating response:', error);
-    return "I apologize, but I'm having trouble processing your request. Please try again or refer to the IBF guidelines.";
+    console.error('Error in generateResponse:', error);
+    return "I apologize, but I'm having trouble accessing my configuration. Please ensure the OpenAI API key is properly set in the application settings.";
   }
 };
