@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const generateResponse = async (input: string): Promise<string> => {
   try {
-    console.log('Fetching OpenAI API key from Supabase...');
+    console.log('Starting response generation process...');
     
     // First, check if we can connect to Supabase
     const { data: testData, error: testError } = await supabase
@@ -15,6 +15,8 @@ export const generateResponse = async (input: string): Promise<string> => {
       console.error('Error connecting to Supabase:', testError);
       return "I apologize, but I'm having trouble connecting to the database. Please try again in a moment.";
     }
+
+    console.log('Successfully connected to Supabase, fetching API key...');
 
     // Now fetch the API key
     const { data, error } = await supabase
@@ -28,7 +30,11 @@ export const generateResponse = async (input: string): Promise<string> => {
       return "I apologize, but I'm having trouble accessing my configuration. Please try again in a moment.";
     }
 
-    console.log('API key response status:', data ? 'Found' : 'Not found');
+    console.log('API key fetch response:', {
+      found: !!data,
+      hasValue: !!(data && data.value),
+      isEmpty: data && data.value ? data.value.trim() === '' : true
+    });
 
     if (!data || !data.value) {
       console.error('OpenAI API key not found in application_settings');
@@ -72,6 +78,7 @@ export const generateResponse = async (input: string): Promise<string> => {
     }
 
     const data_response = await response.json();
+    console.log('Successfully received response from OpenAI');
     return data_response.choices[0].message.content;
   } catch (error) {
     console.error('Error generating response:', error);
