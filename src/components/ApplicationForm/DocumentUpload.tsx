@@ -34,19 +34,32 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
         .from('certification_documents')
         .getPublicUrl(fileName);
 
-      // For demonstration, we're just passing the file name as text
-      // In a real application, you would use a PDF parsing library or service
-      onTextExtracted(`Document uploaded: ${file.name}`);
+      // Process the PDF using our Edge Function
+      const response = await fetch(`${process.env.SUPABASE_URL}/functions/v1/process-pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ fileUrl: publicUrl }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to process PDF');
+      }
+
+      const { text } = await response.json();
+      onTextExtracted(text);
 
       toast({
-        title: "Document Uploaded",
-        description: "Your document has been uploaded successfully.",
+        title: "Document Processed",
+        description: "Your document has been uploaded and analyzed successfully.",
       });
     } catch (error) {
       console.error('Upload error:', error);
       toast({
-        title: "Upload Failed",
-        description: "There was an error uploading your document. Please try again.",
+        title: "Processing Failed",
+        description: "There was an error processing your document. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -81,7 +94,7 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
       {isUploading && (
         <div className="flex items-center justify-center">
           <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          <span>Uploading...</span>
+          <span>Processing document...</span>
         </div>
       )}
     </div>
