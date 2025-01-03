@@ -7,7 +7,7 @@ export const generateResponse = async (input: string): Promise<string> => {
     const { data, error: configError } = await supabase
       .rpc('get_service_config', {
         service_name: 'OPENAI_API_KEY'
-      }) as { data: { OPENAI_API_KEY: string } | null, error: Error | null };
+      });
 
     if (configError || !data?.OPENAI_API_KEY) {
       console.error('Error fetching OpenAI API key:', configError);
@@ -21,7 +21,7 @@ export const generateResponse = async (input: string): Promise<string> => {
         'Authorization': `Bearer ${data.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
