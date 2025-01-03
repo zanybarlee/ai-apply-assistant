@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
+import { parse } from 'npm:pdf-parse'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -26,34 +26,13 @@ serve(async (req) => {
       throw new Error(`Failed to download PDF: ${response.status} ${response.statusText}`)
     }
     
-    const pdfData = await response.arrayBuffer()
-    console.log('PDF downloaded, size:', pdfData.byteLength)
+    const pdfBuffer = await response.arrayBuffer()
+    console.log('PDF downloaded, size:', pdfBuffer.byteLength)
 
-    // Initialize PDF.js
-    const pdfjs = await import('https://cdn.skypack.dev/pdfjs-dist@3.11.174/build/pdf.min.js')
-    const pdfjsWorker = await import('https://cdn.skypack.dev/pdfjs-dist@3.11.174/build/pdf.worker.min.js')
+    // Parse PDF content
+    const data = await parse(new Uint8Array(pdfBuffer))
+    const text = data.text
     
-    // Configure PDF.js worker
-    if (typeof globalThis.window === 'undefined') {
-      globalThis.window = { pdfjsWorker } as any;
-    }
-    pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
-
-    // Load the PDF document
-    const loadingTask = pdfjs.getDocument({ data: pdfData });
-    const pdf = await loadingTask.promise;
-    console.log('PDF loaded, pages:', pdf.numPages)
-
-    // Extract text from all pages
-    let text = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      const pageText = content.items.map((item: any) => item.str).join(' ');
-      text += pageText + '\n';
-      console.log(`Processed page ${i}/${pdf.numPages}`);
-    }
-
     console.log('Text extraction complete, length:', text.length)
 
     return new Response(
