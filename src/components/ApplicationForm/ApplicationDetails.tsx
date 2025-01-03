@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { DocumentAnalysis } from "./DocumentAnalysis";
+import { DocumentAnalyzer } from "./DocumentAnalyzer";
 
 interface ApplicationDetailsProps {
   formData: {
@@ -159,7 +159,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
 
       <div className="border-t pt-6">
         <h3 className="text-lg font-semibold mb-4">Document Analysis</h3>
-        <DocumentAnalysis />
+        <DocumentAnalyzer />
       </div>
     </div>
   );

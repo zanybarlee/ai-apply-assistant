@@ -24,6 +24,30 @@ export type Database = {
         }
         Relationships: []
       }
+      document_analyses: {
+        Row: {
+          analysis_results: Json
+          created_at: string | null
+          document_text: string
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          analysis_results: Json
+          created_at?: string | null
+          document_text: string
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          analysis_results?: Json
+          created_at?: string | null
+          document_text?: string
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
