@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
 
 interface ApplicationDetailsProps {
   formData: {
@@ -45,6 +46,32 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
       (today.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24 * 365)
     );
     return Math.max(0, 3 - yearsSinceCompletion);
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(e.target.value);
+    const fiveYearsAgo = new Date();
+    fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+
+    if (date > new Date()) {
+      toast({
+        title: "Invalid Date",
+        description: "Completion date cannot be in the future.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (date < fiveYearsAgo) {
+      toast({
+        title: "Date Out of Range",
+        description: "Application must be made within 5 years of completion.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    onChange("timeline", e.target.value);
   };
 
   return (
@@ -111,9 +138,10 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           id="completionDate"
           type="date"
           value={formData.timeline}
-          onChange={(e) => onChange("timeline", e.target.value)}
+          onChange={handleDateChange}
           className="transition-all duration-200 focus:ring-accent"
           max={new Date().toISOString().split("T")[0]}
+          placeholder="dd/mm/yyyy"
         />
         <p className="text-sm text-gray-500">Application must be made within 5 years of completion</p>
       </div>
