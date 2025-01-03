@@ -24,13 +24,8 @@ serve(async (req) => {
       throw new Error('No file URL provided')
     }
 
-    // Download the PDF file with proper headers and no-cors mode
-    const pdfResponse = await fetch(fileUrl, {
-      headers: {
-        'Accept': '*/*',
-      },
-      mode: 'no-cors'
-    })
+    // Download the PDF file
+    const pdfResponse = await fetch(fileUrl)
     
     if (!pdfResponse.ok) {
       console.error('Failed to download PDF:', pdfResponse.status, pdfResponse.statusText)
