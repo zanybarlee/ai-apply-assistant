@@ -24,14 +24,8 @@ serve(async (req) => {
       throw new Error('No file URL provided')
     }
 
-    // Download the PDF file with proper headers
-    const pdfResponse = await fetch(fileUrl, {
-      headers: {
-        'Accept': 'application/pdf',
-        'Cache-Control': 'no-cache',
-        'User-Agent': 'Supabase Function'
-      }
-    })
+    // Download the PDF file
+    const pdfResponse = await fetch(fileUrl)
     
     if (!pdfResponse.ok) {
       console.error('Failed to download PDF:', pdfResponse.status, pdfResponse.statusText)
