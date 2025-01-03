@@ -19,7 +19,6 @@ interface ApplicationDetailsProps {
 export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsProps) => {
   const { toast } = useToast();
 
-  // Suggest TSCs coverage based on industry
   const handleIndustryChange = (value: string) => {
     onChange("industry", value);
     const suggestedTSCs = {
@@ -56,13 +55,14 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
     const fiveYearsAgo = new Date();
     fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
 
-    // Get the maximum allowed date (end of 2024)
-    const maxAllowedDate = new Date('2024-12-31');
+    // Calculate the maximum allowed date (3 years from today)
+    const maxAllowedDate = new Date();
+    maxAllowedDate.setFullYear(maxAllowedDate.getFullYear() + 3);
 
     if (selectedDate > maxAllowedDate) {
       toast({
         title: "Invalid Date",
-        description: "Completion date cannot be beyond 2024.",
+        description: "Completion date cannot be more than 3 years in the future.",
         variant: "destructive",
       });
       return;
@@ -80,8 +80,10 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
     onChange("timeline", e.target.value);
   };
 
-  // Set max date to end of 2024
-  const maxDate = "2024-12-31";
+  // Calculate max date (3 years from today)
+  const maxDate = new Date();
+  maxDate.setFullYear(maxDate.getFullYear() + 3);
+  const maxDateString = maxDate.toISOString().split('T')[0];
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -110,6 +112,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           placeholder="Enter your current job role"
         />
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="tscsCovered">TSCs Coverage (%)</Label>
         <Input
@@ -124,6 +127,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
         />
         <p className="text-sm text-gray-500">Must cover at least 75% of TSCs for your role</p>
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="experience">Years of Experience</Label>
         <Input
@@ -141,6 +145,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           </p>
         )}
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="completionDate">Course Completion Date</Label>
         <Input
@@ -149,11 +154,12 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           value={formData.timeline}
           onChange={handleDateChange}
           className="transition-all duration-200 focus:ring-accent"
-          max={maxDate}
+          max={maxDateString}
           placeholder="dd/mm/yyyy"
         />
         <p className="text-sm text-gray-500">Application must be made within 5 years of completion</p>
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="additionalInfo">Additional Information</Label>
         <Textarea
