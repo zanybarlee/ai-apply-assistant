@@ -6,6 +6,7 @@ import { PersonalInfo } from "@/components/ApplicationForm/PersonalInfo";
 import { ApplicationDetails } from "@/components/ApplicationForm/ApplicationDetails";
 import { CertificationLevel } from "@/components/ApplicationForm/CertificationLevel";
 import { Review } from "@/components/ApplicationForm/Review";
+import { AIAssistant } from "@/components/ApplicationForm/AIAssistant";
 import { validatePersonalInfo, validateCertificationLevel, validateApplicationDetails } from "@/utils/certificationValidation";
 
 const STEPS = ["Personal Info", "Certification Level", "Application Details", "Review"];
@@ -166,6 +167,8 @@ const Index = () => {
           </div>
         </Card>
       </div>
+      
+      <AIAssistant />
     </div>
   );
 };
