@@ -47,6 +47,9 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
       console.log('Calling process-pdf function...');
       const { data: processedData, error: processError } = await supabase.functions.invoke('process-pdf', {
         body: { fileUrl: publicUrl },
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
 
       if (processError) {

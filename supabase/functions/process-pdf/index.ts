@@ -25,22 +25,24 @@ serve(async (req) => {
     }
 
     // Download the PDF file
-    const response = await fetch(fileUrl)
-    if (!response.ok) {
-      throw new Error(`Failed to download PDF: ${response.status} ${response.statusText}`)
+    const pdfResponse = await fetch(fileUrl)
+    if (!pdfResponse.ok) {
+      console.error('Failed to download PDF:', pdfResponse.status, pdfResponse.statusText)
+      throw new Error(`Failed to download PDF: ${pdfResponse.status} ${pdfResponse.statusText}`)
     }
     
-    const pdfBuffer = await response.arrayBuffer()
-    console.log('PDF downloaded, size:', pdfBuffer.byteLength)
+    const pdfBuffer = await pdfResponse.arrayBuffer()
+    console.log('PDF downloaded successfully, size:', pdfBuffer.byteLength)
 
     // Parse PDF content
     const data = await parse(new Uint8Array(pdfBuffer))
-    const text = data.text
-    
-    console.log('Text extraction complete, length:', text.length)
+    console.log('PDF parsed successfully, text length:', data.text.length)
 
     return new Response(
-      JSON.stringify({ text }),
+      JSON.stringify({ 
+        text: data.text,
+        status: 'success'
+      }),
       { 
         headers: { 
           ...corsHeaders,
@@ -55,7 +57,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: error.stack
+        details: error.stack,
+        status: 'error'
       }),
       { 
         headers: { 
