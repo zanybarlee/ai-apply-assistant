@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const generateResponse = async (input: string): Promise<string> => {
   try {
-    // Fetch the API key from Supabase config
+    console.log('Fetching OpenAI API key from Supabase...');
+    
     const { data, error } = await supabase
       .rpc('get_service_config', {
         service_name: 'OPENAI_API_KEY'
@@ -13,6 +14,8 @@ export const generateResponse = async (input: string): Promise<string> => {
       console.error('Error fetching OpenAI API key:', error);
       return "I apologize, but I'm having trouble accessing my configuration. Please try again in a moment.";
     }
+
+    console.log('API key response:', data ? 'Received' : 'Not found');
 
     if (!data || typeof data !== 'object') {
       console.error('Invalid response format from get_service_config');
@@ -25,6 +28,8 @@ export const generateResponse = async (input: string): Promise<string> => {
       console.error('OpenAI API key not found or invalid in config');
       return "I apologize, but I'm having trouble accessing my configuration. Please ensure the OpenAI API key is properly set.";
     }
+
+    console.log('Making request to OpenAI API...');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
