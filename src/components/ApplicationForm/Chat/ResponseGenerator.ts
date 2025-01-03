@@ -17,9 +17,14 @@ export const generateResponse = async (input: string): Promise<string> => {
       throw new Error('Failed to fetch API key from settings');
     }
 
-    if (!settingsData || !settingsData.value) {
-      console.error('API key not found in settings');
-      throw new Error('OpenAI API key not found in settings');
+    if (!settingsData) {
+      console.error('No settings data found');
+      throw new Error('No settings data found');
+    }
+
+    if (!settingsData.value) {
+      console.error('API key is empty in settings');
+      throw new Error('OpenAI API key is empty in settings');
     }
 
     console.log('API key retrieved successfully');
@@ -50,7 +55,7 @@ export const generateResponse = async (input: string): Promise<string> => {
     if (!response.ok) {
       const errorData = await response.json();
       console.error('OpenAI API error:', errorData);
-      throw new Error('Failed to get response from OpenAI');
+      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
     }
 
     const data = await response.json();
