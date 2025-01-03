@@ -118,10 +118,10 @@ export const FormContainer = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F2FCE2] to-[#E5F6F3] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#F7FBF2] to-[#F0F6F3] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <FormHeader currentStep={currentStep} firstName={formData.firstName} />
-        <Card className="p-6 sm:p-8 bg-white/80 backdrop-blur-sm border border-secondary/20 shadow-lg">
+        <Card className="p-6 sm:p-8 bg-white/90 backdrop-blur-sm border border-secondary/20 shadow-lg">
           <div className="space-y-6">
             {renderStep()}
             <FormNavigation 
