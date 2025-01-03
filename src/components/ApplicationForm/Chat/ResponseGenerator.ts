@@ -5,6 +5,18 @@ export const generateResponse = async (input: string): Promise<string> => {
   try {
     console.log('Fetching OpenAI API key from Supabase...');
     
+    // First, check if we can connect to Supabase
+    const { data: testData, error: testError } = await supabase
+      .from('application_settings')
+      .select('key')
+      .limit(1);
+
+    if (testError) {
+      console.error('Error connecting to Supabase:', testError);
+      return "I apologize, but I'm having trouble connecting to the database. Please try again in a moment.";
+    }
+
+    // Now fetch the API key
     const { data, error } = await supabase
       .from('application_settings')
       .select('value')
@@ -16,11 +28,16 @@ export const generateResponse = async (input: string): Promise<string> => {
       return "I apologize, but I'm having trouble accessing my configuration. Please try again in a moment.";
     }
 
-    console.log('API key response:', data ? 'Received' : 'Not found');
+    console.log('API key response status:', data ? 'Found' : 'Not found');
 
     if (!data || !data.value) {
       console.error('OpenAI API key not found in application_settings');
-      return "I apologize, but I'm having trouble accessing my configuration. Please ensure the OpenAI API key is properly set.";
+      return "I apologize, but I'm having trouble accessing my configuration. Please ensure the OpenAI API key is properly set in the application settings.";
+    }
+
+    if (data.value.trim() === '') {
+      console.error('OpenAI API key is empty');
+      return "The OpenAI API key appears to be empty. Please set a valid API key in the application settings.";
     }
 
     console.log('Making request to OpenAI API...');
