@@ -3,18 +3,36 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import * as pdfjsLib from 'pdfjs-dist';
 
-interface ProcessPDFResponse {
-  data: {
-    text: string;
-    status: string;
-  };
-  error: null;
-}
+// Initialize PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: string) => void }) => {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+
+  const extractTextFromPdf = async (file: File): Promise<string> => {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+      
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
+        fullText += pageText + '\n';
+      }
+      
+      return fullText;
+    } catch (error) {
+      console.error('Error extracting text from PDF:', error);
+      throw new Error('Failed to extract text from PDF');
+    }
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -33,9 +51,13 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
     try {
       console.log('Starting file upload process...');
       
+      // Extract text from PDF client-side
+      const extractedText = await extractTextFromPdf(file);
+      console.log('Text extracted successfully, length:', extractedText.length);
+
       // Upload file to Supabase Storage
       const fileName = `${crypto.randomUUID()}.pdf`;
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('certification_documents')
         .upload(fileName, file);
 
@@ -44,30 +66,22 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
         throw new Error(`Failed to upload file: ${uploadError.message}`);
       }
 
-      // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('certification_documents')
-        .getPublicUrl(fileName);
+      // Store the extracted text in the database
+      const { error: dbError } = await supabase
+        .from('document_analyses')
+        .insert([
+          {
+            document_text: extractedText,
+            analysis_results: { status: 'processed' }
+          }
+        ]);
 
-      console.log('File uploaded successfully, URL:', publicUrl);
-
-      // Process the PDF using Edge Function
-      console.log('Calling process-pdf function...');
-      const { data: functionData, error: functionError } = await supabase.functions.invoke<ProcessPDFResponse>('process-pdf', {
-        body: { fileUrl: publicUrl },
-      });
-
-      if (functionError) {
-        console.error('Function error:', functionError);
-        throw functionError;
+      if (dbError) {
+        console.error('Database insert error:', dbError);
+        throw new Error(`Failed to store analysis: ${dbError.message}`);
       }
 
-      if (!functionData?.data?.text) {
-        throw new Error('No text extracted from PDF');
-      }
-
-      console.log('PDF processed successfully');
-      onTextExtracted(functionData.data.text);
+      onTextExtracted(extractedText);
 
       toast({
         title: "Document Processed",
