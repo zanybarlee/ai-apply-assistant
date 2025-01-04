@@ -24,52 +24,42 @@ serve(async (req) => {
       throw new Error('No file URL provided')
     }
 
-    // Download the PDF file with improved error handling and timeout
+    // Download the PDF file
     console.log('Attempting to download PDF from:', fileUrl)
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 30000) // 30 second timeout
-
-    try {
-      const pdfResponse = await fetch(fileUrl, {
-        signal: controller.signal,
-        headers: {
-          'Accept': '*/*',
-        }
-      })
-      clearTimeout(timeout)
-      
-      if (!pdfResponse.ok) {
-        console.error('Failed to download PDF:', pdfResponse.status, pdfResponse.statusText)
-        throw new Error(`Failed to download PDF: ${pdfResponse.status} ${pdfResponse.statusText}`)
+    const pdfResponse = await fetch(fileUrl, {
+      headers: {
+        'Accept': '*/*',
       }
-      
-      const pdfBuffer = await pdfResponse.arrayBuffer()
-      console.log('PDF downloaded successfully, size:', pdfBuffer.byteLength)
-
-      // Parse PDF content
-      const data = await parse(new Uint8Array(pdfBuffer))
-      console.log('PDF parsed successfully, text length:', data.text.length)
-
-      return new Response(
-        JSON.stringify({ 
-          data: {
-            text: data.text,
-            status: 'success'
-          },
-          error: null
-        }),
-        { 
-          headers: { 
-            ...corsHeaders,
-            'Content-Type': 'application/json'
-          },
-          status: 200
-        }
-      )
-    } catch (fetchError) {
-      clearTimeout(timeout)
-      throw new Error(`PDF fetch failed: ${fetchError.message}`)
+    })
+    
+    if (!pdfResponse.ok) {
+      console.error('Failed to download PDF:', pdfResponse.status, pdfResponse.statusText)
+      throw new Error(`Failed to download PDF: ${pdfResponse.status} ${pdfResponse.statusText}`)
     }
+    
+    const pdfBuffer = await pdfResponse.arrayBuffer()
+    console.log('PDF downloaded successfully, size:', pdfBuffer.byteLength)
+
+    // Parse PDF content
+    const data = await parse(new Uint8Array(pdfBuffer))
+    console.log('PDF parsed successfully, text length:', data.text.length)
+
+    return new Response(
+      JSON.stringify({ 
+        data: {
+          text: data.text,
+          status: 'success'
+        },
+        error: null
+      }),
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        },
+        status: 200
+      }
+    )
   } catch (error) {
     console.error('PDF processing error:', error)
     
