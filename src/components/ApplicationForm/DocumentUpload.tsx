@@ -1,38 +1,12 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import * as pdfjsLib from 'pdfjs-dist';
-
-// Initialize PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+import { extractTextFromPdf } from "@/utils/pdfUtils";
+import { uploadDocumentToStorage, saveDocumentAnalysis } from "@/services/documentService";
 
 export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: string) => void }) => {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
-
-  const extractTextFromPdf = async (file: File): Promise<string> => {
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      let fullText = '';
-      
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(' ');
-        fullText += pageText + '\n';
-      }
-      
-      return fullText;
-    } catch (error) {
-      console.error('Error extracting text from PDF:', error);
-      throw new Error('Failed to extract text from PDF');
-    }
-  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -51,36 +25,13 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
     try {
       console.log('Starting file upload process...');
       
-      // Extract text from PDF client-side
       const extractedText = await extractTextFromPdf(file);
       console.log('Text extracted successfully, length:', extractedText.length);
 
-      // Upload file to Supabase Storage
       const fileName = `${crypto.randomUUID()}.pdf`;
-      const { error: uploadError } = await supabase.storage
-        .from('certification_documents')
-        .upload(fileName, file);
-
-      if (uploadError) {
-        console.error('Storage upload error:', uploadError);
-        throw new Error(`Failed to upload file: ${uploadError.message}`);
-      }
-
-      // Store the extracted text in the database
-      const { error: dbError } = await supabase
-        .from('document_analyses')
-        .insert([
-          {
-            document_text: extractedText,
-            analysis_results: { status: 'processed' }
-          }
-        ]);
-
-      if (dbError) {
-        console.error('Database insert error:', dbError);
-        throw new Error(`Failed to store analysis: ${dbError.message}`);
-      }
-
+      await uploadDocumentToStorage(file, fileName);
+      await saveDocumentAnalysis(extractedText);
+      
       onTextExtracted(extractedText);
 
       toast({
