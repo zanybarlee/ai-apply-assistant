@@ -24,13 +24,9 @@ serve(async (req) => {
       throw new Error('No file URL provided')
     }
 
-    // Download the PDF file
-    const pdfResponse = await fetch(fileUrl, {
-      headers: {
-        'Accept': '*/*',
-      },
-      redirect: 'follow',
-    })
+    // Download the PDF file with improved error handling
+    console.log('Attempting to download PDF from:', fileUrl)
+    const pdfResponse = await fetch(fileUrl)
     
     if (!pdfResponse.ok) {
       console.error('Failed to download PDF:', pdfResponse.status, pdfResponse.statusText)

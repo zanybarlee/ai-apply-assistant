@@ -44,49 +44,30 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
         throw new Error(`Failed to upload file: ${uploadError.message}`);
       }
 
-      // Get the public URL without any trailing colons
+      // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from('certification_documents')
         .getPublicUrl(fileName);
 
-      const cleanUrl = publicUrl.replace(/:\/$/, '');
-      console.log('File uploaded successfully, URL:', cleanUrl);
+      console.log('File uploaded successfully, URL:', publicUrl);
 
-      // Process the PDF using Edge Function with retries
+      // Process the PDF using Edge Function
       console.log('Calling process-pdf function...');
-      const maxRetries = 3;
-      let attempt = 0;
-      let processedData = null;
-      let processError = null;
+      const { data: functionData, error: functionError } = await supabase.functions.invoke<ProcessPDFResponse>('process-pdf', {
+        body: { fileUrl: publicUrl },
+      });
 
-      while (attempt < maxRetries) {
-        try {
-          const { data: functionData, error: functionError } = await supabase.functions.invoke<ProcessPDFResponse>('process-pdf', {
-            body: { fileUrl: cleanUrl },
-          });
-
-          if (functionError) throw functionError;
-          if (!functionData?.data?.text) throw new Error('No text extracted from PDF');
-          
-          processedData = functionData;
-          break;
-        } catch (error) {
-          console.error(`Attempt ${attempt + 1} failed:`, error);
-          processError = error;
-          attempt++;
-          if (attempt < maxRetries) {
-            const backoff = Math.min(1000 * Math.pow(2, attempt) + Math.random() * 1000, 10000);
-            await new Promise(resolve => setTimeout(resolve, backoff));
-          }
-        }
+      if (functionError) {
+        console.error('Function error:', functionError);
+        throw functionError;
       }
 
-      if (processError && !processedData) {
-        throw new Error(`Failed to process PDF after ${maxRetries} attempts: ${processError.message}`);
+      if (!functionData?.data?.text) {
+        throw new Error('No text extracted from PDF');
       }
 
       console.log('PDF processed successfully');
-      onTextExtracted(processedData.data.text);
+      onTextExtracted(functionData.data.text);
 
       toast({
         title: "Document Processed",
