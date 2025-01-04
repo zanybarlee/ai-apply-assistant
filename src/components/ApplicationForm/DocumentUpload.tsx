@@ -44,12 +44,13 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
         throw new Error(`Failed to upload file: ${uploadError.message}`);
       }
 
-      // Get the public URL
+      // Get the public URL without any trailing colons
       const { data: { publicUrl } } = supabase.storage
         .from('certification_documents')
         .getPublicUrl(fileName);
 
-      console.log('File uploaded successfully, URL:', publicUrl);
+      const cleanUrl = publicUrl.replace(/:\/$/, '');
+      console.log('File uploaded successfully, URL:', cleanUrl);
 
       // Process the PDF using Edge Function with retries
       console.log('Calling process-pdf function...');
@@ -60,26 +61,20 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
 
       while (attempt < maxRetries) {
         try {
-          // Set up timeout using Promise.race
-          const functionPromise = supabase.functions.invoke<ProcessPDFResponse>('process-pdf', {
-            body: { fileUrl: publicUrl },
+          const { data: functionData, error: functionError } = await supabase.functions.invoke<ProcessPDFResponse>('process-pdf', {
+            body: { fileUrl: cleanUrl },
           });
 
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Function timeout')), 30000);
-          });
-
-          const response = await Promise.race([functionPromise, timeoutPromise]) as ProcessPDFResponse;
+          if (functionError) throw functionError;
+          if (!functionData?.data?.text) throw new Error('No text extracted from PDF');
           
-          if ('error' in response && response.error) throw response.error;
-          processedData = response.data;
+          processedData = functionData;
           break;
         } catch (error) {
           console.error(`Attempt ${attempt + 1} failed:`, error);
           processError = error;
           attempt++;
           if (attempt < maxRetries) {
-            // Exponential backoff with jitter
             const backoff = Math.min(1000 * Math.pow(2, attempt) + Math.random() * 1000, 10000);
             await new Promise(resolve => setTimeout(resolve, backoff));
           }
@@ -90,12 +85,8 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
         throw new Error(`Failed to process PDF after ${maxRetries} attempts: ${processError.message}`);
       }
 
-      if (!processedData?.text) {
-        throw new Error('No text extracted from PDF');
-      }
-
       console.log('PDF processed successfully');
-      onTextExtracted(processedData.text);
+      onTextExtracted(processedData.data.text);
 
       toast({
         title: "Document Processed",
