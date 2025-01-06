@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentAnalysis } from "./DocumentAnalysis";
+import { JobRoleSelection } from "./JobRoleSelection";
+import { CourseSelection } from "./CourseSelection";
 
 interface ApplicationDetailsProps {
   formData: {
@@ -12,6 +14,8 @@ interface ApplicationDetailsProps {
     timeline: string;
     industry?: string;
     tscsCovered?: number;
+    selectedRole?: string;
+    selectedCourse?: string;
   };
   onChange: (field: string, value: string | number) => void;
 }
@@ -83,7 +87,17 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
   const maxDateString = maxDate.toISOString().split('T')[0];
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-8 animate-fadeIn">
+      <JobRoleSelection 
+        selectedRole={formData.selectedRole || ""} 
+        onChange={(roleId) => onChange("selectedRole", roleId)} 
+      />
+
+      <CourseSelection 
+        selectedCourse={formData.selectedCourse || ""} 
+        onChange={(courseId) => onChange("selectedCourse", courseId)} 
+      />
+
       <div className="space-y-2">
         <Label htmlFor="industry">Industry Segment</Label>
         <Select onValueChange={handleIndustryChange} value={formData.industry}>
@@ -98,6 +112,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           </SelectContent>
         </Select>
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="jobRole">Current Job Role</Label>
         <Input
