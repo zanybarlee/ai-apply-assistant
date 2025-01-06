@@ -5,21 +5,13 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    host: "::",
+    port: 8080,
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-  },
-  optimizeDeps: {
-    include: ['pdfjs-dist/build/pdf.worker.js']
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          pdfWorker: ['pdfjs-dist/build/pdf.worker.js']
-        }
-      }
-    }
   }
 })

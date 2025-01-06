@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload } from "lucide-react";
-import { extractTextFromPdf } from "@/utils/pdfUtils";
-import { uploadDocumentToStorage, saveDocumentAnalysis } from "@/services/documentService";
+import { uploadDocumentToStorage } from "@/services/documentService";
 
 export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: string) => void }) => {
   const [isUploading, setIsUploading] = useState(false);
@@ -25,24 +24,21 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
     try {
       console.log('Starting file upload process...');
       
-      const extractedText = await extractTextFromPdf(file);
-      console.log('Text extracted successfully, length:', extractedText.length);
-
       const fileName = `${crypto.randomUUID()}.pdf`;
       await uploadDocumentToStorage(file, fileName);
-      await saveDocumentAnalysis(extractedText);
       
-      onTextExtracted(extractedText);
-
       toast({
-        title: "Document Processed",
-        description: "Your document has been uploaded and analyzed successfully.",
+        title: "Document Uploaded",
+        description: "Your document has been uploaded successfully.",
       });
+
+      // For now, we'll just pass an empty string since we're not extracting text
+      onTextExtracted("");
     } catch (error) {
       console.error('Upload error:', error);
       toast({
-        title: "Processing Failed",
-        description: error instanceof Error ? error.message : "There was an error processing your document. Please try again.",
+        title: "Upload Failed",
+        description: error instanceof Error ? error.message : "There was an error uploading your document. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -77,7 +73,7 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
       {isUploading && (
         <div className="flex items-center justify-center">
           <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          <span>Processing document...</span>
+          <span>Uploading document...</span>
         </div>
       )}
     </div>

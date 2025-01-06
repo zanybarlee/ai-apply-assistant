@@ -9,16 +9,3 @@ export const uploadDocumentToStorage = async (file: File, fileName: string) => {
     throw new Error(`Failed to upload file: ${uploadError.message}`);
   }
 };
-
-export const saveDocumentAnalysis = async (text: string) => {
-  const { error: dbError } = await supabase
-    .from('document_analyses')
-    .insert([{
-      document_text: text,
-      analysis_results: { status: 'processed' }
-    }]);
-
-  if (dbError) {
-    throw new Error(`Failed to store analysis: ${dbError.message}`);
-  }
-};
