@@ -1,8 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from "@/components/ui/navigation-menu";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#C5D82D] to-[#004D40]">
       {/* Navigation Bar */}
@@ -33,8 +41,8 @@ const Index = () => {
           </NavigationMenuList>
         </NavigationMenu>
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" className="text-secondary hover:text-primary">
-            Login
+          <Button variant="ghost" className="text-secondary hover:text-primary" onClick={handleLogout}>
+            Logout
           </Button>
           <Button variant="ghost" className="text-secondary hover:text-primary">
             FAQs
