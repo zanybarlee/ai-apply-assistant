@@ -146,6 +146,7 @@ export type Database = {
       }
       user_certifications: {
         Row: {
+          application_type: Database["public"]["Enums"]["application_type"]
           created_at: string | null
           id: string
           industry_segment: string
@@ -157,6 +158,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          application_type?: Database["public"]["Enums"]["application_type"]
           created_at?: string | null
           id?: string
           industry_segment: string
@@ -168,6 +170,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          application_type?: Database["public"]["Enums"]["application_type"]
           created_at?: string | null
           id?: string
           industry_segment?: string
@@ -249,6 +252,7 @@ export type Database = {
       }
     }
     Enums: {
+      application_type: "certification" | "funding" | "exemption"
       certification_level: "qualified" | "advanced-2" | "advanced-3"
     }
     CompositeTypes: {

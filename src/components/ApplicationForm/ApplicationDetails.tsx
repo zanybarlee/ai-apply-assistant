@@ -6,6 +6,9 @@ import { useToast } from "@/hooks/use-toast";
 import { DocumentAnalysis } from "./DocumentAnalysis";
 import { JobRoleSelection } from "./JobRoleSelection";
 import { CourseSelection } from "./CourseSelection";
+import { useEffect, useState } from "react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ApplicationDetailsProps {
   formData: {
@@ -20,8 +23,56 @@ interface ApplicationDetailsProps {
   onChange: (field: string, value: string | number) => void;
 }
 
+interface ValidationState {
+  experience: { valid: boolean; message: string };
+  tscs: { valid: boolean; message: string };
+  timeline: { valid: boolean; message: string };
+  industry: { valid: boolean; message: string };
+}
+
 export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsProps) => {
   const { toast } = useToast();
+  const [validation, setValidation] = useState<ValidationState>({
+    experience: { valid: false, message: "Minimum experience required" },
+    tscs: { valid: false, message: "Minimum 75% TSCs coverage required" },
+    timeline: { valid: false, message: "Must be within valid date range" },
+    industry: { valid: false, message: "Industry selection required" },
+  });
+
+  useEffect(() => {
+    validateForm();
+  }, [formData]);
+
+  const validateForm = () => {
+    const today = new Date();
+    const completionDate = new Date(formData.timeline);
+    const fiveYearsAgo = new Date();
+    fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+    const maxAllowedDate = new Date();
+    maxAllowedDate.setFullYear(maxAllowedDate.getFullYear() + 3);
+
+    const experience = parseInt(formData.amount) || 0;
+    const minExperience = calculateMinExperience();
+
+    setValidation({
+      experience: {
+        valid: experience >= minExperience,
+        message: `Minimum ${minExperience} years of experience required`,
+      },
+      tscs: {
+        valid: (formData.tscsCovered || 0) >= 75,
+        message: "Minimum 75% TSCs coverage required",
+      },
+      timeline: {
+        valid: completionDate >= fiveYearsAgo && completionDate <= maxAllowedDate,
+        message: "Must be within 5 years past or 3 years future",
+      },
+      industry: {
+        valid: !!formData.industry,
+        message: "Industry selection required",
+      },
+    });
+  };
 
   const handleIndustryChange = (value: string) => {
     onChange("industry", value);
@@ -86,6 +137,22 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
   maxDate.setFullYear(maxDate.getFullYear() + 3);
   const maxDateString = maxDate.toISOString().split('T')[0];
 
+  const renderValidationStatus = (field: keyof ValidationState) => {
+    const status = validation[field];
+    return (
+      <Alert variant={status.valid ? "default" : "destructive"} className="mt-2">
+        <div className="flex items-center gap-2">
+          {status.valid ? (
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+          ) : (
+            <AlertCircle className="h-4 w-4" />
+          )}
+          <AlertDescription>{status.message}</AlertDescription>
+        </div>
+      </Alert>
+    );
+  };
+
   return (
     <div className="space-y-8 animate-fadeIn">
       <JobRoleSelection 
@@ -111,6 +178,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
             <SelectItem value="asset-management">Asset Management</SelectItem>
           </SelectContent>
         </Select>
+        {renderValidationStatus("industry")}
       </div>
 
       <div className="space-y-2">
@@ -137,7 +205,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           className="transition-all duration-200 focus:ring-accent"
           placeholder="Enter percentage of TSCs covered"
         />
-        <p className="text-sm text-gray-500">Must cover at least 75% of TSCs for your role</p>
+        {renderValidationStatus("tscs")}
       </div>
 
       <div className="space-y-2">
@@ -151,11 +219,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           placeholder="Enter years of experience"
           min={calculateMinExperience()}
         />
-        {calculateMinExperience() > 0 && (
-          <p className="text-sm text-amber-600">
-            Minimum {calculateMinExperience()} years of experience required based on completion date
-          </p>
-        )}
+        {renderValidationStatus("experience")}
       </div>
 
       <div className="space-y-2">
@@ -169,7 +233,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
           max={maxDateString}
           placeholder="dd/mm/yyyy"
         />
-        <p className="text-sm text-gray-500">Application must be made within 5 years of completion</p>
+        {renderValidationStatus("timeline")}
       </div>
 
       <div className="border-t pt-6">
