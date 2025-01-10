@@ -102,16 +102,16 @@ export const FormContainer = () => {
         return;
       }
 
-      // Save certification application
+      // Save certification application with segment_experience_years
       const { error: certError } = await supabase
         .from('user_certifications')
         .insert([
           {
             user_id: user.id,
-            job_role_id: formData.selectedRole, // This should be a valid UUID from the job_roles table
+            job_role_id: formData.selectedRole,
             industry_segment: formData.industry,
             total_experience_years: parseInt(formData.amount),
-            segment_experience_years: parseInt(formData.yearsOfExperience),
+            segment_experience_years: parseInt(formData.yearsOfExperience), // Using yearsOfExperience for segment experience
             status: 'submitted'
           }
         ]);
