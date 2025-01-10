@@ -13,21 +13,21 @@ interface JobRole {
 
 const jobRoles: JobRole[] = [
   {
-    id: "1",
+    id: "550e8400-e29b-41d4-a716-446655440000", // Using proper UUID format
     title: "Private Banking Relationship Manager",
     level: "Advanced",
     skills: ["Wealth Planning", "Portfolio Management", "Risk Management"],
     industry: "Private Banking",
   },
   {
-    id: "2",
+    id: "550e8400-e29b-41d4-a716-446655440001", // Using proper UUID format
     title: "Family Office Advisor",
     level: "Advanced",
     skills: ["Estate Planning", "Tax Advisory", "Investment Management"],
     industry: "Wealth Management",
   },
   {
-    id: "3",
+    id: "550e8400-e29b-41d4-a716-446655440002", // Using proper UUID format
     title: "Compliance Officer",
     level: "Qualified",
     skills: ["Regulatory Compliance", "Risk Assessment", "Policy Implementation"],
