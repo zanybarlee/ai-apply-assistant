@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from "@/components/ui/navigation-menu";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
+import { ClipboardList, Award, GraduationCap, TrendingUp } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -53,43 +55,83 @@ const Index = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <div className="container mx-auto px-6 py-20">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">
-              Introducing the Sustainable Finance Jobs Transformation Map
-            </h1>
-            <p className="text-white/90 text-lg">
-              Discover how we're transforming the financial sector workforce for a sustainable future.
-            </p>
-            <Link to="/certification">
-              <Button className="bg-primary text-secondary hover:bg-primary/90">
-                Apply for Certification
-              </Button>
-            </Link>
-          </div>
-          <div className="relative">
-            <img 
-              src="/lovable-uploads/abc5347e-3b6b-4186-909e-f834c98f3f94.png" 
-              alt="IBF Illustration" 
-              className="w-full h-auto"
-            />
-          </div>
-        </div>
-      </div>
+      {/* Dashboard Section */}
+      <div className="container mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* MySkills Progress */}
+          <Card className="p-6 bg-white/95">
+            <h2 className="text-2xl font-bold text-[#5D4037] mb-6">MySkills Progress</h2>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Exams (0/0)</span>
+                <ClipboardList className="text-gray-400" />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Certifications (0/0)</span>
+                <Award className="text-gray-400" />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Training (0/0)</span>
+                <GraduationCap className="text-gray-400" />
+              </div>
+            </div>
+          </Card>
 
-      {/* Quote Section */}
-      <div className="container mx-auto px-6 py-20">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <div className="text-6xl text-primary">"</div>
-          <p className="text-xl md:text-2xl text-white leading-relaxed">
-            We remain committed to the partnership between IBF, financial institutions, government and unions to support a dynamic and skilled financial sector workforce.
-          </p>
-          <div className="text-white">
-            <p className="font-bold">Chia Der Jiun</p>
-            <p className="text-sm">Chairman, IBF</p>
-          </div>
+          {/* MySkills Portfolio */}
+          <Card className="p-6 bg-white/95">
+            <h2 className="text-2xl font-bold text-[#5D4037] mb-6">MySkills Portfolio</h2>
+            <p className="text-gray-600 mb-4">I have successfully completed the following:</p>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-4 rounded-full bg-[#8D6E63] text-white">
+                <div className="text-4xl font-bold">0</div>
+                <div className="text-sm mt-2">Examinations</div>
+              </div>
+              <div className="text-center p-4 rounded-full bg-[#C5D82D] text-white">
+                <div className="text-4xl font-bold">0</div>
+                <div className="text-sm mt-2">Competency Units</div>
+              </div>
+              <div className="text-center p-4 rounded-full bg-[#5D4037] text-white">
+                <div className="text-4xl font-bold">0</div>
+                <div className="text-sm mt-2">Training Hours this Year</div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Additional Sections */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+          {/* Join IBF Community */}
+          <Card className="p-6 bg-white/95">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0">
+                <img src="/lovable-uploads/abc5347e-3b6b-4186-909e-f834c98f3f94.png" alt="IBF Logo" className="w-16 h-16" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-[#5D4037] mb-2">Join the IBF Community!</h2>
+                <p className="text-gray-600 mb-2">
+                  <span className="text-[#C5D82D] font-bold">30818</span> professionals have attained IBF certification to date.
+                </p>
+                <Link to="/certification" className="text-[#C5D82D] hover:text-[#004D40] transition-colors">
+                  Click here to find out more about IBF Certification.
+                </Link>
+              </div>
+            </div>
+          </Card>
+
+          {/* MySkills Journey */}
+          <Card className="p-6 bg-white/95">
+            <div className="flex items-center space-x-2 mb-4">
+              <TrendingUp className="text-[#5D4037]" />
+              <h2 className="text-2xl font-bold text-[#5D4037]">MySkills Journey</h2>
+            </div>
+            <p className="text-gray-600">
+              Click{" "}
+              <Link to="/certification" className="text-[#C5D82D] hover:text-[#004D40] transition-colors">
+                here
+              </Link>{" "}
+              to update your goals
+            </p>
+          </Card>
         </div>
       </div>
     </div>
