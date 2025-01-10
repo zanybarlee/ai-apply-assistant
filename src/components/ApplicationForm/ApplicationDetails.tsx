@@ -8,6 +8,7 @@ import { IndustrySegmentSelect } from "./IndustrySegmentSelect";
 import { TSCsCoverageInput } from "./TSCsCoverageInput";
 import { ExperienceInput } from "./ExperienceInput";
 import { CompletionDateInput } from "./CompletionDateInput";
+import { RegulatoryExamForm } from "./RegulatoryExamForm";
 import { useEffect, useState } from "react";
 
 interface ApplicationDetailsProps {
@@ -154,6 +155,8 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
         maxDate={maxDateString}
         validation={validation.timeline}
       />
+
+      <RegulatoryExamForm />
 
       <div className="border-t pt-6">
         <h3 className="text-lg font-semibold mb-4">Document Analysis</h3>

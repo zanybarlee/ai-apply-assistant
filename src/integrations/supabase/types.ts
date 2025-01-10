@@ -98,6 +98,8 @@ export type Database = {
           completion_date: string
           created_at: string | null
           exam_name: string
+          exam_type: Database["public"]["Enums"]["exam_type"] | null
+          file_size: number | null
           id: string
           result_slip_url: string | null
           user_id: string | null
@@ -106,6 +108,8 @@ export type Database = {
           completion_date: string
           created_at?: string | null
           exam_name: string
+          exam_type?: Database["public"]["Enums"]["exam_type"] | null
+          file_size?: number | null
           id?: string
           result_slip_url?: string | null
           user_id?: string | null
@@ -114,6 +118,8 @@ export type Database = {
           completion_date?: string
           created_at?: string | null
           exam_name?: string
+          exam_type?: Database["public"]["Enums"]["exam_type"] | null
+          file_size?: number | null
           id?: string
           result_slip_url?: string | null
           user_id?: string | null
@@ -254,6 +260,7 @@ export type Database = {
     Enums: {
       application_type: "certification" | "funding" | "exemption"
       certification_level: "qualified" | "advanced-2" | "advanced-3"
+      exam_type: "CMFAS_M8" | "CMFAS_M9" | "CMFAS_M10"
     }
     CompositeTypes: {
       [_ in never]: never
