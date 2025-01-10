@@ -1,15 +1,11 @@
 import { useToast } from "@/hooks/use-toast";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { DocumentAnalysis } from "./DocumentAnalysis";
-import { JobRoleSelection } from "./JobRoleSelection";
-import { CourseSelection } from "./CourseSelection";
-import { IndustrySegmentSelect } from "./IndustrySegmentSelect";
-import { TSCsCoverageInput } from "./TSCsCoverageInput";
-import { ExperienceInput } from "./ExperienceInput";
-import { CompletionDateInput } from "./CompletionDateInput";
-import { RegulatoryExamForm } from "./RegulatoryExamForm";
 import { useEffect, useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, FileText, BookOpen, Award } from "lucide-react";
+import { ApplicationDetailTab } from "./Tabs/ApplicationDetailTab";
+import { RegulatoryExamTab } from "./Tabs/RegulatoryExamTab";
+import { ProgramDetailsTab } from "./Tabs/ProgramDetailsTab";
+import { CertificationScopeTab } from "./Tabs/CertificationScopeTab";
 
 interface ApplicationDetailsProps {
   formData: {
@@ -84,84 +80,60 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
     return Math.max(0, 3 - yearsSinceCompletion);
   };
 
-  const handleIndustryChange = (value: string) => {
-    onChange("industry", value);
-    const suggestedTSCs = {
-      banking: 85,
-      "capital-markets": 80,
-      insurance: 75,
-      "asset-management": 78,
-    }[value];
-
-    if (suggestedTSCs) {
-      onChange("tscsCovered", suggestedTSCs);
-      toast({
-        title: "TSCs Coverage Updated",
-        description: `Suggested coverage for ${value} industry has been applied.`,
-      });
-    }
-  };
-
-  const maxDate = new Date();
-  maxDate.setFullYear(maxDate.getFullYear() + 3);
-  const maxDateString = maxDate.toISOString().split('T')[0];
-
   return (
-    <div className="space-y-8 animate-fadeIn">
-      <JobRoleSelection 
-        selectedRole={formData.selectedRole || ""} 
-        onChange={(roleId) => onChange("selectedRole", roleId)} 
-      />
+    <Tabs defaultValue="application-details" className="w-full">
+      <TabsList className="grid w-full grid-cols-4">
+        <TabsTrigger value="application-details" className="flex items-center gap-2">
+          <User className="h-4 w-4" />
+          <span className="hidden sm:inline">Application Details</span>
+        </TabsTrigger>
+        <TabsTrigger value="regulatory-exam" className="flex items-center gap-2">
+          <FileText className="h-4 w-4" />
+          <span className="hidden sm:inline">Regulatory Exam</span>
+        </TabsTrigger>
+        <TabsTrigger value="program-details" className="flex items-center gap-2">
+          <BookOpen className="h-4 w-4" />
+          <span className="hidden sm:inline">Program Details</span>
+        </TabsTrigger>
+        <TabsTrigger value="certification-scope" className="flex items-center gap-2">
+          <Award className="h-4 w-4" />
+          <span className="hidden sm:inline">Certification Scope</span>
+        </TabsTrigger>
+      </TabsList>
 
-      <CourseSelection 
-        selectedCourse={formData.selectedCourse || ""} 
-        onChange={(courseId) => onChange("selectedCourse", courseId)} 
-      />
+      <div className="mt-6">
+        <TabsContent value="application-details">
+          <ApplicationDetailTab 
+            formData={formData}
+            onChange={onChange}
+            validation={{
+              experience: validation.experience,
+              industry: validation.industry
+            }}
+          />
+        </TabsContent>
 
-      <IndustrySegmentSelect
-        value={formData.industry || ""}
-        onChange={handleIndustryChange}
-        validation={validation.industry}
-      />
+        <TabsContent value="regulatory-exam">
+          <RegulatoryExamTab />
+        </TabsContent>
 
-      <div className="space-y-2">
-        <Label htmlFor="jobRole">Current Job Role</Label>
-        <Input
-          id="jobRole"
-          type="text"
-          value={formData.purpose}
-          onChange={(e) => onChange("purpose", e.target.value)}
-          className="transition-all duration-200 focus:ring-accent"
-          placeholder="Enter your current job role"
-        />
+        <TabsContent value="program-details">
+          <ProgramDetailsTab 
+            formData={formData}
+            onChange={onChange}
+          />
+        </TabsContent>
+
+        <TabsContent value="certification-scope">
+          <CertificationScopeTab 
+            formData={formData}
+            onChange={onChange}
+            validation={{
+              tscs: validation.tscs
+            }}
+          />
+        </TabsContent>
       </div>
-
-      <TSCsCoverageInput
-        value={formData.tscsCovered || 0}
-        onChange={(value) => onChange("tscsCovered", value)}
-        validation={validation.tscs}
-      />
-
-      <ExperienceInput
-        value={formData.amount}
-        onChange={(value) => onChange("amount", value)}
-        minExperience={calculateMinExperience()}
-        validation={validation.experience}
-      />
-
-      <CompletionDateInput
-        value={formData.timeline}
-        onChange={(value) => onChange("timeline", value)}
-        maxDate={maxDateString}
-        validation={validation.timeline}
-      />
-
-      <RegulatoryExamForm />
-
-      <div className="border-t pt-6">
-        <h3 className="text-lg font-semibold mb-4">Document Analysis</h3>
-        <DocumentAnalysis />
-      </div>
-    </div>
+    </Tabs>
   );
 };

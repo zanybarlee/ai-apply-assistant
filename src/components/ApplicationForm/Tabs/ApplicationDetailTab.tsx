@@ -1,0 +1,66 @@
+import { JobRoleSelection } from "../JobRoleSelection";
+import { IndustrySegmentSelect } from "../IndustrySegmentSelect";
+import { ExperienceInput } from "../ExperienceInput";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+
+interface ApplicationDetailTabProps {
+  formData: {
+    purpose: string;
+    amount: string;
+    industry?: string;
+    selectedRole?: string;
+  };
+  onChange: (field: string, value: string | number) => void;
+  validation: {
+    experience: { valid: boolean; message: string };
+    industry: { valid: boolean; message: string };
+  };
+}
+
+export const ApplicationDetailTab = ({ formData, onChange, validation }: ApplicationDetailTabProps) => {
+  return (
+    <div className="space-y-6">
+      <div className="bg-muted/50 p-4 rounded-lg mb-6">
+        <h2 className="text-lg font-semibold text-muted-foreground mb-2">Section 1. Applicant Details</h2>
+        <p className="text-sm text-muted-foreground">
+          Please ensure that your personal details are updated in "My Profile" page before proceeding with the application.
+          If you wish to update your details, please click{" "}
+          <a href="/profile" className="text-primary hover:underline">
+            here
+          </a>
+          .
+        </p>
+      </div>
+
+      <JobRoleSelection 
+        selectedRole={formData.selectedRole || ""} 
+        onChange={(roleId) => onChange("selectedRole", roleId)} 
+      />
+
+      <IndustrySegmentSelect
+        value={formData.industry || ""}
+        onChange={(value) => onChange("industry", value)}
+        validation={validation.industry}
+      />
+
+      <div className="space-y-2">
+        <Label htmlFor="jobRole">Current Job Role</Label>
+        <Input
+          id="jobRole"
+          type="text"
+          value={formData.purpose}
+          onChange={(e) => onChange("purpose", e.target.value)}
+          className="transition-all duration-200 focus:ring-accent"
+          placeholder="Enter your current job role"
+        />
+      </div>
+
+      <ExperienceInput
+        value={formData.amount}
+        onChange={(value) => onChange("amount", value)}
+        validation={validation.experience}
+      />
+    </div>
+  );
+};
