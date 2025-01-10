@@ -6,6 +6,7 @@ import { ApplicationDetailTab } from "./Tabs/ApplicationDetailTab";
 import { RegulatoryExamTab } from "./Tabs/RegulatoryExamTab";
 import { ProgramDetailsTab } from "./Tabs/ProgramDetailsTab";
 import { CertificationScopeTab } from "./Tabs/CertificationScopeTab";
+import { FormValidationState, validateForm } from "@/utils/validationUtils";
 
 interface ApplicationDetailsProps {
   formData: {
@@ -20,16 +21,8 @@ interface ApplicationDetailsProps {
   onChange: (field: string, value: string | number) => void;
 }
 
-interface ValidationState {
-  experience: { valid: boolean; message: string };
-  tscs: { valid: boolean; message: string };
-  timeline: { valid: boolean; message: string };
-  industry: { valid: boolean; message: string };
-}
-
 export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsProps) => {
-  const { toast } = useToast();
-  const [validation, setValidation] = useState<ValidationState>({
+  const [validation, setValidation] = useState<FormValidationState>({
     experience: { valid: true, message: "" },
     tscs: { valid: false, message: "Minimum 75% TSCs coverage required" },
     timeline: { valid: false, message: "Must be within valid date range" },
@@ -37,52 +30,8 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
   });
 
   useEffect(() => {
-    validateForm();
+    setValidation(validateForm(formData));
   }, [formData]);
-
-  const validateForm = () => {
-    const experience = parseInt(formData.amount) || 0;
-    const minExperience = calculateMinExperience();
-
-    setValidation({
-      experience: {
-        valid: experience >= minExperience,
-        message: `Minimum ${minExperience} years of experience required`,
-      },
-      tscs: {
-        valid: (formData.tscsCovered || 0) >= 75,
-        message: "Minimum 75% TSCs coverage required",
-      },
-      timeline: {
-        valid: validateTimelineRange(),
-        message: "Must be within 5 years past or 3 years future",
-      },
-      industry: {
-        valid: !!formData.industry,
-        message: "Industry selection required",
-      },
-    });
-  };
-
-  const validateTimelineRange = () => {
-    if (!formData.timeline) return false;
-    const completionDate = new Date(formData.timeline);
-    const fiveYearsAgo = new Date();
-    fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
-    const maxAllowedDate = new Date();
-    maxAllowedDate.setFullYear(maxAllowedDate.getFullYear() + 3);
-    return completionDate >= fiveYearsAgo && completionDate <= maxAllowedDate;
-  };
-
-  const calculateMinExperience = () => {
-    if (!formData.timeline) return 0;
-    const today = new Date();
-    const completionDate = new Date(formData.timeline);
-    const yearsSinceCompletion = Math.floor(
-      (today.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24 * 365)
-    );
-    return Math.max(0, 3 - yearsSinceCompletion);
-  };
 
   return (
     <Tabs defaultValue="application-details" className="w-full">
