@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Book, Clock, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { DocumentUpload } from "./DocumentUpload";
 
 interface Course {
   id: string;
@@ -71,6 +72,15 @@ export const CourseSelection = ({ selectedCourse, onChange }: CourseSelectionPro
     onChange(courseId);
   };
 
+  const handleTextExtracted = (text: string) => {
+    // Handle the extracted text from the uploaded document
+    console.log('Extracted text:', text);
+    toast({
+      title: "Document Processed",
+      description: "Your course document has been uploaded and processed.",
+    });
+  };
+
   const selectedCourseDetails = courses.find(course => course.id === selectedCourse);
 
   return (
@@ -100,42 +110,52 @@ export const CourseSelection = ({ selectedCourse, onChange }: CourseSelectionPro
         </Select>
 
         {selectedCourseDetails && (
-          <Card className="p-4 mt-4">
-            <div className="space-y-2">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-medium">{selectedCourseDetails.title}</h3>
-                  <p className="text-sm text-gray-600">{selectedCourseDetails.provider}</p>
-                </div>
-                <Badge variant="secondary">
-                  {selectedCourseDetails.type}
-                </Badge>
-              </div>
-              
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                <div className="flex items-center">
-                  <Clock className="h-4 w-4 mr-1" />
-                  {selectedCourseDetails.duration}
-                </div>
-                <div className="flex items-center">
-                  <DollarSign className="h-4 w-4 mr-1" />
-                  {selectedCourseDetails.price.toFixed(2)}
-                </div>
-                <div className="flex items-center">
-                  <Book className="h-4 w-4 mr-1" />
-                  IBF-STS Accredited
-                </div>
-              </div>
-              
-              <div className="flex gap-2 mt-2">
-                {selectedCourseDetails.eligibleSchemes.map((scheme) => (
-                  <Badge key={scheme} variant="outline">
-                    {scheme}
+          <>
+            <Card className="p-4 mt-4">
+              <div className="space-y-2">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-medium">{selectedCourseDetails.title}</h3>
+                    <p className="text-sm text-gray-600">{selectedCourseDetails.provider}</p>
+                  </div>
+                  <Badge variant="secondary">
+                    {selectedCourseDetails.type}
                   </Badge>
-                ))}
+                </div>
+                
+                <div className="flex items-center space-x-4 text-sm text-gray-600">
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 mr-1" />
+                    {selectedCourseDetails.duration}
+                  </div>
+                  <div className="flex items-center">
+                    <DollarSign className="h-4 w-4 mr-1" />
+                    {selectedCourseDetails.price.toFixed(2)}
+                  </div>
+                  <div className="flex items-center">
+                    <Book className="h-4 w-4 mr-1" />
+                    IBF-STS Accredited
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 mt-2">
+                  {selectedCourseDetails.eligibleSchemes.map((scheme) => (
+                    <Badge key={scheme} variant="outline">
+                      {scheme}
+                    </Badge>
+                  ))}
+                </div>
               </div>
+            </Card>
+
+            <div className="mt-6 space-y-4">
+              <Label className="text-lg font-semibold">Upload Course Certificate</Label>
+              <p className="text-sm text-gray-600">
+                Please upload your course completion certificate in PDF format.
+              </p>
+              <DocumentUpload onTextExtracted={handleTextExtracted} />
             </div>
-          </Card>
+          </>
         )}
       </div>
     </div>
