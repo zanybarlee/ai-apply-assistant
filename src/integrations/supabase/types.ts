@@ -48,6 +48,30 @@ export type Database = {
         }
         Relationships: []
       }
+      job_roles: {
+        Row: {
+          certification_level: Database["public"]["Enums"]["certification_level"]
+          id: string
+          industry_segment: string
+          required_tscs: number
+          title: string
+        }
+        Insert: {
+          certification_level?: Database["public"]["Enums"]["certification_level"]
+          id?: string
+          industry_segment: string
+          required_tscs?: number
+          title: string
+        }
+        Update: {
+          certification_level?: Database["public"]["Enums"]["certification_level"]
+          id?: string
+          industry_segment?: string
+          required_tscs?: number
+          title?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           first_name: string | null
@@ -69,6 +93,149 @@ export type Database = {
         }
         Relationships: []
       }
+      regulatory_exams: {
+        Row: {
+          completion_date: string
+          created_at: string | null
+          exam_name: string
+          id: string
+          result_slip_url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completion_date: string
+          created_at?: string | null
+          exam_name: string
+          id?: string
+          result_slip_url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completion_date?: string
+          created_at?: string | null
+          exam_name?: string
+          id?: string
+          result_slip_url?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      training_programs: {
+        Row: {
+          id: string
+          program_name: string
+          provider_name: string
+          validity_end: string
+          validity_start: string
+        }
+        Insert: {
+          id?: string
+          program_name: string
+          provider_name: string
+          validity_end: string
+          validity_start: string
+        }
+        Update: {
+          id?: string
+          program_name?: string
+          provider_name?: string
+          validity_end?: string
+          validity_start?: string
+        }
+        Relationships: []
+      }
+      user_certifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          industry_segment: string
+          job_role_id: string | null
+          segment_experience_years: number
+          status: string
+          total_experience_years: number
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          industry_segment: string
+          job_role_id?: string | null
+          segment_experience_years: number
+          status?: string
+          total_experience_years: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          industry_segment?: string
+          job_role_id?: string | null
+          segment_experience_years?: number
+          status?: string
+          total_experience_years?: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_certifications_job_role_id_fkey"
+            columns: ["job_role_id"]
+            isOneToOne: false
+            referencedRelation: "job_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_training_programs: {
+        Row: {
+          certificate_url: string | null
+          certification_id: string | null
+          commencement_date: string
+          completion_date: string
+          created_at: string | null
+          id: string
+          training_program_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          certificate_url?: string | null
+          certification_id?: string | null
+          commencement_date: string
+          completion_date: string
+          created_at?: string | null
+          id?: string
+          training_program_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          certificate_url?: string | null
+          certification_id?: string | null
+          commencement_date?: string
+          completion_date?: string
+          created_at?: string | null
+          id?: string
+          training_program_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_training_programs_certification_id_fkey"
+            columns: ["certification_id"]
+            isOneToOne: false
+            referencedRelation: "user_certifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_training_programs_training_program_id_fkey"
+            columns: ["training_program_id"]
+            isOneToOne: false
+            referencedRelation: "training_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -82,7 +249,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      certification_level: "qualified" | "advanced-2" | "advanced-3"
     }
     CompositeTypes: {
       [_ in never]: never

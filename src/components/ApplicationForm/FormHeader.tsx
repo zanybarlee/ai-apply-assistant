@@ -1,15 +1,35 @@
+import { STEPS } from "./FormContainer";
+import { StepIndicator } from "./StepIndicator";
 import { FormHeaderProps } from "./types";
 
 export const FormHeader = ({ currentStep, firstName }: FormHeaderProps) => {
+  const getStepTitle = () => {
+    switch (currentStep) {
+      case 0:
+        return "Personal Information";
+      case 1:
+        return "Application Details";
+      case 2:
+        return "Review & Submit";
+      default:
+        return "";
+    }
+  };
+
   return (
-    <div className="text-center mb-12">
-      <img src="/lovable-uploads/3eadfbe3-04fc-4bef-98ce-9efb10a3fff5.png" alt="IBF Logo" className="h-16 mx-auto mb-6" />
-      <h1 className="text-4xl font-bold text-secondary mb-2">IBF Certification Application</h1>
-      <p className="text-secondary/80">
-        {currentStep > 0 && firstName 
-          ? `Welcome back, ${firstName}! Continue your application.`
-          : "Please complete the form below to apply for IBF certification"}
-      </p>
+    <div className="mb-8 text-center">
+      <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        IBF Certification Application
+      </h1>
+      {firstName && (
+        <p className="text-lg text-gray-600 mb-6">
+          Welcome back, {firstName}
+        </p>
+      )}
+      <StepIndicator currentStep={currentStep} steps={STEPS} />
+      <h2 className="text-xl font-semibold text-gray-800 mt-6">
+        {getStepTitle()}
+      </h2>
     </div>
   );
 };

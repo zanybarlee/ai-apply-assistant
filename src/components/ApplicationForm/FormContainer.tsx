@@ -11,7 +11,11 @@ import { FormHeader } from "./FormHeader";
 import { validatePersonalInfo, validateCertificationLevel, validateApplicationDetails } from "@/utils/certificationValidation";
 import { savePreferences, getPreferences } from "@/utils/userPreferences";
 
-export const STEPS = ["Personal Info", "Certification Level", "Application Details", "Review"];
+export const STEPS = [
+  "Personal Info",
+  "Application Details",
+  "Review & Submit"
+];
 
 export interface FormData {
   firstName: string;
@@ -25,6 +29,8 @@ export interface FormData {
   timeline: string;
   industry: string;
   tscsCovered: number;
+  selectedRole?: string;
+  selectedCourse?: string;
 }
 
 export const FormContainer = () => {
@@ -42,6 +48,8 @@ export const FormContainer = () => {
     timeline: "",
     industry: "",
     tscsCovered: 0,
+    selectedRole: "",
+    selectedCourse: "",
   });
 
   useEffect(() => {
@@ -73,34 +81,60 @@ export const FormContainer = () => {
       case 0:
         return validatePersonalInfo(formData);
       case 1:
-        return validateCertificationLevel(formData);
-      case 2:
         return validateApplicationDetails(formData);
       default:
         return true;
     }
   };
 
-  const handleSubmit = () => {
-    toast({
-      title: "Application Submitted",
-      description: "We'll review your certification application and get back to you soon.",
-    });
-    savePreferences({ lastVisitedStep: 0 });
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      certificationLevel: "",
-      yearsOfExperience: "",
-      purpose: "",
-      amount: "",
-      timeline: "",
-      industry: "",
-      tscsCovered: 0,
-    });
-    setCurrentStep(0);
+  const handleSubmit = async () => {
+    try {
+      // Save certification application
+      const { data: certificationData, error: certError } = await supabase
+        .from('user_certifications')
+        .insert([
+          {
+            user_id: supabase.auth.user()?.id,
+            job_role_id: formData.selectedRole,
+            industry_segment: formData.industry,
+            total_experience_years: parseInt(formData.amount),
+            segment_experience_years: parseInt(formData.yearsOfExperience),
+            status: 'submitted'
+          }
+        ])
+        .single();
+
+      if (certError) throw certError;
+
+      toast({
+        title: "Application Submitted",
+        description: "Your certification application has been submitted successfully.",
+      });
+      
+      savePreferences({ lastVisitedStep: 0 });
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        certificationLevel: "",
+        yearsOfExperience: "",
+        purpose: "",
+        amount: "",
+        timeline: "",
+        industry: "",
+        tscsCovered: 0,
+        selectedRole: "",
+        selectedCourse: "",
+      });
+      setCurrentStep(0);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit application. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const renderStep = () => {
@@ -108,10 +142,8 @@ export const FormContainer = () => {
       case 0:
         return <PersonalInfo formData={formData} onChange={handleInputChange} />;
       case 1:
-        return <CertificationLevel formData={formData} onChange={handleInputChange} />;
-      case 2:
         return <ApplicationDetails formData={formData} onChange={handleInputChange} />;
-      case 3:
+      case 2:
         return <Review formData={formData} />;
       default:
         return null;
