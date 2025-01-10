@@ -58,11 +58,8 @@ const ProfilePage = () => {
   const formatPhoneNumber = (value: string) => {
     const numbers = value.replace(/\D/g, "");
     let formatted = numbers;
-    if (numbers.length > 3) {
-      formatted = `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
-    }
-    if (numbers.length > 6) {
-      formatted = `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
+    if (numbers.length > 4) {
+      formatted = `${numbers.slice(0, 4)}-${numbers.slice(4, 8)}`;
     }
     return formatted;
   };
@@ -142,8 +139,8 @@ const ProfilePage = () => {
                     <Input
                       value={phoneNumber}
                       onChange={handlePhoneChange}
-                      placeholder="Enter your phone number (e.g., 123-456-7890)"
-                      maxLength={12}
+                      placeholder="Enter your phone number (e.g., 1234-5678)"
+                      maxLength={9}
                     />
                   </div>
                   <div className="flex space-x-4">
