@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
@@ -13,7 +13,7 @@ import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { useToast } from "./components/ui/use-toast";
 import { User } from "@supabase/supabase-js";
-import { UserRound, Mail, Phone } from "lucide-react";
+import { UserRound, Mail, Phone, ArrowLeft } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +25,7 @@ const CertificationPage = () => (
 );
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<{ first_name: string; last_name: string; phone_number: string } | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -101,7 +102,17 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F7FBF2] to-[#F0F6F3] p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">My Profile</h1>
+        <div className="flex items-center mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/')}
+            className="mr-4"
+          >
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back to Dashboard
+          </Button>
+          <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
+        </div>
         <div className="bg-white rounded-lg shadow p-6">
           {user && (
             <div className="space-y-6">
