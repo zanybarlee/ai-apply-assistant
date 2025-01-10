@@ -3,7 +3,7 @@ import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuL
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { ClipboardList, Award, GraduationCap, TrendingUp } from "lucide-react";
+import { ClipboardList, Award, GraduationCap, TrendingUp, UserCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
@@ -107,6 +107,12 @@ const Index = () => {
           </NavigationMenuList>
         </NavigationMenu>
         <div className="flex items-center space-x-4">
+          <Link to="/profile">
+            <Button variant="ghost" className="text-secondary hover:text-primary">
+              <UserCircle className="w-5 h-5 mr-2" />
+              Profile
+            </Button>
+          </Link>
           <Button variant="ghost" className="text-secondary hover:text-primary" onClick={handleLogout}>
             Logout
           </Button>
