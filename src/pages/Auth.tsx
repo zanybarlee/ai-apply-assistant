@@ -24,6 +24,9 @@ const Auth = () => {
         if (event === "SIGNED_IN" && session) {
           navigate("/");
         }
+        if (event === "SIGNED_OUT") {
+          setErrorMessage(""); // Clear errors on sign out
+        }
       }
     );
 
@@ -115,6 +118,9 @@ const Auth = () => {
               }}
               theme="light"
               providers={[]}
+              onError={(error) => {
+                setErrorMessage(getErrorMessage(error));
+              }}
             />
           </CardContent>
         </Card>
