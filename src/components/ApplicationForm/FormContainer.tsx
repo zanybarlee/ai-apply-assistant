@@ -90,12 +90,15 @@ export const FormContainer = () => {
 
   const handleSubmit = async () => {
     try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+
       // Save certification application
       const { data: certificationData, error: certError } = await supabase
         .from('user_certifications')
         .insert([
           {
-            user_id: supabase.auth.user()?.id,
+            user_id: user.id,
             job_role_id: formData.selectedRole,
             industry_segment: formData.industry,
             total_experience_years: parseInt(formData.amount),
