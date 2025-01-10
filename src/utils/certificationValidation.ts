@@ -11,6 +11,7 @@ interface FormData {
   timeline: string;
   industry?: string;
   tscsCovered?: number;
+  selectedRole?: string;
 }
 
 export const validatePersonalInfo = (formData: FormData) => {
@@ -46,59 +47,54 @@ export const validateCertificationLevel = (formData: FormData) => {
 };
 
 export const validateApplicationDetails = (formData: FormData) => {
-  const yearsOfExperience = parseInt(formData.amount);
-  const completionDate = new Date(formData.timeline);
-  const fiveYearsAgo = new Date();
-  fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
-  
-  if (!formData.purpose || !formData.amount || !formData.timeline || !formData.industry) {
+  // Check for required fields
+  if (!formData.selectedRole) {
     toast({
       title: "Missing Information",
-      description: "Please fill in all application details.",
+      description: "Please select a job role.",
       variant: "destructive",
     });
     return false;
   }
 
-  // TSCs coverage validation
-  const tscsCovered = formData.tscsCovered || 0;
-  if (tscsCovered < 75) {
+  if (!formData.industry) {
     toast({
-      title: "Insufficient TSCs Coverage",
-      description: "You must complete IBF-STS accredited courses covering at least 75% of the TSCs for your role.",
+      title: "Missing Information",
+      description: "Please select an industry segment.",
       variant: "destructive",
     });
     return false;
   }
 
-  // 5-year application window validation
-  if (completionDate < fiveYearsAgo) {
+  if (!formData.purpose) {
     toast({
-      title: "Application Window Expired",
-      description: "Application must be made within 5 years from the completion of the IBF-STS accredited programme.",
+      title: "Missing Information",
+      description: "Please enter your current job role.",
       variant: "destructive",
     });
     return false;
   }
 
-  // Experience requirements validation
-  if (formData.certificationLevel === "advanced-2" && yearsOfExperience < 3) {
+  if (!formData.amount) {
     toast({
-      title: "Experience Requirement",
-      description: "IBF Advanced (Level 2) requires at least 3 years of experience.",
+      title: "Missing Information",
+      description: "Please enter your years of experience.",
       variant: "destructive",
     });
     return false;
   }
 
-  if (formData.certificationLevel === "advanced-3" && yearsOfExperience < 8) {
+  // Validate years of experience
+  const yearsOfExperience = parseInt(formData.amount);
+  if (isNaN(yearsOfExperience) || yearsOfExperience < 0) {
     toast({
-      title: "Experience Requirement",
-      description: "IBF Advanced (Level 3) requires at least 8 years of experience.",
+      title: "Invalid Input",
+      description: "Please enter a valid number of years for experience.",
       variant: "destructive",
     });
     return false;
   }
 
+  // If all validations pass
   return true;
 };
