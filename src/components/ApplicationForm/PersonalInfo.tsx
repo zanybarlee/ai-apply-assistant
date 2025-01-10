@@ -29,13 +29,14 @@ export const PersonalInfo = ({ formData, onChange }: PersonalInfoProps) => {
           // Fetch profile data
           const { data: profile } = await supabase
             .from('profiles')
-            .select('first_name, last_name')
+            .select('first_name, last_name, phone_number')
             .eq('id', user.id)
             .single();
 
           if (profile) {
             onChange("firstName", profile.first_name || "");
             onChange("lastName", profile.last_name || "");
+            onChange("phone", profile.phone_number || "");
           }
         }
       } catch (error) {
@@ -68,6 +69,31 @@ export const PersonalInfo = ({ formData, onChange }: PersonalInfoProps) => {
       formatted = `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
     }
     return formatted;
+  };
+
+  // Handle phone number change and update profile
+  const handlePhoneChange = async (value: string) => {
+    const formattedPhone = formatPhoneNumber(value);
+    onChange("phone", formattedPhone);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ phone_number: formattedPhone })
+          .eq('id', user.id);
+
+        if (error) throw error;
+      }
+    } catch (error) {
+      console.error('Error updating phone number:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update phone number",
+        variant: "destructive",
+      });
+    }
   };
 
   // Auto-complete email domain
@@ -146,7 +172,7 @@ export const PersonalInfo = ({ formData, onChange }: PersonalInfoProps) => {
           id="phone"
           type="tel"
           value={formData.phone}
-          onChange={(e) => onChange("phone", formatPhoneNumber(e.target.value))}
+          onChange={(e) => handlePhoneChange(e.target.value)}
           className="transition-all duration-200 focus:ring-accent"
           placeholder="Enter your phone number"
           maxLength={12}
