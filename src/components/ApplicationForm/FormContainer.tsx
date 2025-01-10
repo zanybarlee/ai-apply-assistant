@@ -10,6 +10,7 @@ import { FormNavigation } from "./FormNavigation";
 import { FormHeader } from "./FormHeader";
 import { validatePersonalInfo, validateCertificationLevel, validateApplicationDetails } from "@/utils/certificationValidation";
 import { savePreferences, getPreferences } from "@/utils/userPreferences";
+import { supabase } from "@/integrations/supabase/client";
 
 export const STEPS = [
   "Personal Info",
