@@ -30,7 +30,7 @@ interface ValidationState {
 export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsProps) => {
   const { toast } = useToast();
   const [validation, setValidation] = useState<ValidationState>({
-    experience: { valid: false, message: "Minimum experience required" },
+    experience: { valid: true, message: "" },
     tscs: { valid: false, message: "Minimum 75% TSCs coverage required" },
     timeline: { valid: false, message: "Must be within valid date range" },
     industry: { valid: false, message: "Industry selection required" },
@@ -41,13 +41,6 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
   }, [formData]);
 
   const validateForm = () => {
-    const today = new Date();
-    const completionDate = new Date(formData.timeline);
-    const fiveYearsAgo = new Date();
-    fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
-    const maxAllowedDate = new Date();
-    maxAllowedDate.setFullYear(maxAllowedDate.getFullYear() + 3);
-
     const experience = parseInt(formData.amount) || 0;
     const minExperience = calculateMinExperience();
 
@@ -61,7 +54,7 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
         message: "Minimum 75% TSCs coverage required",
       },
       timeline: {
-        valid: completionDate >= fiveYearsAgo && completionDate <= maxAllowedDate,
+        valid: validateTimelineRange(),
         message: "Must be within 5 years past or 3 years future",
       },
       industry: {
@@ -71,7 +64,18 @@ export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsPro
     });
   };
 
+  const validateTimelineRange = () => {
+    if (!formData.timeline) return false;
+    const completionDate = new Date(formData.timeline);
+    const fiveYearsAgo = new Date();
+    fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+    const maxAllowedDate = new Date();
+    maxAllowedDate.setFullYear(maxAllowedDate.getFullYear() + 3);
+    return completionDate >= fiveYearsAgo && completionDate <= maxAllowedDate;
+  };
+
   const calculateMinExperience = () => {
+    if (!formData.timeline) return 0;
     const today = new Date();
     const completionDate = new Date(formData.timeline);
     const yearsSinceCompletion = Math.floor(
