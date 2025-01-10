@@ -13,7 +13,7 @@ import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { useToast } from "./components/ui/use-toast";
 import { User } from "@supabase/supabase-js";
-import { UserRound, Mail } from "lucide-react";
+import { UserRound, Mail, Phone } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -26,10 +26,11 @@ const CertificationPage = () => (
 
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<{ first_name: string; last_name: string } | null>(null);
+  const [profile, setProfile] = useState<{ first_name: string; last_name: string; phone_number: string } | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -39,7 +40,7 @@ const ProfilePage = () => {
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('first_name, last_name')
+          .select('first_name, last_name, phone_number')
           .eq('id', user.id)
           .single();
         
@@ -47,11 +48,29 @@ const ProfilePage = () => {
           setProfile(profile);
           setFirstName(profile.first_name || "");
           setLastName(profile.last_name || "");
+          setPhoneNumber(profile.phone_number || "");
         }
       }
     };
     getUser();
   }, []);
+
+  const formatPhoneNumber = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    let formatted = numbers;
+    if (numbers.length > 3) {
+      formatted = `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    }
+    if (numbers.length > 6) {
+      formatted = `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
+    }
+    return formatted;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setPhoneNumber(formatted);
+  };
 
   const handleSave = async () => {
     if (!user) return;
@@ -61,6 +80,7 @@ const ProfilePage = () => {
       .update({
         first_name: firstName,
         last_name: lastName,
+        phone_number: phoneNumber,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id);
@@ -72,7 +92,7 @@ const ProfilePage = () => {
         description: "Failed to update profile. Please try again.",
       });
     } else {
-      setProfile({ first_name: firstName, last_name: lastName });
+      setProfile({ first_name: firstName, last_name: lastName, phone_number: phoneNumber });
       setIsEditing(false);
       toast({
         title: "Success",
@@ -115,6 +135,17 @@ const ProfilePage = () => {
                       placeholder="Enter your last name"
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone Number
+                    </label>
+                    <Input
+                      value={phoneNumber}
+                      onChange={handlePhoneChange}
+                      placeholder="Enter your phone number (e.g., 123-456-7890)"
+                      maxLength={12}
+                    />
+                  </div>
                   <div className="flex space-x-4">
                     <Button onClick={handleSave}>Save Changes</Button>
                     <Button
@@ -123,6 +154,7 @@ const ProfilePage = () => {
                         setIsEditing(false);
                         setFirstName(profile?.first_name || "");
                         setLastName(profile?.last_name || "");
+                        setPhoneNumber(profile?.phone_number || "");
                       }}
                     >
                       Cancel
@@ -137,6 +169,12 @@ const ProfilePage = () => {
                       {profile?.first_name && profile?.last_name
                         ? `${profile.first_name} ${profile.last_name}`
                         : "No name set"}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <Phone className="h-5 w-5 text-gray-600" />
+                    <span className="text-gray-600">
+                      {profile?.phone_number || "No phone number set"}
                     </span>
                   </div>
                   <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
