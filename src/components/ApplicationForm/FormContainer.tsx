@@ -93,22 +93,33 @@ export const FormContainer = () => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
 
+      if (!formData.selectedRole) {
+        toast({
+          title: "Error",
+          description: "Please select a job role before submitting.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Save certification application
-      const { data: certificationData, error: certError } = await supabase
+      const { error: certError } = await supabase
         .from('user_certifications')
         .insert([
           {
             user_id: user.id,
-            job_role_id: formData.selectedRole,
+            job_role_id: formData.selectedRole, // This should be a valid UUID from the job_roles table
             industry_segment: formData.industry,
             total_experience_years: parseInt(formData.amount),
             segment_experience_years: parseInt(formData.yearsOfExperience),
             status: 'submitted'
           }
-        ])
-        .single();
+        ]);
 
-      if (certError) throw certError;
+      if (certError) {
+        console.error('Certification submission error:', certError);
+        throw certError;
+      }
 
       toast({
         title: "Application Submitted",
@@ -133,6 +144,7 @@ export const FormContainer = () => {
       });
       setCurrentStep(0);
     } catch (error) {
+      console.error('Submission error:', error);
       toast({
         title: "Error",
         description: "Failed to submit application. Please try again.",
