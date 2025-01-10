@@ -9,6 +9,11 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { FormContainer } from "./components/ApplicationForm/FormContainer";
 import { AIAssistant } from "./components/ApplicationForm/AIAssistant";
+import { Button } from "./components/ui/button";
+import { Input } from "./components/ui/input";
+import { useToast } from "./components/ui/use-toast";
+import { User } from "@supabase/supabase-js";
+import { UserRound, Mail } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -20,12 +25,125 @@ const CertificationPage = () => (
 );
 
 const ProfilePage = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<{ first_name: string; last_name: string } | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          setProfile(profile);
+          setFirstName(profile.first_name || "");
+          setLastName(profile.last_name || "");
+        }
+      }
+    };
+    getUser();
+  }, []);
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        first_name: firstName,
+        last_name: lastName,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', user.id);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+      });
+    } else {
+      setProfile({ first_name: firstName, last_name: lastName });
+      setIsEditing(false);
+      toast({
+        title: "Success",
+        description: "Profile updated successfully.",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F7FBF2] to-[#F0F6F3] p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">My Profile</h1>
         <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600">Profile page content will be implemented soon.</p>
+          {user && (
+            <div className="space-y-6">
+              <div className="flex items-center space-x-4 text-gray-600">
+                <Mail className="h-5 w-5" />
+                <span>{user.email}</span>
+              </div>
+              
+              {isEditing ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      First Name
+                    </label>
+                    <Input
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="Enter your first name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Last Name
+                    </label>
+                    <Input
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Enter your last name"
+                    />
+                  </div>
+                  <div className="flex space-x-4">
+                    <Button onClick={handleSave}>Save Changes</Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditing(false);
+                        setFirstName(profile?.first_name || "");
+                        setLastName(profile?.last_name || "");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <UserRound className="h-5 w-5 text-gray-600" />
+                    <span className="text-gray-600">
+                      {profile?.first_name && profile?.last_name
+                        ? `${profile.first_name} ${profile.last_name}`
+                        : "No name set"}
+                    </span>
+                  </div>
+                  <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
