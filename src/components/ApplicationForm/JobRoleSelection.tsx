@@ -1,8 +1,7 @@
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User } from "lucide-react";
 
 interface JobRole {
   id: string;
@@ -34,7 +33,6 @@ const jobRoles: JobRole[] = [
     skills: ["Regulatory Compliance", "Risk Assessment", "Policy Implementation"],
     industry: "Banking",
   },
-  // Add more roles as needed
 ];
 
 interface JobRoleSelectionProps {
@@ -43,6 +41,8 @@ interface JobRoleSelectionProps {
 }
 
 export const JobRoleSelection = ({ selectedRole, onChange }: JobRoleSelectionProps) => {
+  const selectedJobRole = jobRoles.find(role => role.id === selectedRole);
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -51,39 +51,40 @@ export const JobRoleSelection = ({ selectedRole, onChange }: JobRoleSelectionPro
           Select a job role from the Skills Framework for Financial Services (SFwFS) to determine the required skills.
         </p>
         
-        <RadioGroup value={selectedRole} onValueChange={onChange} className="space-y-4">
-          {jobRoles.map((role) => (
-            <Card key={role.id} className="relative p-4 cursor-pointer hover:border-primary transition-colors">
-              <div className="flex items-start space-x-3">
-                <RadioGroupItem value={role.id} id={`role-${role.id}`} className="mt-1" />
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <Label htmlFor={`role-${role.id}`} className="text-base font-medium">
-                        {role.title}
-                      </Label>
-                      <div className="flex items-center mt-1">
-                        <User className="h-4 w-4 mr-1 text-gray-500" />
-                        <span className="text-sm text-gray-600">{role.industry}</span>
-                      </div>
-                    </div>
-                    <Badge variant="secondary">
-                      {role.level}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {role.skills.map((skill) => (
-                      <Badge key={skill} variant="outline">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
+        <Select value={selectedRole} onValueChange={onChange}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select a job role" />
+          </SelectTrigger>
+          <SelectContent>
+            {jobRoles.map((role) => (
+              <SelectItem key={role.id} value={role.id}>
+                {role.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {selectedJobRole && (
+          <Card className="p-4 mt-4">
+            <div className="space-y-2">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="font-medium">{selectedJobRole.title}</h3>
+                  <p className="text-sm text-gray-600">{selectedJobRole.industry}</p>
                 </div>
+                <Badge variant="secondary">{selectedJobRole.level}</Badge>
               </div>
-            </Card>
-          ))}
-        </RadioGroup>
+              
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedJobRole.skills.map((skill) => (
+                  <Badge key={skill} variant="outline">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );

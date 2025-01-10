@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Book, Clock, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -44,7 +44,6 @@ const courses: Course[] = [
     type: "Classroom",
     eligibleSchemes: ["STS"],
   },
-  // ... Add more courses as needed
 ];
 
 interface CourseSelectionProps {
@@ -72,6 +71,8 @@ export const CourseSelection = ({ selectedCourse, onChange }: CourseSelectionPro
     onChange(courseId);
   };
 
+  const selectedCourseDetails = courses.find(course => course.id === selectedCourse);
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -81,51 +82,57 @@ export const CourseSelection = ({ selectedCourse, onChange }: CourseSelectionPro
           You can only be certified after successfully completing eligible IBF-STS accredited assessment courses.
         </p>
         
-        <RadioGroup value={selectedCourse} onValueChange={handleCourseSelect} className="space-y-4">
-          {courses.map((course) => (
-            <Card key={course.id} className="relative p-4 cursor-pointer hover:border-primary transition-colors">
-              <div className="flex items-start space-x-3">
-                <RadioGroupItem value={course.id} id={course.id} className="mt-1" />
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <Label htmlFor={course.id} className="text-base font-medium">
-                        {course.title}
-                      </Label>
-                      <p className="text-sm text-gray-600 mt-1">{course.provider}</p>
-                    </div>
-                    <Badge variant="secondary" className="ml-2">
-                      {course.type}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center space-x-4 text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-1" />
-                      {course.duration}
-                    </div>
-                    <div className="flex items-center">
-                      <DollarSign className="h-4 w-4 mr-1" />
-                      {course.price.toFixed(2)}
-                    </div>
-                    <div className="flex items-center">
-                      <Book className="h-4 w-4 mr-1" />
-                      IBF-STS Accredited
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2 mt-2">
-                    {course.eligibleSchemes.map((scheme) => (
-                      <Badge key={scheme} variant="outline">
-                        {scheme}
-                      </Badge>
-                    ))}
-                  </div>
+        <Select value={selectedCourse} onValueChange={handleCourseSelect}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select a course" />
+          </SelectTrigger>
+          <SelectContent>
+            {courses.map((course) => (
+              <SelectItem key={course.id} value={course.id}>
+                {course.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {selectedCourseDetails && (
+          <Card className="p-4 mt-4">
+            <div className="space-y-2">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="font-medium">{selectedCourseDetails.title}</h3>
+                  <p className="text-sm text-gray-600">{selectedCourseDetails.provider}</p>
+                </div>
+                <Badge variant="secondary">
+                  {selectedCourseDetails.type}
+                </Badge>
+              </div>
+              
+              <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 mr-1" />
+                  {selectedCourseDetails.duration}
+                </div>
+                <div className="flex items-center">
+                  <DollarSign className="h-4 w-4 mr-1" />
+                  {selectedCourseDetails.price.toFixed(2)}
+                </div>
+                <div className="flex items-center">
+                  <Book className="h-4 w-4 mr-1" />
+                  IBF-STS Accredited
                 </div>
               </div>
-            </Card>
-          ))}
-        </RadioGroup>
+              
+              <div className="flex gap-2 mt-2">
+                {selectedCourseDetails.eligibleSchemes.map((scheme) => (
+                  <Badge key={scheme} variant="outline">
+                    {scheme}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );
