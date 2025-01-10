@@ -4,9 +4,73 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { ClipboardList, Award, GraduationCap, TrendingUp } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    getUserId();
+  }, []);
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      return data;
+    },
+    enabled: !!userId
+  });
+
+  const { data: certifications } = useQuery({
+    queryKey: ['certifications', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data } = await supabase
+        .from('user_certifications')
+        .select('*')
+        .eq('user_id', userId);
+      return data || [];
+    },
+    enabled: !!userId
+  });
+
+  const { data: trainingPrograms } = useQuery({
+    queryKey: ['training_programs', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data } = await supabase
+        .from('user_training_programs')
+        .select('*, training_program:training_programs(*)')
+        .eq('user_id', userId);
+      return data || [];
+    },
+    enabled: !!userId
+  });
+
+  const { data: exams } = useQuery({
+    queryKey: ['exams', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data } = await supabase
+        .from('regulatory_exams')
+        .select('*')
+        .eq('user_id', userId);
+      return data || [];
+    },
+    enabled: !!userId
+  });
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -63,16 +127,16 @@ const Index = () => {
             <h2 className="text-2xl font-bold text-[#5D4037] mb-6">MySkills Progress</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Exams (0/0)</span>
-                <ClipboardList className="text-gray-400" />
+                <span className="text-gray-600">Exams ({exams?.length || 0} completed)</span>
+                <ClipboardList className={exams?.length ? "text-green-500" : "text-gray-400"} />
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Certifications (0/0)</span>
-                <Award className="text-gray-400" />
+                <span className="text-gray-600">Certifications ({certifications?.length || 0} in progress)</span>
+                <Award className={certifications?.length ? "text-green-500" : "text-gray-400"} />
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Training (0/0)</span>
-                <GraduationCap className="text-gray-400" />
+                <span className="text-gray-600">Training ({trainingPrograms?.length || 0} completed)</span>
+                <GraduationCap className={trainingPrograms?.length ? "text-green-500" : "text-gray-400"} />
               </div>
             </div>
           </Card>
@@ -83,15 +147,15 @@ const Index = () => {
             <p className="text-gray-600 mb-4">I have successfully completed the following:</p>
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 rounded-full bg-[#8D6E63] text-white">
-                <div className="text-4xl font-bold">0</div>
+                <div className="text-4xl font-bold">{exams?.length || 0}</div>
                 <div className="text-sm mt-2">Examinations</div>
               </div>
               <div className="text-center p-4 rounded-full bg-[#C5D82D] text-white">
-                <div className="text-4xl font-bold">0</div>
+                <div className="text-4xl font-bold">{certifications?.length || 0}</div>
                 <div className="text-sm mt-2">Competency Units</div>
               </div>
               <div className="text-center p-4 rounded-full bg-[#5D4037] text-white">
-                <div className="text-4xl font-bold">0</div>
+                <div className="text-4xl font-bold">{trainingPrograms?.length || 0}</div>
                 <div className="text-sm mt-2">Training Hours this Year</div>
               </div>
             </div>
@@ -107,7 +171,7 @@ const Index = () => {
                 <img src="/lovable-uploads/abc5347e-3b6b-4186-909e-f834c98f3f94.png" alt="IBF Logo" className="w-16 h-16" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-[#5D4037] mb-2">Join the IBF Community!</h2>
+                <h2 className="text-2xl font-bold text-[#5D4037] mb-2">Welcome, {profile?.first_name || 'User'}!</h2>
                 <p className="text-gray-600 mb-2">
                   <span className="text-[#C5D82D] font-bold">30818</span> professionals have attained IBF certification to date.
                 </p>
@@ -125,9 +189,13 @@ const Index = () => {
               <h2 className="text-2xl font-bold text-[#5D4037]">MySkills Journey</h2>
             </div>
             <p className="text-gray-600">
-              Click{" "}
+              {certifications?.length ? 
+                `You have ${certifications.length} certification${certifications.length > 1 ? 's' : ''} in progress.` :
+                'Start your certification journey today!'
+              }
+              <br />
               <Link to="/certification" className="text-[#C5D82D] hover:text-[#004D40] transition-colors">
-                here
+                Click here
               </Link>{" "}
               to update your goals
             </p>
