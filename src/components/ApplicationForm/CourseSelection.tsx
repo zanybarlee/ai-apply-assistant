@@ -83,12 +83,16 @@ export const CourseSelection = ({ selectedCourse, onChange }: CourseSelectionPro
         </p>
         
         <Select value={selectedCourse} onValueChange={handleCourseSelect}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full bg-white border-gray-200">
             <SelectValue placeholder="Select a course" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
             {courses.map((course) => (
-              <SelectItem key={course.id} value={course.id}>
+              <SelectItem 
+                key={course.id} 
+                value={course.id}
+                className="hover:bg-gray-100 cursor-pointer"
+              >
                 {course.title}
               </SelectItem>
             ))}

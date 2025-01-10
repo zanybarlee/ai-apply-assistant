@@ -13,21 +13,21 @@ interface JobRole {
 
 const jobRoles: JobRole[] = [
   {
-    id: "550e8400-e29b-41d4-a716-446655440000", // Using proper UUID format
+    id: "550e8400-e29b-41d4-a716-446655440000",
     title: "Private Banking Relationship Manager",
     level: "Advanced",
     skills: ["Wealth Planning", "Portfolio Management", "Risk Management"],
     industry: "Private Banking",
   },
   {
-    id: "550e8400-e29b-41d4-a716-446655440001", // Using proper UUID format
+    id: "550e8400-e29b-41d4-a716-446655440001",
     title: "Family Office Advisor",
     level: "Advanced",
     skills: ["Estate Planning", "Tax Advisory", "Investment Management"],
     industry: "Wealth Management",
   },
   {
-    id: "550e8400-e29b-41d4-a716-446655440002", // Using proper UUID format
+    id: "550e8400-e29b-41d4-a716-446655440002",
     title: "Compliance Officer",
     level: "Qualified",
     skills: ["Regulatory Compliance", "Risk Assessment", "Policy Implementation"],
@@ -52,12 +52,16 @@ export const JobRoleSelection = ({ selectedRole, onChange }: JobRoleSelectionPro
         </p>
         
         <Select value={selectedRole} onValueChange={onChange}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full bg-white border-gray-200">
             <SelectValue placeholder="Select a job role" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
             {jobRoles.map((role) => (
-              <SelectItem key={role.id} value={role.id}>
+              <SelectItem 
+                key={role.id} 
+                value={role.id}
+                className="hover:bg-gray-100 cursor-pointer"
+              >
                 {role.title}
               </SelectItem>
             ))}
