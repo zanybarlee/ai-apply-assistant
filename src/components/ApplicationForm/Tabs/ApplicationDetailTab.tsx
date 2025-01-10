@@ -10,6 +10,7 @@ interface ApplicationDetailTabProps {
     amount: string;
     industry?: string;
     selectedRole?: string;
+    timeline?: string;
   };
   onChange: (field: string, value: string | number) => void;
   validation: {
@@ -19,6 +20,19 @@ interface ApplicationDetailTabProps {
 }
 
 export const ApplicationDetailTab = ({ formData, onChange, validation }: ApplicationDetailTabProps) => {
+  const calculateMinExperience = () => {
+    if (!formData.timeline) return 0;
+    
+    const today = new Date();
+    const completionDate = new Date(formData.timeline);
+    const yearsSinceCompletion = Math.floor(
+      (today.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24 * 365)
+    );
+    return Math.max(0, 3 - yearsSinceCompletion);
+  };
+
+  const minExperience = calculateMinExperience();
+
   return (
     <div className="space-y-6">
       <div className="bg-muted/50 p-4 rounded-lg mb-6">
@@ -60,6 +74,7 @@ export const ApplicationDetailTab = ({ formData, onChange, validation }: Applica
         value={formData.amount}
         onChange={(value) => onChange("amount", value)}
         validation={validation.experience}
+        minExperience={minExperience}
       />
     </div>
   );
