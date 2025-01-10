@@ -43,7 +43,7 @@ export const FormContainer = () => {
     email: "",
     phone: "",
     certificationLevel: "",
-    yearsOfExperience: "",
+    yearsOfExperience: "0", // Initialize with "0" instead of empty string
     purpose: "",
     amount: "",
     timeline: "",
@@ -102,6 +102,16 @@ export const FormContainer = () => {
         return;
       }
 
+      const segmentExperience = parseInt(formData.yearsOfExperience);
+      if (isNaN(segmentExperience) || segmentExperience < 0) {
+        toast({
+          title: "Error",
+          description: "Please enter valid years of experience in your segment.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Save certification application with segment_experience_years
       const { error: certError } = await supabase
         .from('user_certifications')
@@ -111,7 +121,7 @@ export const FormContainer = () => {
             job_role_id: formData.selectedRole,
             industry_segment: formData.industry,
             total_experience_years: parseInt(formData.amount),
-            segment_experience_years: parseInt(formData.yearsOfExperience), // Using yearsOfExperience for segment experience
+            segment_experience_years: segmentExperience,
             status: 'submitted'
           }
         ]);
@@ -133,7 +143,7 @@ export const FormContainer = () => {
         email: "",
         phone: "",
         certificationLevel: "",
-        yearsOfExperience: "",
+        yearsOfExperience: "0",
         purpose: "",
         amount: "",
         timeline: "",
