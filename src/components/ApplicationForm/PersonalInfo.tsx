@@ -1,7 +1,8 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PersonalInfoProps {
   formData: {
@@ -16,6 +17,39 @@ interface PersonalInfoProps {
 export const PersonalInfo = ({ formData, onChange }: PersonalInfoProps) => {
   const { toast } = useToast();
   const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          // Set email from auth user
+          onChange("email", user.email || "");
+
+          // Fetch profile data
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', user.id)
+            .single();
+
+          if (profile) {
+            onChange("firstName", profile.first_name || "");
+            onChange("lastName", profile.last_name || "");
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile information",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchProfileData();
+  }, []);
 
   // Auto-capitalize names
   const handleNameChange = (field: string, value: string) => {
@@ -90,6 +124,7 @@ export const PersonalInfo = ({ formData, onChange }: PersonalInfoProps) => {
           onChange={(e) => handleEmailChange(e.target.value)}
           className="transition-all duration-200 focus:ring-accent"
           placeholder="Enter your email"
+          readOnly
         />
         {suggestions.length > 0 && (
           <div className="mt-1 p-2 bg-white border rounded-md shadow-sm">
