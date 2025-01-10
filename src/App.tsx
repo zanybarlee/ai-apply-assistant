@@ -19,6 +19,19 @@ const CertificationPage = () => (
   </>
 );
 
+const ProfilePage = () => {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#F7FBF2] to-[#F0F6F3] p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">My Profile</h1>
+        <div className="bg-white rounded-lg shadow p-6">
+          <p className="text-gray-600">Profile page content will be implemented soon.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
@@ -65,6 +78,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <CertificationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />
