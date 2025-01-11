@@ -27,7 +27,7 @@ export const RegulatoryExamForm = () => {
 
     try {
       setIsUploading(true);
-      const response = await fetch('http://localhost:9002/upload_exam_certificate', {
+      const response = await fetch('http://cens.synology.me:9002/upload_exam_certificate', {
         method: 'POST',
         body: formData,
       });
