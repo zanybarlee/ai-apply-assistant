@@ -18,6 +18,7 @@ export interface FormData {
   selectedCourse?: string;
   selectedPrograms?: string[];
   yearsOfExperience?: number;
+  name?: string; // Added to maintain compatibility
 }
 
 export interface FormValidation {
