@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload } from "lucide-react";
-import { uploadDocumentToStorage } from "@/services/documentService";
 
-export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: string) => void }) => {
+interface DocumentUploadProps {
+  onTextExtracted: (file: File) => Promise<string | null>;
+}
+
+export const DocumentUpload = ({ onTextExtracted }: DocumentUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
@@ -22,18 +25,7 @@ export const DocumentUpload = ({ onTextExtracted }: { onTextExtracted: (text: st
 
     setIsUploading(true);
     try {
-      console.log('Starting file upload process...');
-      
-      const fileName = `${crypto.randomUUID()}.pdf`;
-      await uploadDocumentToStorage(file, fileName);
-      
-      toast({
-        title: "Document Uploaded",
-        description: "Your document has been uploaded successfully.",
-      });
-
-      // For now, we'll just pass an empty string since we're not extracting text
-      onTextExtracted("");
+      await onTextExtracted(file);
     } catch (error) {
       console.error('Upload error:', error);
       toast({

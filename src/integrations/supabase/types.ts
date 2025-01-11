@@ -48,6 +48,36 @@ export type Database = {
         }
         Relationships: []
       }
+      examination_certificates: {
+        Row: {
+          created_at: string
+          exam_completion_date: string | null
+          exam_name: string
+          exam_type: string
+          file_url: string | null
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          exam_completion_date?: string | null
+          exam_name: string
+          exam_type: string
+          file_url?: string | null
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          exam_completion_date?: string | null
+          exam_name?: string
+          exam_type?: string
+          file_url?: string | null
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       job_roles: {
         Row: {
           certification_level: Database["public"]["Enums"]["certification_level"]

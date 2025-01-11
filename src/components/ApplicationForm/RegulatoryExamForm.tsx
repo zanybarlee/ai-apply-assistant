@@ -11,10 +11,45 @@ export const RegulatoryExamForm = () => {
   const [examName, setExamName] = useState("");
   const [examType, setExamType] = useState<string>("");
   const [completionDate, setCompletionDate] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleTextExtracted = async (text: string) => {
-    // Handle the extracted text if needed
-    console.log("Extracted text:", text);
+  const handleFileUpload = async (file: File) => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setIsUploading(true);
+      const response = await fetch('http://localhost:9002/upload_exam_certificate', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload file');
+      }
+
+      const data = await response.json();
+      console.log('Upload response:', data);
+
+      toast({
+        title: "File Uploaded",
+        description: "Your exam certificate has been uploaded successfully.",
+      });
+
+      return data.url; // Assuming the API returns the file URL
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload Failed",
+        description: "There was an error uploading your exam certificate.",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -97,15 +132,15 @@ export const RegulatoryExamForm = () => {
 
         <div>
           <Label>Upload Result Slip (PDF)</Label>
-          <DocumentUpload onTextExtracted={handleTextExtracted} />
+          <DocumentUpload onTextExtracted={handleFileUpload} />
         </div>
 
         <button
           onClick={handleSubmit}
           className="w-full px-4 py-2 text-white bg-primary rounded hover:bg-primary/90 transition-colors"
-          disabled={!examName || !examType || !completionDate}
+          disabled={!examName || !examType || !completionDate || isUploading}
         >
-          Submit Exam Record
+          {isUploading ? "Uploading..." : "Submit Exam Record"}
         </button>
       </div>
     </div>
