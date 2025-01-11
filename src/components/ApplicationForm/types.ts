@@ -18,7 +18,7 @@ export interface FormData {
   selectedCourse?: string;
   selectedPrograms?: string[];
   yearsOfExperience?: number;
-  name?: string; // Added to maintain compatibility
+  name: string; // Changed from optional to required
 }
 
 export interface FormValidation {

@@ -16,7 +16,7 @@ const initialFormData: FormData = {
   selectedCourse: "",
   selectedPrograms: [],
   yearsOfExperience: 0,
-  name: "" // Initialize the name field
+  name: "" // Initialize the required name field
 };
 
 export const useFormState = () => {
