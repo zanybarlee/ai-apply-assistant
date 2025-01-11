@@ -3,8 +3,9 @@ import { ExternalLink, Check, X, AlertCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip } from "@/components/ui/tooltip";
-import { TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
 
 interface IBFProgram {
   id: string;
@@ -17,9 +18,18 @@ interface IBFProgram {
 interface IBFProgramsTableProps {
   userCertificationLevel?: string;
   yearsOfExperience?: number;
+  selectedPrograms: string[];
+  onProgramSelect: (programId: string, isSelected: boolean) => void;
 }
 
-export const IBFProgramsTable = ({ userCertificationLevel, yearsOfExperience }: IBFProgramsTableProps) => {
+export const IBFProgramsTable = ({ 
+  userCertificationLevel, 
+  yearsOfExperience,
+  selectedPrograms,
+  onProgramSelect
+}: IBFProgramsTableProps) => {
+  const { toast } = useToast();
+  
   const { data: programs, isLoading } = useQuery({
     queryKey: ['ibf-programs'],
     queryFn: async () => {
@@ -69,6 +79,23 @@ export const IBFProgramsTable = ({ userCertificationLevel, yearsOfExperience }: 
     };
   };
 
+  const handleProgramSelect = (programId: string, isChecked: boolean) => {
+    const program = programs?.find(p => p.id === programId);
+    if (!program) return;
+
+    const eligibility = getEligibilityStatus(program.certification_level);
+    if (eligibility.status !== 'eligible' && isChecked) {
+      toast({
+        title: "Program Selection Error",
+        description: "You are not eligible for this program based on your certification level.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onProgramSelect(programId, isChecked);
+  };
+
   if (isLoading) {
     return <div className="text-center py-4">Loading IBF-STS programs...</div>;
   }
@@ -78,13 +105,14 @@ export const IBFProgramsTable = ({ userCertificationLevel, yearsOfExperience }: 
       <div className="bg-muted/50 p-4 rounded-lg">
         <h3 className="text-lg font-semibold">IBF-STS Accredited Programs</h3>
         <p className="text-sm text-muted-foreground mt-1">
-          These programs are recognized by the Institute of Banking and Finance Singapore (IBF).
+          Select the programs you wish to enroll in. You can only select programs for which you are eligible.
         </p>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-[50px]">Select</TableHead>
             <TableHead>Provider</TableHead>
             <TableHead>Program</TableHead>
             <TableHead>Level</TableHead>
@@ -95,8 +123,17 @@ export const IBFProgramsTable = ({ userCertificationLevel, yearsOfExperience }: 
         <TableBody>
           {programs?.map((program) => {
             const eligibility = getEligibilityStatus(program.certification_level);
+            const isSelected = selectedPrograms.includes(program.id);
+
             return (
               <TableRow key={program.id}>
+                <TableCell>
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={(checked) => handleProgramSelect(program.id, checked as boolean)}
+                    disabled={eligibility.status !== 'eligible'}
+                  />
+                </TableCell>
                 <TableCell className="font-medium">{program.provider_name}</TableCell>
                 <TableCell>{program.program_name}</TableCell>
                 <TableCell>
@@ -139,7 +176,7 @@ export const IBFProgramsTable = ({ userCertificationLevel, yearsOfExperience }: 
           })}
           {(!programs || programs.length === 0) && (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
+              <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
                 No IBF-STS programs found
               </TableCell>
             </TableRow>
