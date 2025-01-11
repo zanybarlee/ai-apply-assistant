@@ -4,6 +4,8 @@ import { IBFProgramsTable } from "../IBFPrograms/IBFProgramsTable";
 interface CertificationScopeTabProps {
   formData: {
     tscsCovered?: number;
+    certificationLevel?: string;
+    yearsOfExperience?: number;
   };
   onChange: (field: string, value: number) => void;
   validation: {
@@ -25,7 +27,10 @@ export const CertificationScopeTab = ({ formData, onChange, validation }: Certif
       />
 
       <div className="mt-8">
-        <IBFProgramsTable />
+        <IBFProgramsTable 
+          userCertificationLevel={formData.certificationLevel}
+          yearsOfExperience={formData.yearsOfExperience}
+        />
       </div>
     </div>
   );
