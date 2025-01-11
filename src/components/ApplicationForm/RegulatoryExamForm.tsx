@@ -1,15 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DocumentUpload } from "./DocumentUpload";
 import { supabase } from "@/integrations/supabase/client";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface ExamMetadata {
   exam_type: string;
   exam_name: string;
   exam_completion_date: string;
+}
+
+interface ExaminationCertificate {
+  id: number;
+  exam_type: string;
+  exam_name: string;
+  exam_completion_date: string;
+  file_url: string | null;
+  created_at: string;
 }
 
 export const RegulatoryExamForm = () => {
@@ -18,6 +28,30 @@ export const RegulatoryExamForm = () => {
   const [examType, setExamType] = useState<string>("");
   const [completionDate, setCompletionDate] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [certificates, setCertificates] = useState<ExaminationCertificate[]>([]);
+
+  useEffect(() => {
+    fetchCertificates();
+  }, []);
+
+  const fetchCertificates = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('examination_certificates')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setCertificates(data || []);
+    } catch (error) {
+      console.error('Error fetching certificates:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch examination certificates.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleFileUpload = async (file: File): Promise<string | null> => {
     if (!file) return null;
@@ -43,11 +77,10 @@ export const RegulatoryExamForm = () => {
       const data = await response.json();
       console.log('Upload response:', data);
 
-      // Update form fields with the metadata from the response
       if (data.exam_metadata) {
         const metadata: ExamMetadata = data.exam_metadata;
         setExamName(metadata.exam_name);
-        setExamType(metadata.exam_type === "Industry" ? "CMFAS_M8" : examType); // Map the exam type appropriately
+        setExamType(metadata.exam_type === "Industry" ? "CMFAS_M8" : examType);
         setCompletionDate(metadata.exam_completion_date);
       }
 
@@ -55,6 +88,9 @@ export const RegulatoryExamForm = () => {
         title: "File Processed",
         description: "Your exam certificate has been uploaded and processed successfully.",
       });
+
+      // Refresh the certificates list after successful upload
+      await fetchCertificates();
 
       return data.filename;
     } catch (error) {
@@ -93,10 +129,11 @@ export const RegulatoryExamForm = () => {
         description: "Your regulatory exam has been recorded successfully.",
       });
 
-      // Reset form
+      // Reset form and refresh certificates
       setExamName("");
       setExamType("");
       setCompletionDate("");
+      await fetchCertificates();
     } catch (error) {
       console.error('Error submitting exam:', error);
       toast({
@@ -105,6 +142,10 @@ export const RegulatoryExamForm = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
   };
 
   return (
@@ -160,6 +201,37 @@ export const RegulatoryExamForm = () => {
         >
           {isUploading ? "Uploading..." : "Submit Exam Record"}
         </button>
+
+        <div className="mt-8">
+          <h4 className="text-lg font-semibold mb-4">Uploaded Certificates</h4>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Exam Type</TableHead>
+                <TableHead>Exam Name</TableHead>
+                <TableHead>Completion Date</TableHead>
+                <TableHead>Upload Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {certificates.map((cert) => (
+                <TableRow key={cert.id}>
+                  <TableCell>{cert.exam_type}</TableCell>
+                  <TableCell>{cert.exam_name}</TableCell>
+                  <TableCell>{cert.exam_completion_date ? formatDate(cert.exam_completion_date) : 'N/A'}</TableCell>
+                  <TableCell>{formatDate(cert.created_at)}</TableCell>
+                </TableRow>
+              ))}
+              {certificates.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                    No certificates uploaded yet
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );
