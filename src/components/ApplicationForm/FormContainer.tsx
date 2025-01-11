@@ -178,6 +178,14 @@ export const FormContainer = () => {
             onChange={handleInputChange}
             currentStep={currentTabStep}
             onStepChange={setCurrentTabStep}
+            onMainStepChange={(direction) => {
+              if (direction === 'back') {
+                setCurrentStep(0);
+              } else if (direction === 'next') {
+                setCurrentStep(2);
+              }
+              savePreferences({ lastVisitedStep: direction === 'back' ? 0 : 2 });
+            }}
           />
         );
       case 2:

@@ -25,6 +25,7 @@ interface ApplicationDetailsProps {
   onChange: (field: string, value: string | number | string[]) => void;
   currentStep: number;
   onStepChange: (step: number) => void;
+  onMainStepChange: (direction: 'back' | 'next') => void;
 }
 
 const TABS = [
@@ -34,7 +35,13 @@ const TABS = [
   "certification-scope"
 ] as const;
 
-export const ApplicationDetails = ({ formData, onChange, currentStep, onStepChange }: ApplicationDetailsProps) => {
+export const ApplicationDetails = ({ 
+  formData, 
+  onChange, 
+  currentStep, 
+  onStepChange,
+  onMainStepChange 
+}: ApplicationDetailsProps) => {
   const [validation, setValidation] = useState<FormValidationState>({
     experience: { valid: true, message: "" },
     tscs: { valid: false, message: "Minimum 75% TSCs coverage required" },
@@ -127,21 +134,40 @@ export const ApplicationDetails = ({ formData, onChange, currentStep, onStepChan
       </Tabs>
 
       <div className="flex justify-between mt-8">
-        <Button
-          variant="outline"
-          onClick={handleBack}
-          disabled={currentStep === 0}
-          className="bg-white border-secondary text-secondary hover:bg-secondary/10 transition-all duration-200"
-        >
-          Back
-        </Button>
-        <Button
-          onClick={handleNext}
-          disabled={currentStep === TABS.length - 1}
-          className="bg-[#C5D82D] hover:bg-[#D4E157] text-gray-900 transition-all duration-200"
-        >
-          Next
-        </Button>
+        {currentStep === 0 ? (
+          <Button
+            variant="outline"
+            onClick={() => onMainStepChange('back')}
+            className="bg-white border-secondary text-secondary hover:bg-secondary/10 transition-all duration-200"
+          >
+            Back to Personal Info
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            disabled={currentStep === 0}
+            className="bg-white border-secondary text-secondary hover:bg-secondary/10 transition-all duration-200"
+          >
+            Previous Section
+          </Button>
+        )}
+        
+        {currentStep === TABS.length - 1 ? (
+          <Button
+            onClick={() => onMainStepChange('next')}
+            className="bg-[#C5D82D] hover:bg-[#D4E157] text-gray-900 transition-all duration-200"
+          >
+            Continue to Review
+          </Button>
+        ) : (
+          <Button
+            onClick={handleNext}
+            className="bg-[#C5D82D] hover:bg-[#D4E157] text-gray-900 transition-all duration-200"
+          >
+            Next Section
+          </Button>
+        )}
       </div>
     </div>
   );
