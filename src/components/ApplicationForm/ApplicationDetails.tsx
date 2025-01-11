@@ -17,8 +17,11 @@ interface ApplicationDetailsProps {
     tscsCovered?: number;
     selectedRole?: string;
     selectedCourse?: string;
+    selectedPrograms?: string[];
+    certificationLevel?: string;
+    yearsOfExperience?: number;
   };
-  onChange: (field: string, value: string | number) => void;
+  onChange: (field: string, value: string | number | string[]) => void;
 }
 
 export const ApplicationDetails = ({ formData, onChange }: ApplicationDetailsProps) => {
