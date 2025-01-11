@@ -6,6 +6,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DocumentUpload } from "./DocumentUpload";
 import { supabase } from "@/integrations/supabase/client";
 
+interface ExamMetadata {
+  exam_type: string;
+  exam_name: string;
+  exam_completion_date: string;
+}
+
 export const RegulatoryExamForm = () => {
   const { toast } = useToast();
   const [examName, setExamName] = useState("");
@@ -13,8 +19,8 @@ export const RegulatoryExamForm = () => {
   const [completionDate, setCompletionDate] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileUpload = async (file: File) => {
-    if (!file) return;
+  const handleFileUpload = async (file: File): Promise<string | null> => {
+    if (!file) return null;
 
     const formData = new FormData();
     formData.append("file", file);
@@ -33,12 +39,20 @@ export const RegulatoryExamForm = () => {
       const data = await response.json();
       console.log('Upload response:', data);
 
+      // Update form fields with the metadata from the response
+      if (data.exam_metadata) {
+        const metadata: ExamMetadata = data.exam_metadata;
+        setExamName(metadata.exam_name);
+        setExamType(metadata.exam_type === "Industry" ? "CMFAS_M8" : examType); // Map the exam type appropriately
+        setCompletionDate(metadata.exam_completion_date);
+      }
+
       toast({
-        title: "File Uploaded",
-        description: "Your exam certificate has been uploaded successfully.",
+        title: "File Processed",
+        description: "Your exam certificate has been uploaded and processed successfully.",
       });
 
-      return data.url; // Assuming the API returns the file URL
+      return data.filename;
     } catch (error) {
       console.error('Upload error:', error);
       toast({
