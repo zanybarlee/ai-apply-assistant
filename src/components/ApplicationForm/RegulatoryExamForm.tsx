@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DocumentUpload } from "./DocumentUpload";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ExamMetadata {
   exam_type: string;
@@ -211,6 +213,7 @@ export const RegulatoryExamForm = () => {
                 <TableHead>Exam Name</TableHead>
                 <TableHead>Completion Date</TableHead>
                 <TableHead>Upload Date</TableHead>
+                <TableHead>File</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -220,11 +223,26 @@ export const RegulatoryExamForm = () => {
                   <TableCell>{cert.exam_name}</TableCell>
                   <TableCell>{cert.exam_completion_date ? formatDate(cert.exam_completion_date) : 'N/A'}</TableCell>
                   <TableCell>{formatDate(cert.created_at)}</TableCell>
+                  <TableCell>
+                    {cert.file_url ? (
+                      <a 
+                        href={cert.file_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-primary hover:text-primary/80"
+                      >
+                        <FileText className="h-4 w-4 mr-1" />
+                        View
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground">No file</span>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
               {certificates.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
                     No certificates uploaded yet
                   </TableCell>
                 </TableRow>
