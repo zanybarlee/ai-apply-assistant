@@ -24,7 +24,7 @@ export interface FormData {
   email: string;
   phone: string;
   certificationLevel: string;
-  yearsOfExperience: string;
+  yearsOfExperience: number; // Changed from string to number
   purpose: string;
   amount: string;
   timeline: string;
@@ -32,6 +32,7 @@ export interface FormData {
   tscsCovered: number;
   selectedRole?: string;
   selectedCourse?: string;
+  selectedPrograms?: string[];
 }
 
 export const FormContainer = () => {
@@ -43,7 +44,7 @@ export const FormContainer = () => {
     email: "",
     phone: "",
     certificationLevel: "",
-    yearsOfExperience: "0", // Initialize with "0" instead of empty string
+    yearsOfExperience: 0, // Initialize with 0 instead of "0"
     purpose: "",
     amount: "",
     timeline: "",
@@ -51,6 +52,7 @@ export const FormContainer = () => {
     tscsCovered: 0,
     selectedRole: "",
     selectedCourse: "",
+    selectedPrograms: [],
   });
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export const FormContainer = () => {
     }
   }, []);
 
-  const handleInputChange = (field: string, value: string | number) => {
+  const handleInputChange = (field: string, value: string | number | string[]) => {
     setFormData((prev) => {
       const newData = { ...prev, [field]: value };
       if (field === 'industry' || field === 'certificationLevel') {
@@ -102,7 +104,7 @@ export const FormContainer = () => {
         return;
       }
 
-      const segmentExperience = parseInt(formData.yearsOfExperience);
+      const segmentExperience = formData.yearsOfExperience;
       if (isNaN(segmentExperience) || segmentExperience < 0) {
         toast({
           title: "Error",
@@ -143,7 +145,7 @@ export const FormContainer = () => {
         email: "",
         phone: "",
         certificationLevel: "",
-        yearsOfExperience: "0",
+        yearsOfExperience: 0,
         purpose: "",
         amount: "",
         timeline: "",
@@ -151,6 +153,7 @@ export const FormContainer = () => {
         tscsCovered: 0,
         selectedRole: "",
         selectedCourse: "",
+        selectedPrograms: [],
       });
       setCurrentStep(0);
     } catch (error) {
