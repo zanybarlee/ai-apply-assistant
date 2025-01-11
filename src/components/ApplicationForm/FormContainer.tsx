@@ -24,7 +24,7 @@ export interface FormData {
   email: string;
   phone: string;
   certificationLevel: string;
-  yearsOfExperience: number; // Changed from string to number
+  yearsOfExperience: number;
   purpose: string;
   amount: string;
   timeline: string;
@@ -38,13 +38,14 @@ export interface FormData {
 export const FormContainer = () => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
+  const [currentTabStep, setCurrentTabStep] = useState(0);
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     certificationLevel: "",
-    yearsOfExperience: 0, // Initialize with 0 instead of "0"
+    yearsOfExperience: 0,
     purpose: "",
     amount: "",
     timeline: "",
@@ -114,7 +115,6 @@ export const FormContainer = () => {
         return;
       }
 
-      // Save certification application with segment_experience_years
       const { error: certError } = await supabase
         .from('user_certifications')
         .insert([
@@ -156,6 +156,7 @@ export const FormContainer = () => {
         selectedPrograms: [],
       });
       setCurrentStep(0);
+      setCurrentTabStep(0);
     } catch (error) {
       console.error('Submission error:', error);
       toast({
@@ -171,7 +172,14 @@ export const FormContainer = () => {
       case 0:
         return <PersonalInfo formData={formData} onChange={handleInputChange} />;
       case 1:
-        return <ApplicationDetails formData={formData} onChange={handleInputChange} />;
+        return (
+          <ApplicationDetails 
+            formData={formData} 
+            onChange={handleInputChange}
+            currentStep={currentTabStep}
+            onStepChange={setCurrentTabStep}
+          />
+        );
       case 2:
         return <Review formData={formData} />;
       default:
@@ -194,26 +202,28 @@ export const FormContainer = () => {
           <Card className="p-6 sm:p-8 bg-white/90 backdrop-blur-sm border border-secondary/20 shadow-lg">
             <div className="space-y-6">
               {renderStep()}
-              <FormNavigation 
-                currentStep={currentStep}
-                onNext={() => {
-                  if (!validateStep()) return;
-                  if (currentStep < STEPS.length - 1) {
-                    const nextStep = currentStep + 1;
-                    setCurrentStep(nextStep);
-                    savePreferences({ lastVisitedStep: nextStep });
-                  } else {
-                    handleSubmit();
-                  }
-                }}
-                onBack={() => {
-                  if (currentStep > 0) {
-                    const prevStep = currentStep - 1;
-                    setCurrentStep(prevStep);
-                    savePreferences({ lastVisitedStep: prevStep });
-                  }
-                }}
-              />
+              {currentStep !== 1 && (
+                <FormNavigation 
+                  currentStep={currentStep}
+                  onNext={() => {
+                    if (!validateStep()) return;
+                    if (currentStep < STEPS.length - 1) {
+                      const nextStep = currentStep + 1;
+                      setCurrentStep(nextStep);
+                      savePreferences({ lastVisitedStep: nextStep });
+                    } else {
+                      handleSubmit();
+                    }
+                  }}
+                  onBack={() => {
+                    if (currentStep > 0) {
+                      const prevStep = currentStep - 1;
+                      setCurrentStep(prevStep);
+                      savePreferences({ lastVisitedStep: prevStep });
+                    }
+                  }}
+                />
+              )}
             </div>
           </Card>
         </div>
