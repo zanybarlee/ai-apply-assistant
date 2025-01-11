@@ -1,14 +1,12 @@
-import { useState, useEffect } from "react";
-import { FormData } from "../types/formTypes";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useState } from "react";
+import { FormData } from "../types";
 
 const initialFormData: FormData = {
-  name: "",
+  firstName: "",
+  lastName: "",
   email: "",
   phone: "",
   certificationLevel: "",
-  yearsOfExperience: 0,
   purpose: "",
   amount: "",
   timeline: "",
@@ -17,44 +15,18 @@ const initialFormData: FormData = {
   selectedRole: "",
   selectedCourse: "",
   selectedPrograms: [],
+  yearsOfExperience: 0
 };
 
 export const useFormState = () => {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [currentStep, setCurrentStep] = useState(0);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        
-        if (profile) {
-          setFormData(prev => ({
-            ...prev,
-            name: `${profile.first_name} ${profile.last_name}`.trim(),
-            email: user.email || "",
-            phone: profile.phone_number || "",
-          }));
-        }
-      }
-    };
-    fetchUserProfile();
-  }, []);
 
   const handleInputChange = (field: string, value: string | number | string[]) => {
-    setFormData((prev) => {
-      const newData = { ...prev, [field]: value };
-      if (field === 'industry' || field === 'certificationLevel') {
-        newData.selectedRole = '';
-      }
-      return newData;
-    });
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const resetForm = () => {

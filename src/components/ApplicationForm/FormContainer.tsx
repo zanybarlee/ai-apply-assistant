@@ -72,7 +72,7 @@ export const FormContainer = () => {
     <div className="container mx-auto p-6 max-w-4xl">
       <FormHeader 
         currentStep={currentStep} 
-        firstName={formData.firstName || ""} 
+        firstName={formData.firstName} 
       />
       <div className="mt-8">{renderStep()}</div>
       <FormNavigation

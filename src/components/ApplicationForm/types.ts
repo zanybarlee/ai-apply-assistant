@@ -19,3 +19,10 @@ export interface FormData {
   selectedPrograms?: string[];
   yearsOfExperience?: number;
 }
+
+export interface FormValidation {
+  tscs: {
+    valid: boolean;
+    message: string;
+  };
+}
