@@ -20,6 +20,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [showCertifications, setShowCertifications] = useState(false);
+  const [showExams, setShowExams] = useState(false);
 
   useEffect(() => {
     const getUserId = async () => {
@@ -60,19 +61,6 @@ const Index = () => {
     enabled: !!userId
   });
 
-  const { data: trainingPrograms } = useQuery({
-    queryKey: ['training_programs', userId],
-    queryFn: async () => {
-      if (!userId) return [];
-      const { data } = await supabase
-        .from('user_training_programs')
-        .select('*, training_program:training_programs(*)')
-        .eq('user_id', userId);
-      return data || [];
-    },
-    enabled: !!userId
-  });
-
   const { data: exams } = useQuery({
     queryKey: ['exams', userId],
     queryFn: async () => {
@@ -86,9 +74,26 @@ const Index = () => {
     enabled: !!userId
   });
 
+  const { data: trainingPrograms } = useQuery({
+    queryKey: ['training_programs', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data } = await supabase
+        .from('user_training_programs')
+        .select('*, training_program:training_programs(*)')
+        .eq('user_id', userId);
+      return data || [];
+    },
+    enabled: !!userId
+  });
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
   };
 
   return (
@@ -146,7 +151,10 @@ const Index = () => {
           <Card className="p-6 bg-white/95">
             <h2 className="text-2xl font-bold text-[#5D4037] mb-6">MySkills Progress</h2>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div 
+                className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                onClick={() => setShowExams(true)}
+              >
                 <span className="text-gray-600">Exams ({exams?.length || 0} completed)</span>
                 <ClipboardList className={exams?.length ? "text-green-500" : "text-gray-400"} />
               </div>
@@ -258,6 +266,53 @@ const Index = () => {
               ))}
               {(!certifications || certifications.length === 0) && (
                 <p className="text-center text-gray-500 py-4">No certifications in progress</p>
+              )}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Exams Dialog */}
+      <Dialog open={showExams} onOpenChange={setShowExams}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center justify-between">
+              <span>Completed Exams</span>
+              <DialogClose asChild>
+                <Button variant="ghost" size="icon">
+                  <X className="h-4 w-4" />
+                </Button>
+              </DialogClose>
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] mt-4">
+            <div className="space-y-4">
+              {exams?.map((exam) => (
+                <Card key={exam.id} className="p-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-lg">{exam.exam_name}</h3>
+                      <Badge variant="outline">{exam.exam_type}</Badge>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      <p>Completion Date: {formatDate(exam.completion_date)}</p>
+                      {exam.result_slip_url && (
+                        <a 
+                          href={exam.result_slip_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary/80 flex items-center mt-2"
+                        >
+                          <ClipboardList className="h-4 w-4 mr-1" />
+                          View Result Slip
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              {(!exams || exams.length === 0) && (
+                <p className="text-center text-gray-500 py-4">No exams completed yet</p>
               )}
             </div>
           </ScrollArea>
