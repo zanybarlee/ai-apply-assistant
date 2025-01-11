@@ -17,5 +17,16 @@ export default defineConfig(({ mode }) => ({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+  },
+  optimizeDeps: {
+    include: ['pdfjs-dist']
+  },
+  build: {
+    rollupOptions: {
+      external: [
+        // Exclude PDF.js worker from the bundle
+        /pdf\.worker\.js$/
+      ]
+    }
   }
 }))
