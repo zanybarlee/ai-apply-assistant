@@ -21,6 +21,7 @@ const Index = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [showCertifications, setShowCertifications] = useState(false);
   const [showExams, setShowExams] = useState(false);
+  const [showTraining, setShowTraining] = useState(false);
 
   useEffect(() => {
     const getUserId = async () => {
@@ -98,7 +99,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#C5D82D] to-[#004D40]">
-      {/* Navigation Bar */}
       <nav className="w-full px-6 py-4 flex justify-between items-center bg-white/90 backdrop-blur-sm">
         <div className="text-2xl font-bold text-secondary">IBF</div>
         <NavigationMenu>
@@ -165,14 +165,16 @@ const Index = () => {
                 <span className="text-gray-600">Certifications ({certifications?.length || 0} in progress)</span>
                 <Award className={certifications?.length ? "text-green-500" : "text-gray-400"} />
               </div>
-              <div className="flex items-center justify-between">
+              <div 
+                className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                onClick={() => setShowTraining(true)}
+              >
                 <span className="text-gray-600">Training ({trainingPrograms?.length || 0} completed)</span>
                 <GraduationCap className={trainingPrograms?.length ? "text-green-500" : "text-gray-400"} />
               </div>
             </div>
           </Card>
 
-          {/* MySkills Portfolio */}
           <Card className="p-6 bg-white/95">
             <h2 className="text-2xl font-bold text-[#5D4037] mb-6">MySkills Portfolio</h2>
             <p className="text-gray-600 mb-4">I have successfully completed the following:</p>
@@ -234,7 +236,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Certifications Dialog */}
       <Dialog open={showCertifications} onOpenChange={setShowCertifications}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -313,6 +314,54 @@ const Index = () => {
               ))}
               {(!exams || exams.length === 0) && (
                 <p className="text-center text-gray-500 py-4">No exams completed yet</p>
+              )}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Training Programs Dialog */}
+      <Dialog open={showTraining} onOpenChange={setShowTraining}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center justify-between">
+              <span>Completed Training Programs</span>
+              <DialogClose asChild>
+                <Button variant="ghost" size="icon">
+                  <X className="h-4 w-4" />
+                </Button>
+              </DialogClose>
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] mt-4">
+            <div className="space-y-4">
+              {trainingPrograms?.map((program) => (
+                <Card key={program.id} className="p-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-lg">{program.training_program.program_name}</h3>
+                      <Badge variant="outline">{program.training_program.provider_name}</Badge>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      <p>Started: {formatDate(program.commencement_date)}</p>
+                      <p>Completed: {formatDate(program.completion_date)}</p>
+                      {program.certificate_url && (
+                        <a 
+                          href={program.certificate_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary/80 flex items-center mt-2"
+                        >
+                          <GraduationCap className="h-4 w-4 mr-1" />
+                          View Certificate
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              {(!trainingPrograms || trainingPrograms.length === 0) && (
+                <p className="text-center text-gray-500 py-4">No training programs completed yet</p>
               )}
             </div>
           </ScrollArea>
