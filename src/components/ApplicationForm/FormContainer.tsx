@@ -7,6 +7,9 @@ import { CertificationScopeTab } from "./Tabs/CertificationScopeTab";
 import { Review } from "./Review";
 import { useFormState } from "./hooks/useFormState";
 import { submitForm } from "./utils/formSubmission";
+import { STEPS } from "./constants";
+import { useState } from "react";
+import { validateForm } from "@/utils/validationUtils";
 
 export const FormContainer = () => {
   const {
@@ -17,12 +20,7 @@ export const FormContainer = () => {
     resetForm,
   } = useFormState();
 
-  const validation = {
-    tscs: {
-      valid: formData.tscsCovered >= 75,
-      message: formData.tscsCovered < 75 ? "TSCs coverage must be at least 75%" : "",
-    },
-  };
+  const [validation, setValidation] = useState(() => validateForm(formData));
 
   const handleSubmit = async () => {
     const success = await submitForm(formData);
@@ -38,6 +36,7 @@ export const FormContainer = () => {
           <ApplicationDetailTab
             formData={formData}
             onChange={handleInputChange}
+            validation={validation}
           />
         );
       case 1:
@@ -54,7 +53,12 @@ export const FormContainer = () => {
           <CertificationScopeTab
             formData={formData}
             onChange={handleInputChange}
-            validation={validation}
+            validation={{
+              tscs: {
+                valid: formData.tscsCovered >= 75,
+                message: formData.tscsCovered < 75 ? "TSCs coverage must be at least 75%" : "",
+              }
+            }}
           />
         );
       case 4:
@@ -66,13 +70,15 @@ export const FormContainer = () => {
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
-      <FormHeader currentStep={currentStep} />
+      <FormHeader 
+        currentStep={currentStep} 
+        firstName={formData.firstName || ""} 
+      />
       <div className="mt-8">{renderStep()}</div>
       <FormNavigation
         currentStep={currentStep}
-        setCurrentStep={setCurrentStep}
-        onSubmit={handleSubmit}
-        isLastStep={currentStep === 4}
+        onNext={() => setCurrentStep(prev => Math.min(prev + 1, STEPS.length - 1))}
+        onBack={() => setCurrentStep(prev => Math.max(prev - 1, 0))}
       />
     </div>
   );

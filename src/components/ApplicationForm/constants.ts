@@ -1,0 +1,1 @@
+export const STEPS = ["Personal Info", "Application Details", "Review & Submit"];
