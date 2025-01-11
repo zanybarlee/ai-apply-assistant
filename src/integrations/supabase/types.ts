@@ -161,6 +161,7 @@ export type Database = {
       }
       training_programs: {
         Row: {
+          created_at: string | null
           file_url: string | null
           id: string
           program_name: string
@@ -169,6 +170,7 @@ export type Database = {
           validity_start: string
         }
         Insert: {
+          created_at?: string | null
           file_url?: string | null
           id?: string
           program_name: string
@@ -177,6 +179,7 @@ export type Database = {
           validity_start: string
         }
         Update: {
+          created_at?: string | null
           file_url?: string | null
           id?: string
           program_name?: string

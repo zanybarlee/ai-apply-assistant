@@ -8,6 +8,7 @@ interface TrainingProgram {
   validity_start: string;
   validity_end: string;
   file_url: string | null;
+  created_at?: string;
 }
 
 interface ProgramsTableProps {

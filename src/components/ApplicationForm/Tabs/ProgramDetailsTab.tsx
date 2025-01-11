@@ -19,6 +19,7 @@ interface TrainingProgram {
   validity_start: string;
   validity_end: string;
   file_url: string | null;
+  created_at?: string;
 }
 
 export const ProgramDetailsTab = ({ formData, onChange }: ProgramDetailsTabProps) => {
@@ -30,7 +31,7 @@ export const ProgramDetailsTab = ({ formData, onChange }: ProgramDetailsTabProps
       const { data, error } = await supabase
         .from('training_programs')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('id', { ascending: false });
 
       if (error) throw error;
       setPrograms(data || []);
