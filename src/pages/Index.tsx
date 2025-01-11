@@ -40,7 +40,8 @@ const Index = () => {
       const { data } = await supabase
         .from('user_certifications')
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .eq('status', 'submitted'); // Only count submitted certifications
       return data || [];
     },
     enabled: !!userId
@@ -158,11 +159,11 @@ const Index = () => {
               </div>
               <div className="text-center p-4 rounded-full bg-[#C5D82D] text-white">
                 <div className="text-4xl font-bold">{certifications?.length || 0}</div>
-                <div className="text-sm mt-2">Competency Units</div>
+                <div className="text-sm mt-2">Certifications</div>
               </div>
               <div className="text-center p-4 rounded-full bg-[#5D4037] text-white">
                 <div className="text-4xl font-bold">{trainingPrograms?.length || 0}</div>
-                <div className="text-sm mt-2">Training Hours this Year</div>
+                <div className="text-sm mt-2">Training Hours</div>
               </div>
             </div>
           </Card>
