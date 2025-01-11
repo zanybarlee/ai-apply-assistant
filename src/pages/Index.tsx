@@ -3,13 +3,23 @@ import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuL
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { ClipboardList, Award, GraduationCap, TrendingUp, UserCircle } from "lucide-react";
+import { ClipboardList, Award, GraduationCap, TrendingUp, UserCircle, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
+  const [showCertifications, setShowCertifications] = useState(false);
 
   useEffect(() => {
     const getUserId = async () => {
@@ -39,9 +49,12 @@ const Index = () => {
       if (!userId) return [];
       const { data } = await supabase
         .from('user_certifications')
-        .select('*')
+        .select(`
+          *,
+          job_role:job_roles(*)
+        `)
         .eq('user_id', userId)
-        .eq('status', 'submitted'); // Only count submitted certifications
+        .eq('status', 'submitted');
       return data || [];
     },
     enabled: !!userId
@@ -137,7 +150,10 @@ const Index = () => {
                 <span className="text-gray-600">Exams ({exams?.length || 0} completed)</span>
                 <ClipboardList className={exams?.length ? "text-green-500" : "text-gray-400"} />
               </div>
-              <div className="flex items-center justify-between">
+              <div 
+                className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                onClick={() => setShowCertifications(true)}
+              >
                 <span className="text-gray-600">Certifications ({certifications?.length || 0} in progress)</span>
                 <Award className={certifications?.length ? "text-green-500" : "text-gray-400"} />
               </div>
@@ -209,6 +225,44 @@ const Index = () => {
           </Card>
         </div>
       </div>
+
+      {/* Certifications Dialog */}
+      <Dialog open={showCertifications} onOpenChange={setShowCertifications}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center justify-between">
+              <span>Certifications in Progress</span>
+              <DialogClose asChild>
+                <Button variant="ghost" size="icon">
+                  <X className="h-4 w-4" />
+                </Button>
+              </DialogClose>
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] mt-4">
+            <div className="space-y-4">
+              {certifications?.map((cert: any) => (
+                <Card key={cert.id} className="p-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-lg">{cert.job_role?.title}</h3>
+                      <Badge variant="outline">{cert.status}</Badge>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      <p>Industry: {cert.industry_segment}</p>
+                      <p>Experience: {cert.segment_experience_years} years in segment</p>
+                      <p>Total Experience: {cert.total_experience_years} years</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              {(!certifications || certifications.length === 0) && (
+                <p className="text-center text-gray-500 py-4">No certifications in progress</p>
+              )}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
