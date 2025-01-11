@@ -29,7 +29,11 @@ export const RegulatoryExamForm = () => {
       setIsUploading(true);
       const response = await fetch('http://cens.synology.me:9002/upload_exam_certificate', {
         method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+        },
         body: formData,
+        mode: 'cors',
       });
 
       if (!response.ok) {
