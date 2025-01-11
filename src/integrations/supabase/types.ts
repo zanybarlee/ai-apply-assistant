@@ -78,6 +78,36 @@ export type Database = {
         }
         Relationships: []
       }
+      ibf_training_programs: {
+        Row: {
+          certification_level: Database["public"]["Enums"]["certification_level"]
+          created_at: string | null
+          id: string
+          program_name: string
+          program_url: string | null
+          provider_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          certification_level?: Database["public"]["Enums"]["certification_level"]
+          created_at?: string | null
+          id?: string
+          program_name: string
+          program_url?: string | null
+          provider_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          certification_level?: Database["public"]["Enums"]["certification_level"]
+          created_at?: string | null
+          id?: string
+          program_name?: string
+          program_url?: string | null
+          provider_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       job_roles: {
         Row: {
           certification_level: Database["public"]["Enums"]["certification_level"]

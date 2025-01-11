@@ -1,4 +1,5 @@
 import { TSCsCoverageInput } from "../TSCsCoverageInput";
+import { IBFProgramsTable } from "../IBFPrograms/IBFProgramsTable";
 
 interface CertificationScopeTabProps {
   formData: {
@@ -16,11 +17,16 @@ export const CertificationScopeTab = ({ formData, onChange, validation }: Certif
       <div className="bg-muted/50 p-4 rounded-lg mb-6">
         <h2 className="text-lg font-semibold text-muted-foreground mb-2">Section 4. Certification Scope</h2>
       </div>
+      
       <TSCsCoverageInput
         value={formData.tscsCovered || 0}
         onChange={(value) => onChange("tscsCovered", value)}
         validation={validation.tscs}
       />
+
+      <div className="mt-8">
+        <IBFProgramsTable />
+      </div>
     </div>
   );
 };
