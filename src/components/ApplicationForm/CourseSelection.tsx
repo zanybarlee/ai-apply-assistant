@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Book, Clock, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentUpload } from "./DocumentUpload";
+import { extractTextFromPdf } from "@/utils/pdfUtils";
 
 interface Course {
   id: string;
@@ -72,13 +73,24 @@ export const CourseSelection = ({ selectedCourse, onChange }: CourseSelectionPro
     onChange(courseId);
   };
 
-  const handleTextExtracted = (text: string) => {
-    // Handle the extracted text from the uploaded document
-    console.log('Extracted text:', text);
-    toast({
-      title: "Document Processed",
-      description: "Your course document has been uploaded and processed.",
-    });
+  const handleFileUpload = async (file: File): Promise<string | null> => {
+    try {
+      const text = await extractTextFromPdf(file);
+      console.log('Extracted text:', text);
+      toast({
+        title: "Document Processed",
+        description: "Your course document has been uploaded and processed.",
+      });
+      return text;
+    } catch (error) {
+      console.error('Error processing document:', error);
+      toast({
+        title: "Processing Error",
+        description: "Failed to process the document. Please try again.",
+        variant: "destructive",
+      });
+      return null;
+    }
   };
 
   const selectedCourseDetails = courses.find(course => course.id === selectedCourse);
@@ -153,7 +165,7 @@ export const CourseSelection = ({ selectedCourse, onChange }: CourseSelectionPro
               <p className="text-sm text-gray-600">
                 Please upload your course completion certificate in PDF format.
               </p>
-              <DocumentUpload onTextExtracted={handleTextExtracted} />
+              <DocumentUpload onTextExtracted={handleFileUpload} />
             </div>
           </>
         )}

@@ -5,6 +5,7 @@ import { DocumentInput } from "./DocumentInput";
 import { DocumentUpload } from "./DocumentUpload";
 import { AnalysisResults } from "./AnalysisResults";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { extractTextFromPdf } from "@/utils/pdfUtils";
 
 type ZeroShotResult = {
   sequence: string;
@@ -79,8 +80,20 @@ export const DocumentAnalysis = () => {
     }
   };
 
-  const handleTextFromUpload = (uploadedText: string) => {
-    setText(uploadedText);
+  const handleFileUpload = async (file: File): Promise<string | null> => {
+    try {
+      const extractedText = await extractTextFromPdf(file);
+      setText(extractedText);
+      return extractedText;
+    } catch (error) {
+      console.error('Error extracting text:', error);
+      toast({
+        title: "Extraction Failed",
+        description: "Failed to extract text from the document. Please try again.",
+        variant: "destructive",
+      });
+      return null;
+    }
   };
 
   return (
@@ -99,7 +112,7 @@ export const DocumentAnalysis = () => {
           />
         </TabsContent>
         <TabsContent value="upload">
-          <DocumentUpload onTextExtracted={handleTextFromUpload} />
+          <DocumentUpload onTextExtracted={handleFileUpload} />
         </TabsContent>
       </Tabs>
       <AnalysisResults analysis={analysis} />
