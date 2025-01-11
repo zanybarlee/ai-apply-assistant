@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { STEPS } from "./constants";
+import { STEPS } from "./FormContainer";
 
 interface FormNavigationProps {
   currentStep: number;

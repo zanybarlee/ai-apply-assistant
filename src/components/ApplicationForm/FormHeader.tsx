@@ -1,4 +1,4 @@
-import { STEPS } from "./constants";
+import { STEPS } from "./FormContainer";
 import { StepIndicator } from "./StepIndicator";
 import { FormHeaderProps } from "./types";
 
