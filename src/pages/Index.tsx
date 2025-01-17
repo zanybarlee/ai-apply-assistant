@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { ClipboardList, Award, GraduationCap, TrendingUp, UserCircle, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { CorporateSection } from "@/components/landing/CorporateSection";
 import {
   Dialog,
   DialogContent,
@@ -99,6 +100,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#C5D82D] to-[#004D40]">
+      {/* Navigation */}
       <nav className="w-full px-6 py-4 flex justify-between items-center bg-white/90 backdrop-blur-sm">
         <div className="text-2xl font-bold text-secondary">IBF</div>
         <NavigationMenu>
@@ -236,6 +238,10 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Corporate Section */}
+      <CorporateSection />
+
+      {/* Dialogs */}
       <Dialog open={showCertifications} onOpenChange={setShowCertifications}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
