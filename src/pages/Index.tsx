@@ -91,7 +91,7 @@ const Index = () => {
         <div className="container mx-auto px-6 py-12">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Welcome to IBF PortalX
+              Welcome to IBM PortalY
             </h1>
             <p className="text-xl text-white/90 mb-8">
               Join over 30,818 professionals who have attained IBF certification
