@@ -20,6 +20,7 @@ export const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isEnlarged, setIsEnlarged] = useState(false);
   const [isFloating, setIsFloating] = useState(false);
+  const [size, setSize] = useState({ width: 320, height: 500 });
 
   const [position, setPosition] = useState({ 
     x: typeof window !== 'undefined' ? window.innerWidth - 400 : 0, 
@@ -130,12 +131,9 @@ export const AIAssistant = () => {
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
-      const padding = 20; // Padding from viewport edges
-      const chatWidth = 320; // Width of the chat window
-      const chatHeight = 500; // Approximate height of the chat window
-
-      const maxX = window.innerWidth - chatWidth - padding;
-      const maxY = window.innerHeight - chatHeight - padding;
+      const padding = 20;
+      const maxX = window.innerWidth - size.width - padding;
+      const maxY = window.innerHeight - size.height - padding;
       
       const newX = Math.max(padding, Math.min(e.clientX - dragStart.x, maxX));
       const newY = Math.max(padding, Math.min(e.clientY - dragStart.y, maxY));
@@ -153,14 +151,17 @@ export const AIAssistant = () => {
 
   const toggleFloat = () => {
     if (!isFloating) {
-      // When enabling float, set position to current window position
       const padding = 20;
       setPosition({ 
-        x: window.innerWidth - 400 - padding, 
+        x: window.innerWidth - size.width - padding, 
         y: 100 
       });
     }
     setIsFloating(!isFloating);
+  };
+
+  const handleResize = (newSize: { width: number; height: number }) => {
+    setSize(newSize);
   };
 
   useEffect(() => {
@@ -179,25 +180,34 @@ export const AIAssistant = () => {
     <div 
       className={cn(
         "fixed",
-        isFloating ? "cursor-move" : "bottom-4 right-4"
+        isFloating ? "cursor-move resize" : "bottom-4 right-4"
       )}
       style={isFloating ? {
         position: 'fixed',
         left: position.x,
         top: position.y,
+        width: size.width,
+        height: size.height,
         transition: isDragging ? 'none' : 'all 0.3s ease-out',
         zIndex: 9999,
-        width: 'auto',
-        height: 'auto'
+        resize: 'both',
+        overflow: 'auto'
       } : undefined}
       onMouseDown={handleMouseDown}
     >
       {isOpen ? (
-        <ResizablePanelGroup direction="horizontal">
+        <ResizablePanelGroup 
+          direction="horizontal"
+          onLayout={(sizes) => {
+            const newWidth = Math.max(sizes[0] * window.innerWidth / 100, 280);
+            const newHeight = size.height;
+            handleResize({ width: newWidth, height: newHeight });
+          }}
+        >
           <ResizablePanel 
             className={cn(
               "bg-white rounded-lg shadow-xl flex flex-col transition-all duration-300",
-              isEnlarged ? "w-[600px] h-[80vh]" : "w-80 h-[32rem]"
+              isEnlarged ? "w-[600px] h-[80vh]" : ""
             )}
             defaultSize={100}
           >
@@ -218,7 +228,7 @@ export const AIAssistant = () => {
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  onClick={toggleSize}
+                  onClick={() => setIsEnlarged(!isEnlarged)}
                   title={isEnlarged ? "Minimize" : "Maximize"}
                 >
                   {isEnlarged ? (
@@ -230,7 +240,19 @@ export const AIAssistant = () => {
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  onClick={clearChat}
+                  onClick={() => {
+                    setMessages([{
+                      role: 'assistant',
+                      content: "Hello! I'm here to help you with your IBF certification application. Feel free to ask any questions about the process, requirements, or eligibility criteria."
+                    }]);
+                    setInput('');
+                    setAnalysis([]);
+                    setSelectedFiles([]);
+                    toast({
+                      title: "Chat Cleared",
+                      description: "The chat history has been cleared.",
+                    });
+                  }}
                   title="Clear chat"
                 >
                   <Trash2 className="h-4 w-4 text-gray-500" />
