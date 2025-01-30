@@ -8,5 +8,5 @@ export interface TextGenerationResult {
 }
 
 export interface ServiceConfigResponse {
-  OPENAI_API_KEY: string;
+  [key: string]: string;
 }

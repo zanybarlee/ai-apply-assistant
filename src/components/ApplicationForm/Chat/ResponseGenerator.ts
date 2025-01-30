@@ -7,14 +7,14 @@ export const generateResponse = async (input: string): Promise<string> => {
     
     // Fetch the API key from Supabase secrets using the get_service_config function
     const { data: configData, error: configError } = await supabase
-      .rpc('get_service_config', { service_name: 'OPENAI_API_KEY' });
+      .rpc('get_service_config', { service_name: 'OPENAI_API_KEY' }) as { data: ServiceConfigResponse, error: any };
 
     if (configError) {
       console.error('Error fetching OpenAI API key:', configError);
       throw new Error('Failed to fetch OpenAI API key');
     }
 
-    const apiKey = configData?.OPENAI_API_KEY as string;
+    const apiKey = configData?.OPENAI_API_KEY;
     if (!apiKey) {
       console.error('OpenAI API key not found in configuration');
       throw new Error('OpenAI API key not found');
