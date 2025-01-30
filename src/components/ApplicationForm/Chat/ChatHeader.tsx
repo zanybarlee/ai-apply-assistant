@@ -30,8 +30,8 @@ export const ChatHeader = ({
   };
 
   return (
-    <div className="p-4 border-b flex justify-between items-center">
-      <h3 className="font-semibold">IBF Certification Assistant</h3>
+    <div className="p-4 border-b flex justify-between items-center chat-header cursor-move">
+      <h3 className="font-semibold select-none">IBF Certification Assistant</h3>
       <div className="flex items-center gap-2">
         <Button 
           variant="ghost" 

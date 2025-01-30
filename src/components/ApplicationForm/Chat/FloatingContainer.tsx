@@ -32,6 +32,8 @@ export const FloatingContainer = ({
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
 
+    const target = e.target as HTMLElement;
+    const isHeader = target.closest('.chat-header');
     const edge = getResizeEdge(e.clientX - rect.left, e.clientY - rect.top, rect);
     
     if (edge) {
@@ -39,7 +41,7 @@ export const FloatingContainer = ({
       setResizeEdge(edge);
       setDragStart({ x: e.clientX, y: e.clientY });
       e.preventDefault();
-    } else if (e.target === containerRef.current) {
+    } else if (isHeader) {
       setIsDragging(true);
       setDragStart({
         x: e.clientX - position.x,
@@ -114,7 +116,7 @@ export const FloatingContainer = ({
       ref={containerRef}
       className={cn(
         "fixed",
-        isFloating ? "cursor-move" : "bottom-4 right-4"
+        isFloating ? "" : "bottom-4 right-4"
       )}
       style={isFloating ? {
         position: 'fixed',
