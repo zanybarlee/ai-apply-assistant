@@ -33,16 +33,15 @@ async function createAttachment(file: File): Promise<Attachment[]> {
     const data = await response.json();
     console.log('Text extraction successful:', data);
 
-    if (data.status === "processed successfully") {
-      return [{
-        name: data.filename,
-        mimeType: file.type,
-        size: file.size.toString(),
-        content: data.extracted_text
-      }];
-    } else {
-      throw new Error('Text extraction failed: Invalid response format');
-    }
+    // Convert the extracted text to base64
+    const base64Content = btoa(unescape(encodeURIComponent(data.extracted_text)));
+    
+    return [{
+      name: data.filename,
+      mimeType: file.type,
+      size: file.size.toString(),
+      content: base64Content
+    }];
   } catch (error) {
     console.error('Error in createAttachment:', error);
     throw error;
@@ -60,12 +59,12 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
       try {
         const attachments = await Promise.all(files.map(file => createAttachment(file)));
         uploads = attachments.flat().map(attachment => ({
-          data: attachment.content,
-          type: 'text',
+          data: `data:${attachment.mimeType};base64,${attachment.content}`,
+          type: 'file:full',
           name: attachment.name,
           mime: attachment.mimeType
         }));
-        console.log('Files processed successfully');
+        console.log('Files processed successfully with base64 encoding');
       } catch (error) {
         console.error('Error processing files:', error);
         throw new Error(`File processing failed: ${error.message}`);
@@ -78,7 +77,7 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
       uploads
     };
 
-    console.log('Sending request to prediction API...');
+    console.log('Sending request to prediction API with data:', requestData);
     const response = await fetch(
       "http://localhost:3000/api/v1/prediction/64a31085-2b80-455f-937d-ee5b8277e8dc",
       {
