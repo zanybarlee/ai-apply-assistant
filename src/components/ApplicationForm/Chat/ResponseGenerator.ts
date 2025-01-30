@@ -14,7 +14,8 @@ export const generateResponse = async (input: string): Promise<string> => {
       throw new Error('Failed to fetch OpenAI API key');
     }
 
-    if (!configData?.OPENAI_API_KEY) {
+    const apiKey = configData?.OPENAI_API_KEY as string;
+    if (!apiKey) {
       console.error('OpenAI API key not found in configuration');
       throw new Error('OpenAI API key not found');
     }
@@ -25,10 +26,10 @@ export const generateResponse = async (input: string): Promise<string> => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${configData.OPENAI_API_KEY}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
