@@ -1,5 +1,6 @@
 import { File } from "lucide-react";
 import { type Message } from "./types";
+import ReactMarkdown from 'react-markdown';
 
 export const ChatMessage = ({ message }: { message: Message }) => {
   const isUser = message.role === 'user';
@@ -17,7 +18,9 @@ export const ChatMessage = ({ message }: { message: Message }) => {
             <span>{message.file.name}</span>
           </div>
         ) : (
-          message.content
+          <div className="prose prose-sm dark:prose-invert">
+            <ReactMarkdown>{message.content}</ReactMarkdown>
+          </div>
         )}
       </div>
     </div>

@@ -34,7 +34,6 @@ async function createAttachment(file: File): Promise<Attachment[]> {
     console.log('Text extraction successful:', data);
 
     if (data.status === "processed successfully") {
-      // Create attachment object with extracted text
       return [{
         name: data.filename,
         mimeType: file.type,
@@ -110,9 +109,30 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
     const data = await response.json();
     console.log('Successfully received response from API');
     
-    return data.text || "I apologize, but I couldn't process your request at this time.";
+    // Format the response with Markdown
+    const formattedResponse = formatResponseWithMarkdown(data.text);
+    return formattedResponse || "I apologize, but I couldn't process your request at this time.";
   } catch (error) {
     console.error('Error in generateResponse:', error);
     return "I apologize, but I'm having trouble accessing the API. Please ensure the CV processing API server is running on port 9002 and try again.";
   }
 };
+
+function formatResponseWithMarkdown(text: string): string {
+  if (!text) return text;
+
+  // Add headers for sections
+  text = text.replace(/^(Requirements|Eligibility|Steps|Process):/gm, '### $1:\n');
+  
+  // Format lists
+  text = text.replace(/^(\d+\.\s)/gm, '\n$1');
+  text = text.replace(/^[-•]\s/gm, '- ');
+  
+  // Highlight important information
+  text = text.replace(/(Important|Note|Warning):/g, '**$1:**');
+  
+  // Add emphasis to key terms
+  text = text.replace(/(IBF-STS|CMFAS|CACS|FMRP)/g, '_$1_');
+  
+  return text;
+}
