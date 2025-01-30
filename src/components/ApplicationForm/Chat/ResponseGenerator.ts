@@ -23,13 +23,13 @@ async function createAttachment(file: File): Promise<Attachment[]> {
     );
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Attachment upload failed:', {
-        status: response.status,
-        statusText: response.statusText,
-        errorText
-      });
       throw new Error(`Failed to upload attachment: ${response.status} ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      console.error('Unexpected response type:', contentType);
+      throw new Error('Server responded with non-JSON content');
     }
 
     const data = await response.json();
@@ -78,19 +78,18 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
     );
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Prediction API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        errorText
-      });
       throw new Error(`API error: ${response.status} ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      console.error('Unexpected response type:', contentType);
+      throw new Error('Server responded with non-JSON content');
     }
 
     const data = await response.json();
     console.log('Successfully received response from API');
     
-    // Return the text property from the response
     return data.text || "I apologize, but I couldn't process your request at this time.";
   } catch (error) {
     console.error('Error in generateResponse:', error);
