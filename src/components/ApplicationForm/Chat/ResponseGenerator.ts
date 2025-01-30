@@ -11,13 +11,11 @@ async function createAttachment(file: File): Promise<Attachment[]> {
   const formData = new FormData();
   formData.append('files', file);
 
+  // Using the full URL for the API endpoint
   const response = await fetch(
-    '/attachments/64a31085-2b80-455f-937d-ee5b8277e8dc/ibf-certification-session',
+    'http://localhost:3000/attachments/64a31085-2b80-455f-937d-ee5b8277e8dc/ibf-certification-session',
     {
       method: 'POST',
-      headers: {
-        "Content-Type": "multipart/form-data"
-      },
       body: formData
     }
   );
