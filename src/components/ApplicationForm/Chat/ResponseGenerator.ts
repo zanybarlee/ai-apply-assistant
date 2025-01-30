@@ -1,13 +1,54 @@
 import { TextGenerationResult } from "./types";
 
-export const generateResponse = async (input: string): Promise<string> => {
+interface Attachment {
+  name: string;
+  mimeType: string;
+  size: string;
+  content: string;
+}
+
+async function createAttachment(file: File): Promise<Attachment[]> {
+  const formData = new FormData();
+  formData.append('files', file);
+
+  const response = await fetch(
+    '/attachments/64a31085-2b80-455f-937d-ee5b8277e8dc/ibf-certification-session',
+    {
+      method: 'POST',
+      headers: {
+        "Content-Type": "multipart/form-data"
+      },
+      body: formData
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to upload attachment');
+  }
+
+  return response.json();
+}
+
+export const generateResponse = async (input: string, files?: File[]): Promise<string> => {
   try {
     console.log('Starting response generation process...');
     
+    let uploads = [];
+    
+    if (files && files.length > 0) {
+      const attachments = await Promise.all(files.map(file => createAttachment(file)));
+      uploads = attachments.flat().map(attachment => ({
+        data: `data:${attachment.mimeType};base64,${attachment.content}`,
+        type: 'file:full',
+        name: attachment.name,
+        mime: attachment.mimeType
+      }));
+    }
+
     const data = {
       question: input,
-      chatId: "ibf-certification-session", // Using a fixed session ID for now
-      uploads: [] // No uploads for basic chat functionality
+      chatId: "ibf-certification-session",
+      uploads
     };
 
     const response = await fetch(

@@ -10,3 +10,16 @@ export interface TextGenerationResult {
 export interface ServiceConfigResponse {
   [key: string]: string;
 }
+
+export interface FileUpload {
+  data: string;
+  type: string;
+  name: string;
+  mime: string;
+}
+
+export interface ChatRequest {
+  question: string;
+  chatId: string;
+  uploads: FileUpload[];
+}

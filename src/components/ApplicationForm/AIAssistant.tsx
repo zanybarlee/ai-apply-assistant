@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Paperclip } from "lucide-react";
 import { ChatMessage } from "./Chat/ChatMessage";
 import { ChatInput } from "./Chat/ChatInput";
 import { type Message } from "./Chat/types";
@@ -9,6 +9,7 @@ import { AnalysisResults } from "./AnalysisResults";
 import { analyzeApplication } from "./Chat/ApplicationAnalyzer";
 import { generateResponse } from "./Chat/ResponseGenerator";
 import { type AnalysisResult } from "./Chat/AITypes";
+import { Input } from "@/components/ui/input";
 
 export const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,9 +22,16 @@ export const AIAssistant = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setSelectedFiles(Array.from(event.target.files));
+    }
+  };
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() && selectedFiles.length === 0) return;
 
     const userMessage = { role: 'user' as const, content: input };
     setMessages(prev => [...prev, userMessage]);
@@ -31,7 +39,7 @@ export const AIAssistant = () => {
     setIsLoading(true);
 
     try {
-      const responseText = await generateResponse(input);
+      const responseText = await generateResponse(input, selectedFiles);
       const assistantMessage = {
         role: 'assistant' as const,
         content: responseText
@@ -53,6 +61,7 @@ export const AIAssistant = () => {
     }
 
     setIsLoading(false);
+    setSelectedFiles([]);
   };
 
   return (
@@ -84,12 +93,30 @@ export const AIAssistant = () => {
             </div>
           </ScrollArea>
 
-          <ChatInput
-            input={input}
-            isLoading={isLoading}
-            onInputChange={setInput}
-            onSend={handleSend}
-          />
+          <div className="p-4 border-t space-y-2">
+            <div className="flex items-center space-x-2">
+              <Input
+                type="file"
+                onChange={handleFileChange}
+                className="text-sm"
+                multiple
+              />
+              <Button
+                size="icon"
+                variant="ghost"
+                className="shrink-0"
+                disabled={selectedFiles.length === 0}
+              >
+                <Paperclip className="h-4 w-4" />
+              </Button>
+            </div>
+            <ChatInput
+              input={input}
+              isLoading={isLoading}
+              onInputChange={setInput}
+              onSend={handleSend}
+            />
+          </div>
         </div>
       ) : (
         <Button
