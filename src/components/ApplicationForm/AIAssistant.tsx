@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Paperclip, Trash2, File } from "lucide-react";
+import { MessageCircle, Paperclip, Trash2, File, Maximize2, Minimize2 } from "lucide-react";
 import { ChatMessage } from "./Chat/ChatMessage";
 import { ChatInput } from "./Chat/ChatInput";
 import { type Message } from "./Chat/types";
@@ -11,11 +11,13 @@ import { generateResponse } from "./Chat/ResponseGenerator";
 import { type AnalysisResult } from "./Chat/AITypes";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 export const AIAssistant = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isEnlarged, setIsEnlarged] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -33,7 +35,6 @@ export const AIAssistant = () => {
       setSelectedFiles(files);
       setAnalysis([]);
       
-      // Add file messages to the chat
       const fileMessages: Message[] = files.map(file => ({
         role: 'user',
         content: `Selected file: ${file.name}`,
@@ -102,13 +103,34 @@ export const AIAssistant = () => {
     setSelectedFiles([]);
   };
 
+  const toggleSize = () => {
+    setIsEnlarged(!isEnlarged);
+  };
+
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {isOpen ? (
-        <div className="bg-white rounded-lg shadow-xl w-80 h-[32rem] flex flex-col">
+        <div 
+          className={cn(
+            "bg-white rounded-lg shadow-xl flex flex-col transition-all duration-300",
+            isEnlarged ? "w-[600px] h-[80vh]" : "w-80 h-[32rem]"
+          )}
+        >
           <div className="p-4 border-b flex justify-between items-center">
             <h3 className="font-semibold">IBF Certification Assistant</h3>
             <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={toggleSize}
+                title={isEnlarged ? "Minimize" : "Maximize"}
+              >
+                {isEnlarged ? (
+                  <Minimize2 className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <Maximize2 className="h-4 w-4 text-gray-500" />
+                )}
+              </Button>
               <Button 
                 variant="ghost" 
                 size="icon"
