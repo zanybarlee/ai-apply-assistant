@@ -12,10 +12,10 @@ export const IndustrySegmentSelect = ({ value, onChange, validation }: IndustryS
   <div className="space-y-2">
     <Label htmlFor="industry">Industry Segment</Label>
     <Select onValueChange={onChange} value={value}>
-      <SelectTrigger>
+      <SelectTrigger className="bg-white">
         <SelectValue placeholder="Select your industry segment" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="bg-white z-50">
         <SelectItem value="banking">Banking</SelectItem>
         <SelectItem value="capital-markets">Capital Markets</SelectItem>
         <SelectItem value="insurance">Insurance</SelectItem>
