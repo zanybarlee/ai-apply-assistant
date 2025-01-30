@@ -134,7 +134,6 @@ export const RegulatoryExamForm = () => {
         description: "Your regulatory exam has been recorded successfully.",
       });
 
-      // Reset form and refresh certificates
       setExamName("");
       setExamType("");
       setCompletionDate("");
@@ -164,7 +163,7 @@ export const RegulatoryExamForm = () => {
             <SelectTrigger className="w-full bg-white">
               <SelectValue placeholder="Select exam type" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white z-50">
               <SelectItem value="CMFAS_M8">CMFAS Module 8</SelectItem>
               <SelectItem value="CMFAS_M9">CMFAS Module 9</SelectItem>
               <SelectItem value="CMFAS_M10">CMFAS Module 10</SelectItem>
