@@ -12,43 +12,39 @@ async function createAttachment(file: File): Promise<Attachment[]> {
   formData.append('files', file);
 
   try {
-    console.log('Starting attachment upload...');
+    console.log('Starting text extraction...');
     
-    const response = await fetch(
-      'http://localhost:3000/attachments/64a31085-2b80-455f-937d-ee5b8277e8dc/ibf-certification-session',
-      {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': 'application/json'
-        }
+    const response = await fetch('http://localhost:8001/general/v0/general', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json'
       }
-    );
+    });
 
     if (!response.ok) {
-      console.error('Upload failed with status:', response.status);
+      console.error('Extraction failed with status:', response.status);
       const errorText = await response.text();
       console.error('Error response:', errorText);
-      throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+      throw new Error(`Text extraction failed: ${response.status} ${response.statusText}`);
     }
 
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      console.error('Unexpected response type:', contentType);
-      const responseText = await response.text();
-      console.error('Response body:', responseText);
-      throw new Error(`Unexpected response type: ${contentType}`);
-    }
+    const elements = await response.json();
+    console.log('Text extraction successful:', elements);
 
-    const data = await response.json();
-    console.log('Attachment upload successful:', data);
-    
-    if (!Array.isArray(data)) {
-      console.error('Unexpected response format:', data);
-      throw new Error('Server response is not in the expected format');
-    }
+    // Extract plain text from elements
+    const plainText = elements
+      .filter((element: any) => element.text)
+      .map((element: any) => element.text)
+      .join('\n');
 
-    return data;
+    // Create attachment object with extracted text
+    return [{
+      name: file.name,
+      mimeType: file.type,
+      size: file.size.toString(),
+      content: plainText
+    }];
   } catch (error) {
     console.error('Error in createAttachment:', error);
     throw error;
@@ -66,8 +62,8 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
       try {
         const attachments = await Promise.all(files.map(file => createAttachment(file)));
         uploads = attachments.flat().map(attachment => ({
-          data: `data:${attachment.mimeType};base64,${attachment.content}`,
-          type: 'file:full',
+          data: attachment.content,
+          type: 'text',
           name: attachment.name,
           mime: attachment.mimeType
         }));
@@ -118,6 +114,6 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
     return data.text || "I apologize, but I couldn't process your request at this time.";
   } catch (error) {
     console.error('Error in generateResponse:', error);
-    return "I apologize, but I'm having trouble accessing the API. Please ensure the local server is running on port 3000 and try again.";
+    return "I apologize, but I'm having trouble accessing the API. Please ensure the unstructured API server is running on port 8001 and try again.";
   }
 };
