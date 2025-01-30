@@ -14,7 +14,7 @@ async function createAttachment(file: File): Promise<Attachment[]> {
   try {
     console.log('Starting text extraction...');
     
-    const response = await fetch('http://localhost:8000/upload_cv', {
+    const response = await fetch('http://localhost:9002/upload_cv', {
       method: 'POST',
       body: formData,
       headers: {
@@ -113,6 +113,6 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
     return data.text || "I apologize, but I couldn't process your request at this time.";
   } catch (error) {
     console.error('Error in generateResponse:', error);
-    return "I apologize, but I'm having trouble accessing the API. Please ensure the CV processing API server is running on port 8000 and try again.";
+    return "I apologize, but I'm having trouble accessing the API. Please ensure the CV processing API server is running on port 9002 and try again.";
   }
 };
