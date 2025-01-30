@@ -29,6 +29,8 @@ export const AIAssistant = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       setSelectedFiles(Array.from(event.target.files));
+      // Clear any existing analysis when new files are selected
+      setAnalysis([]);
     }
   };
 
@@ -65,7 +67,8 @@ export const AIAssistant = () => {
 
       setMessages(prev => [...prev, assistantMessage]);
 
-      if (input.length > 50) {
+      // Only run analysis if the input contains "analyze" or similar keywords
+      if (input.toLowerCase().includes('analyze') || input.toLowerCase().includes('assessment')) {
         const analysisResults = await analyzeApplication(input);
         setAnalysis(analysisResults);
       }
