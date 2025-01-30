@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, Paperclip, Trash2 } from "lucide-react";
@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 export const AIAssistant = () => {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -29,9 +30,12 @@ export const AIAssistant = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       setSelectedFiles(Array.from(event.target.files));
-      // Clear any existing analysis when new files are selected
       setAnalysis([]);
     }
+  };
+
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
   };
 
   const clearChat = () => {
@@ -67,7 +71,6 @@ export const AIAssistant = () => {
 
       setMessages(prev => [...prev, assistantMessage]);
 
-      // Only run analysis if the input contains "analyze" or similar keywords
       if (input.toLowerCase().includes('analyze') || input.toLowerCase().includes('assessment')) {
         const analysisResults = await analyzeApplication(input);
         setAnalysis(analysisResults);
@@ -129,27 +132,19 @@ export const AIAssistant = () => {
           </ScrollArea>
 
           <div className="p-4 border-t space-y-2">
-            <div className="flex items-center space-x-2">
-              <Input
-                type="file"
-                onChange={handleFileChange}
-                className="text-sm"
-                multiple
-              />
-              <Button
-                size="icon"
-                variant="ghost"
-                className="shrink-0 text-blue-400 hover:text-blue-500 hover:bg-blue-50 transition-colors"
-                disabled={selectedFiles.length === 0}
-              >
-                <Paperclip className="h-5 w-5" strokeWidth={1.5} />
-              </Button>
-            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              multiple
+            />
             <ChatInput
               input={input}
               isLoading={isLoading}
               onInputChange={setInput}
               onSend={handleSend}
+              onFileClick={handleFileClick}
             />
           </div>
         </div>
