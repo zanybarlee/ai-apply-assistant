@@ -20,7 +20,7 @@ export const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isEnlarged, setIsEnlarged] = useState(false);
   const [isFloating, setIsFloating] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: window.innerWidth - 400, y: 100 }); // Set initial position
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
@@ -120,14 +120,18 @@ export const AIAssistant = () => {
         x: e.clientX - position.x,
         y: e.clientY - position.y
       });
+      e.preventDefault(); // Prevent text selection while dragging
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
+      const newX = Math.max(0, Math.min(e.clientX - dragStart.x, window.innerWidth - 320));
+      const newY = Math.max(0, Math.min(e.clientY - dragStart.y, window.innerHeight - 100));
+      
       setPosition({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
+        x: newX,
+        y: newY
       });
     }
   };
@@ -137,10 +141,11 @@ export const AIAssistant = () => {
   };
 
   const toggleFloat = () => {
-    setIsFloating(!isFloating);
     if (!isFloating) {
-      setPosition({ x: 0, y: 0 });
+      // When enabling float, set position to current window position
+      setPosition({ x: window.innerWidth - 400, y: 100 });
     }
+    setIsFloating(!isFloating);
   };
 
   useEffect(() => {
@@ -162,8 +167,10 @@ export const AIAssistant = () => {
         isFloating ? "cursor-move" : "bottom-4 right-4"
       )}
       style={isFloating ? {
+        position: 'fixed',
         transform: `translate(${position.x}px, ${position.y}px)`,
-        transition: isDragging ? 'none' : 'transform 0.3s ease-out'
+        transition: isDragging ? 'none' : 'transform 0.3s ease-out',
+        zIndex: 9999
       } : undefined}
       onMouseDown={handleMouseDown}
     >
