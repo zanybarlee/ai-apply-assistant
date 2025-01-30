@@ -18,12 +18,8 @@ async function createAttachment(file: File): Promise<Attachment[]> {
       method: 'POST',
       body: formData,
       headers: {
-        'Accept': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      },
-      mode: 'cors'
+        'Accept': 'application/json'
+      }
     });
 
     if (!response.ok) {
