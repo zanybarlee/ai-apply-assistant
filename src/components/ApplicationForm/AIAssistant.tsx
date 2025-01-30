@@ -139,10 +139,10 @@ export const AIAssistant = () => {
               <Button
                 size="icon"
                 variant="ghost"
-                className="shrink-0"
+                className="shrink-0 text-blue-400 hover:text-blue-500 hover:bg-blue-50 transition-colors"
                 disabled={selectedFiles.length === 0}
               >
-                <Paperclip className="h-4 w-4" />
+                <Paperclip className="h-5 w-5" strokeWidth={1.5} />
               </Button>
             </div>
             <ChatInput
