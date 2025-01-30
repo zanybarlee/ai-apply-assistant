@@ -20,7 +20,11 @@ export const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isEnlarged, setIsEnlarged] = useState(false);
   const [isFloating, setIsFloating] = useState(false);
-  const [position, setPosition] = useState({ x: window.innerWidth - 400, y: 100 }); // Set initial position
+
+  const [position, setPosition] = useState({ 
+    x: typeof window !== 'undefined' ? window.innerWidth - 400 : 0, 
+    y: 100 
+  });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
@@ -120,14 +124,21 @@ export const AIAssistant = () => {
         x: e.clientX - position.x,
         y: e.clientY - position.y
       });
-      e.preventDefault(); // Prevent text selection while dragging
+      e.preventDefault();
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
-      const newX = Math.max(0, Math.min(e.clientX - dragStart.x, window.innerWidth - 320));
-      const newY = Math.max(0, Math.min(e.clientY - dragStart.y, window.innerHeight - 100));
+      const padding = 20; // Padding from viewport edges
+      const chatWidth = 320; // Width of the chat window
+      const chatHeight = 500; // Approximate height of the chat window
+
+      const maxX = window.innerWidth - chatWidth - padding;
+      const maxY = window.innerHeight - chatHeight - padding;
+      
+      const newX = Math.max(padding, Math.min(e.clientX - dragStart.x, maxX));
+      const newY = Math.max(padding, Math.min(e.clientY - dragStart.y, maxY));
       
       setPosition({
         x: newX,
@@ -143,7 +154,11 @@ export const AIAssistant = () => {
   const toggleFloat = () => {
     if (!isFloating) {
       // When enabling float, set position to current window position
-      setPosition({ x: window.innerWidth - 400, y: 100 });
+      const padding = 20;
+      setPosition({ 
+        x: window.innerWidth - 400 - padding, 
+        y: 100 
+      });
     }
     setIsFloating(!isFloating);
   };
@@ -163,14 +178,17 @@ export const AIAssistant = () => {
   return (
     <div 
       className={cn(
-        "fixed z-50",
+        "fixed",
         isFloating ? "cursor-move" : "bottom-4 right-4"
       )}
       style={isFloating ? {
         position: 'fixed',
-        transform: `translate(${position.x}px, ${position.y}px)`,
-        transition: isDragging ? 'none' : 'transform 0.3s ease-out',
-        zIndex: 9999
+        left: position.x,
+        top: position.y,
+        transition: isDragging ? 'none' : 'all 0.3s ease-out',
+        zIndex: 9999,
+        width: 'auto',
+        height: 'auto'
       } : undefined}
       onMouseDown={handleMouseDown}
     >
