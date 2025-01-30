@@ -20,12 +20,26 @@ export const FloatingContainer = ({
 }: FloatingContainerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [position, setPosition] = useState(initialPosition);
   const [size, setSize] = useState(initialSize);
+  const [resizeEdge, setResizeEdge] = useState<string | null>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (isFloating && e.target === e.currentTarget) {
+    if (!isFloating) return;
+
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const edge = getResizeEdge(e.clientX - rect.left, e.clientY - rect.top, rect);
+    
+    if (edge) {
+      setIsResizing(true);
+      setResizeEdge(edge);
+      setDragStart({ x: e.clientX, y: e.clientY });
+      e.preventDefault();
+    } else if (e.target === containerRef.current) {
       setIsDragging(true);
       setDragStart({
         x: e.clientX - position.x,
@@ -33,6 +47,17 @@ export const FloatingContainer = ({
       });
       e.preventDefault();
     }
+  };
+
+  const getResizeEdge = (x: number, y: number, rect: DOMRect) => {
+    const edgeSize = 8;
+    const isRight = x > rect.width - edgeSize;
+    const isBottom = y > rect.height - edgeSize;
+    
+    if (isRight && isBottom) return 'bottom-right';
+    if (isRight) return 'right';
+    if (isBottom) return 'bottom';
+    return null;
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -46,48 +71,30 @@ export const FloatingContainer = ({
       
       setPosition({ x: newX, y: newY });
       onPositionChange(newX, newY);
+    } else if (isResizing) {
+      const deltaX = e.clientX - dragStart.x;
+      const deltaY = e.clientY - dragStart.y;
+      
+      let newWidth = size.width;
+      let newHeight = size.height;
+
+      if (resizeEdge?.includes('right')) {
+        newWidth = Math.max(280, Math.min(800, size.width + deltaX));
+      }
+      if (resizeEdge?.includes('bottom')) {
+        newHeight = Math.max(400, Math.min(window.innerHeight * 0.9, size.height + deltaY));
+      }
+
+      setSize({ width: newWidth, height: newHeight });
+      onSizeChange(newWidth, newHeight);
+      setDragStart({ x: e.clientX, y: e.clientY });
     }
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
-  };
-
-  const handleResize = () => {
-    if (!isFloating || !containerRef.current) return;
-    
-    const resizeHandle = document.createElement('div');
-    resizeHandle.style.position = 'absolute';
-    resizeHandle.style.width = '10px';
-    resizeHandle.style.height = '10px';
-    resizeHandle.style.bottom = '0';
-    resizeHandle.style.right = '0';
-    resizeHandle.style.cursor = 'se-resize';
-    
-    const startResize = (e: MouseEvent) => {
-      const startX = e.clientX;
-      const startY = e.clientY;
-      const startWidth = size.width;
-      const startHeight = size.height;
-      
-      const doResize = (e: MouseEvent) => {
-        const newWidth = Math.max(280, Math.min(800, startWidth + (e.clientX - startX)));
-        const newHeight = Math.max(400, Math.min(window.innerHeight * 0.9, startHeight + (e.clientY - startY)));
-        setSize({ width: newWidth, height: newHeight });
-        onSizeChange(newWidth, newHeight);
-      };
-      
-      const stopResize = () => {
-        window.removeEventListener('mousemove', doResize);
-        window.removeEventListener('mouseup', stopResize);
-      };
-      
-      window.addEventListener('mousemove', doResize);
-      window.addEventListener('mouseup', stopResize);
-    };
-    
-    resizeHandle.addEventListener('mousedown', startResize as any);
-    containerRef.current.appendChild(resizeHandle);
+    setIsResizing(false);
+    setResizeEdge(null);
   };
 
   useEffect(() => {
@@ -95,32 +102,19 @@ export const FloatingContainer = ({
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       
-      if (containerRef.current) {
-        containerRef.current.style.resize = 'both';
-        containerRef.current.style.overflow = 'auto';
-        handleResize();
-      }
-
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
-        if (containerRef.current) {
-          containerRef.current.style.resize = 'none';
-          const resizeHandle = containerRef.current.querySelector('.resize-handle');
-          if (resizeHandle) {
-            resizeHandle.remove();
-          }
-        }
       };
     }
-  }, [isFloating, isDragging]);
+  }, [isFloating, isDragging, isResizing]);
 
   return (
     <div 
       ref={containerRef}
       className={cn(
         "fixed",
-        isFloating ? "cursor-move resize-handle" : "bottom-4 right-4"
+        isFloating ? "cursor-move" : "bottom-4 right-4"
       )}
       style={isFloating ? {
         position: 'fixed',
@@ -132,14 +126,19 @@ export const FloatingContainer = ({
         minHeight: '400px',
         maxWidth: '800px',
         maxHeight: '90vh',
-        transition: isDragging ? 'none' : 'all 0.3s ease-out',
+        transition: isDragging || isResizing ? 'none' : 'all 0.3s ease-out',
         zIndex: 9999,
-        resize: 'both',
-        overflow: 'auto'
       } : undefined}
       onMouseDown={handleMouseDown}
     >
       {children}
+      {isFloating && (
+        <>
+          <div className="absolute bottom-0 right-0 w-2 h-full cursor-e-resize" />
+          <div className="absolute bottom-0 right-0 h-2 w-full cursor-s-resize" />
+          <div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize" />
+        </>
+      )}
     </div>
   );
 };
