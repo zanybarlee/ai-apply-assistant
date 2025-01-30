@@ -17,6 +17,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 export const AIAssistant = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const chatRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isEnlarged, setIsEnlarged] = useState(false);
   const [isFloating, setIsFloating] = useState(false);
@@ -114,12 +115,8 @@ export const AIAssistant = () => {
     setSelectedFiles([]);
   };
 
-  const toggleSize = () => {
-    setIsEnlarged(!isEnlarged);
-  };
-
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (isFloating) {
+    if (isFloating && e.target === e.currentTarget) {
       setIsDragging(true);
       setDragStart({
         x: e.clientX - position.x,
@@ -149,6 +146,14 @@ export const AIAssistant = () => {
     setIsDragging(false);
   };
 
+  const handleResize = (event: MouseEvent) => {
+    if (chatRef.current) {
+      const newWidth = chatRef.current.offsetWidth;
+      const newHeight = chatRef.current.offsetHeight;
+      setSize({ width: newWidth, height: newHeight });
+    }
+  };
+
   const toggleFloat = () => {
     if (!isFloating) {
       const padding = 20;
@@ -160,27 +165,38 @@ export const AIAssistant = () => {
     setIsFloating(!isFloating);
   };
 
-  const handleResize = (newSize: { width: number; height: number }) => {
-    setSize(newSize);
-  };
-
   useEffect(() => {
     if (isFloating) {
       document.addEventListener('mousemove', handleMouseMove as any);
       document.addEventListener('mouseup', handleMouseUp);
+      
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const { width, height } = entry.contentRect;
+          setSize({ width, height });
+        }
+      });
+
+      if (chatRef.current) {
+        resizeObserver.observe(chatRef.current);
+      }
 
       return () => {
         document.removeEventListener('mousemove', handleMouseMove as any);
         document.removeEventListener('mouseup', handleMouseUp);
+        if (chatRef.current) {
+          resizeObserver.disconnect();
+        }
       };
     }
   }, [isFloating, isDragging]);
 
   return (
     <div 
+      ref={chatRef}
       className={cn(
         "fixed",
-        isFloating ? "cursor-move resize" : "bottom-4 right-4"
+        isFloating ? "cursor-move" : "bottom-4 right-4"
       )}
       style={isFloating ? {
         position: 'fixed',
@@ -188,6 +204,10 @@ export const AIAssistant = () => {
         top: position.y,
         width: size.width,
         height: size.height,
+        minWidth: '280px',
+        minHeight: '400px',
+        maxWidth: '800px',
+        maxHeight: '90vh',
         transition: isDragging ? 'none' : 'all 0.3s ease-out',
         zIndex: 9999,
         resize: 'both',
@@ -198,15 +218,11 @@ export const AIAssistant = () => {
       {isOpen ? (
         <ResizablePanelGroup 
           direction="horizontal"
-          onLayout={(sizes) => {
-            const newWidth = Math.max(sizes[0] * window.innerWidth / 100, 280);
-            const newHeight = size.height;
-            handleResize({ width: newWidth, height: newHeight });
-          }}
+          className="h-full"
         >
           <ResizablePanel 
             className={cn(
-              "bg-white rounded-lg shadow-xl flex flex-col transition-all duration-300",
+              "bg-white rounded-lg shadow-xl flex flex-col transition-all duration-300 h-full",
               isEnlarged ? "w-[600px] h-[80vh]" : ""
             )}
             defaultSize={100}
