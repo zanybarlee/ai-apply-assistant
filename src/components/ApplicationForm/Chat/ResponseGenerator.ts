@@ -18,22 +18,36 @@ async function createAttachment(file: File): Promise<Attachment[]> {
       'http://localhost:3000/attachments/64a31085-2b80-455f-937d-ee5b8277e8dc/ibf-certification-session',
       {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
       }
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to upload attachment: ${response.status} ${response.statusText}`);
+      console.error('Upload failed with status:', response.status);
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
+      throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
     }
 
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
       console.error('Unexpected response type:', contentType);
-      throw new Error('Server responded with non-JSON content');
+      const responseText = await response.text();
+      console.error('Response body:', responseText);
+      throw new Error(`Unexpected response type: ${contentType}`);
     }
 
     const data = await response.json();
     console.log('Attachment upload successful:', data);
+    
+    if (!Array.isArray(data)) {
+      console.error('Unexpected response format:', data);
+      throw new Error('Server response is not in the expected format');
+    }
+
     return data;
   } catch (error) {
     console.error('Error in createAttachment:', error);
@@ -49,14 +63,19 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
     
     if (files && files.length > 0) {
       console.log('Processing files:', files.map(f => f.name));
-      const attachments = await Promise.all(files.map(file => createAttachment(file)));
-      uploads = attachments.flat().map(attachment => ({
-        data: `data:${attachment.mimeType};base64,${attachment.content}`,
-        type: 'file:full',
-        name: attachment.name,
-        mime: attachment.mimeType
-      }));
-      console.log('Files processed successfully');
+      try {
+        const attachments = await Promise.all(files.map(file => createAttachment(file)));
+        uploads = attachments.flat().map(attachment => ({
+          data: `data:${attachment.mimeType};base64,${attachment.content}`,
+          type: 'file:full',
+          name: attachment.name,
+          mime: attachment.mimeType
+        }));
+        console.log('Files processed successfully');
+      } catch (error) {
+        console.error('Error processing files:', error);
+        throw new Error(`File processing failed: ${error.message}`);
+      }
     }
 
     const requestData = {
@@ -71,20 +90,26 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Accept": "application/json"
         },
         body: JSON.stringify(requestData)
       }
     );
 
     if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
+      console.error('Prediction API request failed:', response.status);
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
     }
 
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-      console.error('Unexpected response type:', contentType);
-      throw new Error('Server responded with non-JSON content');
+      console.error('Unexpected response type from prediction API:', contentType);
+      const responseText = await response.text();
+      console.error('Response body:', responseText);
+      throw new Error(`Unexpected response type from prediction API: ${contentType}`);
     }
 
     const data = await response.json();
