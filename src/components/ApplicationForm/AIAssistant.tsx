@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Paperclip, Trash2 } from "lucide-react";
+import { MessageCircle, Paperclip, Trash2, File } from "lucide-react";
 import { ChatMessage } from "./Chat/ChatMessage";
 import { ChatInput } from "./Chat/ChatInput";
 import { type Message } from "./Chat/types";
@@ -29,8 +29,22 @@ export const AIAssistant = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
-      setSelectedFiles(Array.from(event.target.files));
+      const files = Array.from(event.target.files);
+      setSelectedFiles(files);
       setAnalysis([]);
+      
+      // Add file messages to the chat
+      const fileMessages: Message[] = files.map(file => ({
+        role: 'user',
+        content: `Selected file: ${file.name}`,
+        file: {
+          name: file.name,
+          size: file.size,
+          type: file.type
+        }
+      }));
+      
+      setMessages(prev => [...prev, ...fileMessages]);
     }
   };
 

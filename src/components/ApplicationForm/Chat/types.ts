@@ -1,25 +1,13 @@
 export interface Message {
-  role: 'assistant' | 'user';
+  role: 'user' | 'assistant';
   content: string;
+  file?: {
+    name: string;
+    size: number;
+    type: string;
+  };
 }
 
 export interface TextGenerationResult {
-  generated_text: string;
-}
-
-export interface ServiceConfigResponse {
-  [key: string]: string;
-}
-
-export interface FileUpload {
-  data: string;
-  type: string;
-  name: string;
-  mime: string;
-}
-
-export interface ChatRequest {
-  question: string;
-  chatId: string;
-  uploads: FileUpload[];
+  text: string;
 }

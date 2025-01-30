@@ -1,18 +1,24 @@
-import { type Message } from './types';
+import { File } from "lucide-react";
+import { type Message } from "./types";
 
-interface ChatMessageProps {
-  message: Message;
-}
+export const ChatMessage = ({ message }: { message: Message }) => {
+  const isUser = message.role === 'user';
 
-export const ChatMessage = ({ message }: ChatMessageProps) => {
   return (
-    <div className={`flex ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}>
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
         className={`rounded-lg p-3 max-w-[80%] ${
-          message.role === 'assistant' ? 'bg-gray-100' : 'bg-blue-500 text-white'
+          isUser ? 'bg-blue-500 text-white' : 'bg-gray-100'
         }`}
       >
-        {message.content}
+        {message.file ? (
+          <div className="flex items-center gap-2">
+            <File className="h-4 w-4" />
+            <span>{message.file.name}</span>
+          </div>
+        ) : (
+          message.content
+        )}
       </div>
     </div>
   );
