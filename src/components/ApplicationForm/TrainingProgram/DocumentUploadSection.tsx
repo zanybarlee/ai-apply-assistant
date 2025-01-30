@@ -14,7 +14,7 @@ export const DocumentUploadSection = ({ onUploadSuccess }: DocumentUploadSection
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch('http://cens.synology.me:9002/upload_training_certificate', {
+      const response = await fetch('http://localhost:9002/upload_training_certificate', {
         method: 'POST',
         body: formData,
         mode: 'cors',

@@ -56,14 +56,11 @@ export const RegulatoryExamForm = () => {
   };
 
   const handleFileUpload = async (file: File): Promise<string | null> => {
-    if (!file) return null;
-
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      setIsUploading(true);
-      const response = await fetch('http://cens.synology.me:9002/upload_exam_certificate', {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch('http://localhost:9002/upload_exam_certificate', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -79,32 +76,38 @@ export const RegulatoryExamForm = () => {
       const data = await response.json();
       console.log('Upload response:', data);
 
-      if (data.exam_metadata) {
-        const metadata: ExamMetadata = data.exam_metadata;
-        setExamName(metadata.exam_name);
-        setExamType(metadata.exam_type === "Industry" ? "CMFAS_M8" : examType);
-        setCompletionDate(metadata.exam_completion_date);
+      if (data.status === "processed successfully") {
+        const { exam_metadata } = data;
+        
+        const { error } = await supabase
+          .from('examination_certificates')
+          .insert([{
+            exam_type: exam_metadata.exam_type,
+            exam_name: exam_metadata.exam_name,
+            exam_completion_date: exam_metadata.completion_date,
+            file_url: data.file_url,
+          }]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Exam certificate uploaded successfully.",
+        });
+
+        fetchCertificates();
+        return data.filename;
       }
 
-      toast({
-        title: "File Processed",
-        description: "Your exam certificate has been uploaded and processed successfully.",
-      });
-
-      // Refresh the certificates list after successful upload
-      await fetchCertificates();
-
-      return data.filename;
+      return null;
     } catch (error) {
       console.error('Upload error:', error);
       toast({
         title: "Upload Failed",
-        description: "There was an error uploading your exam certificate.",
+        description: "Failed to process exam certificate.",
         variant: "destructive",
       });
       return null;
-    } finally {
-      setIsUploading(false);
     }
   };
 
