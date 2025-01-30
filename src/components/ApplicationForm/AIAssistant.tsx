@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Paperclip } from "lucide-react";
+import { MessageCircle, Paperclip, Trash2 } from "lucide-react";
 import { ChatMessage } from "./Chat/ChatMessage";
 import { ChatInput } from "./Chat/ChatInput";
 import { type Message } from "./Chat/types";
@@ -10,8 +10,10 @@ import { analyzeApplication } from "./Chat/ApplicationAnalyzer";
 import { generateResponse } from "./Chat/ResponseGenerator";
 import { type AnalysisResult } from "./Chat/AITypes";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 
 export const AIAssistant = () => {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -28,6 +30,22 @@ export const AIAssistant = () => {
     if (event.target.files) {
       setSelectedFiles(Array.from(event.target.files));
     }
+  };
+
+  const clearChat = () => {
+    setMessages([
+      {
+        role: 'assistant',
+        content: "Hello! I'm here to help you with your IBF certification application. Feel free to ask any questions about the process, requirements, or eligibility criteria."
+      }
+    ]);
+    setInput('');
+    setAnalysis([]);
+    setSelectedFiles([]);
+    toast({
+      title: "Chat Cleared",
+      description: "The chat history has been cleared.",
+    });
   };
 
   const handleSend = async () => {
@@ -70,9 +88,23 @@ export const AIAssistant = () => {
         <div className="bg-white rounded-lg shadow-xl w-80 h-[32rem] flex flex-col">
           <div className="p-4 border-b flex justify-between items-center">
             <h3 className="font-semibold">IBF Certification Assistant</h3>
-            <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)}>
-              ×
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={clearChat}
+                title="Clear chat"
+              >
+                <Trash2 className="h-4 w-4 text-gray-500" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setIsOpen(false)}
+              >
+                ×
+              </Button>
+            </div>
           </div>
           
           <ScrollArea className="flex-1 p-4">
