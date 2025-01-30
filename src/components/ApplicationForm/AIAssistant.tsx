@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, Paperclip, Trash2, File, Maximize2, Minimize2, Move } from "lucide-react";
@@ -107,6 +107,10 @@ export const AIAssistant = () => {
 
     setIsLoading(false);
     setSelectedFiles([]);
+  };
+
+  const toggleSize = () => {
+    setIsEnlarged(!isEnlarged);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
