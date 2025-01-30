@@ -126,7 +126,7 @@ export const AIAssistant = () => {
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (e: MouseEvent) => {
     if (isDragging) {
       const padding = 20;
       const maxX = window.innerWidth - size.width - padding;
@@ -146,11 +146,41 @@ export const AIAssistant = () => {
     setIsDragging(false);
   };
 
-  const handleResize = (event: MouseEvent) => {
+  const handleResize = (e: MouseEvent) => {
+    if (!isFloating) return;
+    
+    const resizeHandle = document.createElement('div');
+    resizeHandle.style.position = 'absolute';
+    resizeHandle.style.width = '10px';
+    resizeHandle.style.height = '10px';
+    resizeHandle.style.bottom = '0';
+    resizeHandle.style.right = '0';
+    resizeHandle.style.cursor = 'se-resize';
+    
+    const startResize = (e: MouseEvent) => {
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startWidth = size.width;
+      const startHeight = size.height;
+      
+      const doResize = (e: MouseEvent) => {
+        const newWidth = Math.max(280, Math.min(800, startWidth + (e.clientX - startX)));
+        const newHeight = Math.max(400, Math.min(window.innerHeight * 0.9, startHeight + (e.clientY - startY)));
+        setSize({ width: newWidth, height: newHeight });
+      };
+      
+      const stopResize = () => {
+        window.removeEventListener('mousemove', doResize);
+        window.removeEventListener('mouseup', stopResize);
+      };
+      
+      window.addEventListener('mousemove', doResize);
+      window.addEventListener('mouseup', stopResize);
+    };
+    
+    resizeHandle.addEventListener('mousedown', startResize as any);
     if (chatRef.current) {
-      const newWidth = chatRef.current.offsetWidth;
-      const newHeight = chatRef.current.offsetHeight;
-      setSize({ width: newWidth, height: newHeight });
+      chatRef.current.appendChild(resizeHandle);
     }
   };
 
@@ -167,25 +197,24 @@ export const AIAssistant = () => {
 
   useEffect(() => {
     if (isFloating) {
-      document.addEventListener('mousemove', handleMouseMove as any);
+      document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       
-      const resizeObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          const { width, height } = entry.contentRect;
-          setSize({ width, height });
-        }
-      });
-
       if (chatRef.current) {
-        resizeObserver.observe(chatRef.current);
+        chatRef.current.style.resize = 'both';
+        chatRef.current.style.overflow = 'auto';
+        handleResize(new MouseEvent('resize'));
       }
 
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove as any);
+        document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
         if (chatRef.current) {
-          resizeObserver.disconnect();
+          chatRef.current.style.resize = 'none';
+          const resizeHandle = chatRef.current.querySelector('.resize-handle');
+          if (resizeHandle) {
+            resizeHandle.remove();
+          }
         }
       };
     }
@@ -196,7 +225,8 @@ export const AIAssistant = () => {
       ref={chatRef}
       className={cn(
         "fixed",
-        isFloating ? "cursor-move" : "bottom-4 right-4"
+        isFloating ? "cursor-move" : "bottom-4 right-4",
+        isFloating && "resize-handle"
       )}
       style={isFloating ? {
         position: 'fixed',
