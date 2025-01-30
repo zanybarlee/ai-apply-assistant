@@ -14,7 +14,6 @@ async function createAttachment(file: File): Promise<Attachment[]> {
   try {
     console.log('Starting attachment upload...');
     
-    // Using the full URL for the API endpoint
     const response = await fetch(
       'http://localhost:3000/attachments/64a31085-2b80-455f-937d-ee5b8277e8dc/ibf-certification-session',
       {
@@ -60,7 +59,7 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
       console.log('Files processed successfully');
     }
 
-    const data = {
+    const requestData = {
       question: input,
       chatId: "ibf-certification-session",
       uploads
@@ -74,7 +73,7 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(requestData)
       }
     );
 
@@ -88,9 +87,11 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
       throw new Error(`API error: ${response.status} ${response.statusText}`);
     }
 
-    const result = await response.json();
+    const data = await response.json();
     console.log('Successfully received response from API');
-    return result.text;
+    
+    // Return the text property from the response
+    return data.text || "I apologize, but I couldn't process your request at this time.";
   } catch (error) {
     console.error('Error in generateResponse:', error);
     return "I apologize, but I'm having trouble accessing the API. Please ensure the local server is running on port 3000 and try again.";
