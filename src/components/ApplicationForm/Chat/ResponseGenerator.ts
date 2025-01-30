@@ -9,17 +9,18 @@ interface Attachment {
 
 async function createAttachment(file: File): Promise<Attachment[]> {
   const formData = new FormData();
-  formData.append('files', file);
+  formData.append('file', file);
 
   try {
     console.log('Starting text extraction...');
     
-    const response = await fetch('http://localhost:8001/general/v0/general', {
+    const response = await fetch('http://localhost:8000/upload_cv', {
       method: 'POST',
       body: formData,
       headers: {
         'Accept': 'application/json'
-      }
+      },
+      mode: 'cors'
     });
 
     if (!response.ok) {
@@ -29,22 +30,20 @@ async function createAttachment(file: File): Promise<Attachment[]> {
       throw new Error(`Text extraction failed: ${response.status} ${response.statusText}`);
     }
 
-    const elements = await response.json();
-    console.log('Text extraction successful:', elements);
+    const data = await response.json();
+    console.log('Text extraction successful:', data);
 
-    // Extract plain text from elements
-    const plainText = elements
-      .filter((element: any) => element.text)
-      .map((element: any) => element.text)
-      .join('\n');
-
-    // Create attachment object with extracted text
-    return [{
-      name: file.name,
-      mimeType: file.type,
-      size: file.size.toString(),
-      content: plainText
-    }];
+    if (data.status === "processed successfully") {
+      // Create attachment object with extracted text
+      return [{
+        name: data.filename,
+        mimeType: file.type,
+        size: file.size.toString(),
+        content: data.extracted_text
+      }];
+    } else {
+      throw new Error('Text extraction failed: Invalid response format');
+    }
   } catch (error) {
     console.error('Error in createAttachment:', error);
     throw error;
@@ -114,6 +113,6 @@ export const generateResponse = async (input: string, files?: File[]): Promise<s
     return data.text || "I apologize, but I couldn't process your request at this time.";
   } catch (error) {
     console.error('Error in generateResponse:', error);
-    return "I apologize, but I'm having trouble accessing the API. Please ensure the unstructured API server is running on port 8001 and try again.";
+    return "I apologize, but I'm having trouble accessing the API. Please ensure the CV processing API server is running on port 8000 and try again.";
   }
 };
