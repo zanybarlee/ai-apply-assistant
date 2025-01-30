@@ -5,26 +5,18 @@ export const generateResponse = async (input: string): Promise<string> => {
   try {
     console.log('Starting response generation process...');
     
-    // Fetch the API key from application_settings
-    const { data: settingsData, error: settingsError } = await supabase
-      .from('application_settings')
-      .select('*')
-      .eq('key', 'OPENAI_API_KEY')
-      .single();
+    // Fetch the API key from Supabase secrets using the get_service_config function
+    const { data: configData, error: configError } = await supabase
+      .rpc('get_service_config', { service_name: 'OPENAI_API_KEY' });
 
-    if (settingsError) {
-      console.error('Error fetching settings:', settingsError);
-      throw new Error('Failed to fetch API key from settings');
+    if (configError) {
+      console.error('Error fetching OpenAI API key:', configError);
+      throw new Error('Failed to fetch OpenAI API key');
     }
 
-    if (!settingsData) {
-      console.error('No settings data found');
-      throw new Error('No settings data found');
-    }
-
-    if (!settingsData.value) {
-      console.error('API key is empty in settings');
-      throw new Error('OpenAI API key is empty in settings');
+    if (!configData?.OPENAI_API_KEY) {
+      console.error('OpenAI API key not found in configuration');
+      throw new Error('OpenAI API key not found');
     }
 
     console.log('API key retrieved successfully');
@@ -33,10 +25,10 @@ export const generateResponse = async (input: string): Promise<string> => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${settingsData.value}`
+        'Authorization': `Bearer ${configData.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
