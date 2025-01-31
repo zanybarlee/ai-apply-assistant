@@ -101,6 +101,19 @@ export const AIAssistant = () => {
     setSelectedFiles([]);
   };
 
+  const handleClose = () => {
+    if (isFloating) {
+      // When in floating mode, reset position and return to default state
+      setIsFloating(false);
+      setIsEnlarged(false);
+      setPosition({ 
+        x: typeof window !== 'undefined' ? window.innerWidth - 400 : 0, 
+        y: 100 
+      });
+    }
+    setIsOpen(false);
+  };
+
   return (
     <ChatWrapper>
       <FloatingContainer
@@ -123,7 +136,7 @@ export const AIAssistant = () => {
             onFileClick={handleFileClick}
             onFloat={() => setIsFloating(!isFloating)}
             onResize={() => setIsEnlarged(!isEnlarged)}
-            onClose={() => setIsOpen(false)}
+            onClose={handleClose}
             onClear={clearChat}
           />
         ) : (
