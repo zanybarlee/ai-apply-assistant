@@ -197,28 +197,62 @@ const ProfilePage = () => {
 };
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          setIsAuthenticated(false);
+          toast({
+            title: "Session Expired",
+            description: "Please log in again to continue.",
+            variant: "destructive",
+          });
+          navigate('/auth');
+          return;
+        }
+        
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Auth error:', error);
+        setIsAuthenticated(false);
+        toast({
+          title: "Authentication Error",
+          description: "Please log in again to continue.",
+          variant: "destructive",
+        });
+        navigate('/auth');
+      }
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
+      if (session) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+        navigate('/auth');
+      }
     });
 
     checkAuth();
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   if (isAuthenticated === null) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
 
-  return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
+  return isAuthenticated ? <>{children}</> : null;
 };
 
 const App = () => (
