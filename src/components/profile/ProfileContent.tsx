@@ -22,26 +22,26 @@ export const ProfileContent = ({
   onSubmit 
 }: ProfileContentProps) => {
   return (
-    <>
-      <Card className="p-6 animate-fadeIn">
-        <ProfileHeader 
-          firstName={profile.firstName} 
-          lastName={profile.lastName} 
-        />
-      </Card>
+    <div className="space-y-8">
+      <ProfileHeader 
+        firstName={profile.firstName} 
+        lastName={profile.lastName} 
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <ProfileForm
-            profile={profile}
-            loading={loading}
-            onProfileChange={onProfileChange}
-            onSubmit={onSubmit}
-          />
-        </Card>
+      <div className="container mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="p-6">
+            <ProfileForm
+              profile={profile}
+              loading={loading}
+              onProfileChange={onProfileChange}
+              onSubmit={onSubmit}
+            />
+          </Card>
 
-        <PersonaCards firstName={profile.firstName} />
+          <PersonaCards firstName={profile.firstName} />
+        </div>
       </div>
-    </>
+    </div>
   );
 };
