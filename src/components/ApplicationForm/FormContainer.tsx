@@ -8,6 +8,7 @@ import { FormHeader } from "./FormHeader";
 import { validatePersonalInfo, validateApplicationDetails } from "@/utils/certificationValidation";
 import { useFormState } from "./hooks/useFormState";
 import { useFormSubmission } from "./hooks/useFormSubmission";
+import { AIAssistant } from "./AIAssistant";
 
 export const STEPS = [
   "Personal Info",
@@ -110,6 +111,7 @@ export const FormContainer = () => {
           </Card>
         </div>
       </div>
+      <AIAssistant />
     </div>
   );
 };
