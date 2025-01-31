@@ -5,6 +5,7 @@ import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useAuth } from "@/hooks/useAuth";
+import { FormContainer } from "@/components/ApplicationForm/FormContainer";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,7 +43,7 @@ const App = () => (
           path="/certification"
           element={
             <ProtectedRoute>
-              <div>Certification Page</div>
+              <FormContainer />
             </ProtectedRoute>
           }
         />
