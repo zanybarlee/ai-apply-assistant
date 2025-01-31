@@ -6,7 +6,13 @@ import { Card } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileForm } from "@/components/profile/ProfileForm";
-import { HeaderPane } from "@/components/ui/sidebar";
+import { 
+  Sidebar, 
+  SidebarContent,
+  SidebarProvider,
+  SidebarHeader,
+  SidebarTrigger 
+} from "@/components/ui/sidebar";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -108,25 +114,34 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <HeaderPane />
-      <main className="flex-1 overflow-y-auto">
-        <div className="container mx-auto px-4 py-8">
-          <Card className="max-w-2xl mx-auto p-6 space-y-8 animate-fadeIn">
-            <ProfileHeader 
-              firstName={profile.firstName} 
-              lastName={profile.lastName} 
-            />
-            <ProfileForm
-              profile={profile}
-              loading={loading}
-              onProfileChange={handleProfileChange}
-              onSubmit={handleUpdate}
-            />
-          </Card>
-        </div>
-      </main>
-    </div>
+    <SidebarProvider>
+      <div className="flex h-screen bg-background">
+        <Sidebar>
+          <SidebarHeader className="h-[60px] flex items-center px-6">
+            <SidebarTrigger />
+          </SidebarHeader>
+          <SidebarContent>
+            {/* Sidebar content can be added here if needed */}
+          </SidebarContent>
+        </Sidebar>
+        <main className="flex-1 overflow-y-auto">
+          <div className="container mx-auto px-4 py-8">
+            <Card className="max-w-2xl mx-auto p-6 space-y-8 animate-fadeIn">
+              <ProfileHeader 
+                firstName={profile.firstName} 
+                lastName={profile.lastName} 
+              />
+              <ProfileForm
+                profile={profile}
+                loading={loading}
+                onProfileChange={handleProfileChange}
+                onSubmit={handleUpdate}
+              />
+            </Card>
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 
