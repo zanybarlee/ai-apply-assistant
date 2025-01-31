@@ -5,11 +5,8 @@ import { type Message } from "./Chat/types";
 import { type AnalysisResult } from "./Chat/AITypes";
 import { analyzeApplication } from "./Chat/ApplicationAnalyzer";
 import { generateResponse } from "./Chat/ResponseGenerator";
-import { ResizablePanelGroup, ResizablePanel } from "@/components/ui/resizable";
-import { cn } from "@/lib/utils";
-import { ChatHeader } from "./Chat/ChatHeader";
-import { MessageList } from "./Chat/MessageList";
-import { ChatInput } from "./Chat/ChatInput";
+import { ChatWrapper } from "./Chat/ChatWrapper";
+import { ChatInterface } from "./Chat/ChatInterface";
 import { FloatingContainer } from "./Chat/FloatingContainer";
 
 export const AIAssistant = () => {
@@ -105,66 +102,46 @@ export const AIAssistant = () => {
   };
 
   return (
-    <FloatingContainer
-      isFloating={isFloating}
-      initialPosition={position}
-      initialSize={size}
-      onPositionChange={(x, y) => setPosition({ x, y })}
-      onSizeChange={(width, height) => setSize({ width, height })}
-    >
-      {isOpen ? (
-        <ResizablePanelGroup 
-          direction="horizontal"
-          className="h-full"
-        >
-          <ResizablePanel 
-            className={cn(
-              "bg-white rounded-lg shadow-xl flex flex-col transition-all duration-300 h-full relative z-50",
-              isEnlarged ? "w-[600px] h-[80vh]" : ""
-            )}
-            defaultSize={100}
+    <ChatWrapper>
+      <FloatingContainer
+        isFloating={isFloating}
+        initialPosition={position}
+        initialSize={size}
+        onPositionChange={(x, y) => setPosition({ x, y })}
+        onSizeChange={(width, height) => setSize({ width, height })}
+      >
+        {isOpen ? (
+          <ChatInterface
+            messages={messages}
+            isLoading={isLoading}
+            analysis={analysis}
+            input={input}
+            isEnlarged={isEnlarged}
+            isFloating={isFloating}
+            onInputChange={setInput}
+            onSend={handleSend}
+            onFileClick={handleFileClick}
+            onFloat={() => setIsFloating(!isFloating)}
+            onResize={() => setIsEnlarged(!isEnlarged)}
+            onClose={() => setIsOpen(false)}
+            onClear={clearChat}
+          />
+        ) : (
+          <Button
+            onClick={() => setIsOpen(true)}
+            className="rounded-full w-12 h-12 flex items-center justify-center"
           >
-            <ChatHeader
-              isFloating={isFloating}
-              isEnlarged={isEnlarged}
-              onFloat={() => setIsFloating(!isFloating)}
-              onResize={() => setIsEnlarged(!isEnlarged)}
-              onClose={() => setIsOpen(false)}
-              onClear={clearChat}
-            />
-            
-            <MessageList
-              messages={messages}
-              isLoading={isLoading}
-              analysis={analysis}
-            />
-
-            <div className="p-4 border-t space-y-2">
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className="hidden"
-                multiple
-              />
-              <ChatInput
-                input={input}
-                isLoading={isLoading}
-                onInputChange={setInput}
-                onSend={handleSend}
-                onFileClick={handleFileClick}
-              />
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      ) : (
-        <Button
-          onClick={() => setIsOpen(true)}
-          className="rounded-full w-12 h-12 flex items-center justify-center relative z-50"
-        >
-          <MessageCircle className="h-6 w-6" />
-        </Button>
-      )}
-    </FloatingContainer>
+            <MessageCircle className="h-6 w-6" />
+          </Button>
+        )}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="hidden"
+          multiple
+        />
+      </FloatingContainer>
+    </ChatWrapper>
   );
 };
