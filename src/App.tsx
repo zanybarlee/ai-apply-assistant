@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
+import Profile from "@/pages/Profile";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useAuth } from "@/hooks/useAuth";
 import { FormContainer } from "@/components/ApplicationForm/FormContainer";
@@ -51,7 +52,7 @@ const App = () => (
           path="/profile"
           element={
             <ProtectedRoute>
-              <div>Profile Page</div>
+              <Profile />
             </ProtectedRoute>
           }
         />
