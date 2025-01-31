@@ -49,8 +49,50 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#C5D82D] to-[#004D40] p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Instructions Card */}
-        <Card>
+        {/* Login Card with Tabs - Moved to top */}
+        <Card className="animate-fadeIn">
+          <CardHeader>
+            <CardTitle>Welcome to IBF</CardTitle>
+            <CardDescription>Sign in to continue with your application</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {errorMessage && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{errorMessage}</AlertDescription>
+              </Alert>
+            )}
+            <Tabs defaultValue="singpass" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="singpass">Singpass</TabsTrigger>
+                <TabsTrigger value="email">Email</TabsTrigger>
+              </TabsList>
+              <TabsContent value="singpass">
+                <SingPassLogin />
+              </TabsContent>
+              <TabsContent value="email">
+                <SupabaseAuth
+                  supabaseClient={supabase}
+                  appearance={{
+                    theme: ThemeSupa,
+                    variables: {
+                      default: {
+                        colors: {
+                          brand: "#C5D82D",
+                          brandAccent: "#D4E157",
+                        }
+                      }
+                    }
+                  }}
+                  theme="light"
+                  providers={[]}
+                />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+
+        {/* Instructions Card - Moved to bottom */}
+        <Card className="animate-fadeIn">
           <CardHeader>
             <CardTitle>Instructions</CardTitle>
             <CardDescription>
@@ -90,48 +132,6 @@ const Auth = () => {
               <h3 className="font-semibold mb-2">Certification Application Fee</h3>
               <p className="text-sm">Certification application fee is waived till further notice.</p>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Login Card with Tabs */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome to IBF</CardTitle>
-            <CardDescription>Sign in to continue with your application</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {errorMessage && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertDescription>{errorMessage}</AlertDescription>
-              </Alert>
-            )}
-            <Tabs defaultValue="singpass" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="singpass">Singpass</TabsTrigger>
-                <TabsTrigger value="email">Email</TabsTrigger>
-              </TabsList>
-              <TabsContent value="singpass">
-                <SingPassLogin />
-              </TabsContent>
-              <TabsContent value="email">
-                <SupabaseAuth
-                  supabaseClient={supabase}
-                  appearance={{
-                    theme: ThemeSupa,
-                    variables: {
-                      default: {
-                        colors: {
-                          brand: "#C5D82D",
-                          brandAccent: "#D4E157",
-                        }
-                      }
-                    }
-                  }}
-                  theme="light"
-                  providers={[]}
-                />
-              </TabsContent>
-            </Tabs>
           </CardContent>
         </Card>
       </div>
