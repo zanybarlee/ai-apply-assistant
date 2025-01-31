@@ -139,7 +139,7 @@ export const AIAssistant = () => {
               analysis={analysis}
             />
 
-            <div className="p-4 border-t space-y-2">
+            <div className="p-4 border-t space-y-2 bg-white">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -160,7 +160,7 @@ export const AIAssistant = () => {
       ) : (
         <Button
           onClick={() => setIsOpen(true)}
-          className="rounded-full w-12 h-12 flex items-center justify-center"
+          className="rounded-full w-12 h-12 flex items-center justify-center bg-white text-secondary hover:bg-white/90"
         >
           <MessageCircle className="h-6 w-6" />
         </Button>
