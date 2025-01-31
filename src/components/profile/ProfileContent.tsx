@@ -22,13 +22,13 @@ export const ProfileContent = ({
   onSubmit 
 }: ProfileContentProps) => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-0">
       <ProfileHeader 
         firstName={profile.firstName} 
         lastName={profile.lastName} 
       />
 
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-6 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="p-6">
             <ProfileForm
