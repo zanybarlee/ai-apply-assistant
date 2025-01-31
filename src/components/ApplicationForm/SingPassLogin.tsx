@@ -47,12 +47,14 @@ export const SingPassLogin = () => {
                 </div>
               ) : (
                 <div 
-                  className="border-2 border-red-500 p-8 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                  className="border-2 border-gray-200 p-4 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
                   onClick={() => setIsScanning(true)}
                 >
-                  <div className="w-48 h-48 bg-white flex items-center justify-center">
-                    <div className="text-4xl font-bold text-gray-300">QR</div>
-                  </div>
+                  <img 
+                    src="/lovable-uploads/d401f236-6d6a-42ae-9d9b-7518cb3cc1c5.png"
+                    alt="SingPass QR Code"
+                    className="w-48 h-48 object-contain"
+                  />
                   <p className="text-sm text-center mt-4 text-gray-600">
                     Scan with Singpass app<br />to log in
                   </p>
