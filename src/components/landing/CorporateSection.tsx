@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Building2, BriefcaseBusiness, Calendar, GraduationCap } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const CorporateSection = () => {
   return (
@@ -32,16 +33,20 @@ export const CorporateSection = () => {
 
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="p-6 hover:shadow-lg transition-shadow">
-            <Building2 className="h-10 w-10 text-[#C5D82D] mb-4" />
-            <h3 className="text-lg font-semibold text-[#5D4037] mb-2">Corporate Services</h3>
-            <p className="text-gray-600 mb-4">
-              Comprehensive solutions for financial institutions and corporate partners.
-            </p>
-            <Button variant="link" className="text-[#C5D82D] hover:text-[#004D40] p-0">
-              Learn More →
-            </Button>
-          </Card>
+          <Link to="/corporate-services" className="block">
+            <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
+              <Building2 className="h-10 w-10 text-[#C5D82D] mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg font-semibold text-[#5D4037] mb-2 group-hover:text-[#004D40] transition-colors">
+                Corporate Services
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Comprehensive solutions for financial institutions and corporate partners.
+              </p>
+              <span className="text-[#C5D82D] group-hover:text-[#004D40] transition-colors inline-flex items-center">
+                Learn More →
+              </span>
+            </Card>
+          </Link>
 
           <Card className="p-6 hover:shadow-lg transition-shadow">
             <BriefcaseBusiness className="h-10 w-10 text-[#C5D82D] mb-4" />
