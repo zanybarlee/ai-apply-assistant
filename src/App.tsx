@@ -7,6 +7,7 @@ import Profile from "@/pages/Profile";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useAuth } from "@/hooks/useAuth";
 import { FormContainer } from "@/components/ApplicationForm/FormContainer";
+import CorporateServices from "@/pages/CorporateServices";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,6 +33,7 @@ const App = () => (
     <Router>
       <Routes>
         <Route path="/auth" element={<Auth />} />
+        <Route path="/corporate-services" element={<CorporateServices />} />
         <Route
           path="/"
           element={
