@@ -1,7 +1,11 @@
-export const LoadingSpinner = () => {
+import { cn } from "@/lib/utils";
+
+interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export const LoadingSpinner = ({ className, ...props }: LoadingSpinnerProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+    <div className={cn("flex items-center justify-center", className)} {...props}>
+      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
     </div>
   );
 };

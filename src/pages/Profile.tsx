@@ -171,7 +171,7 @@ const Profile = () => {
             onClick={handleUpdate}
             disabled={loading}
           >
-            {loading ? <LoadingSpinner className="mr-2" /> : null}
+            {loading && <LoadingSpinner className="mr-2 h-4 w-4" />}
             Save Changes
           </Button>
         </div>
