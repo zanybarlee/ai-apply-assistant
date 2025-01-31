@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { Card } from "@/components/ui/card";
 import { PersonalInfo } from "./PersonalInfo";
-import { CertificationLevel } from "./CertificationLevel";
 import { ApplicationDetails } from "./ApplicationDetails";
 import { Review } from "./Review";
 import { FormNavigation } from "./FormNavigation";
 import { FormHeader } from "./FormHeader";
-import { validatePersonalInfo, validateCertificationLevel, validateApplicationDetails } from "@/utils/certificationValidation";
-import { savePreferences, getPreferences } from "@/utils/userPreferences";
-import { supabase } from "@/integrations/supabase/client";
+import { validatePersonalInfo, validateApplicationDetails } from "@/utils/certificationValidation";
+import { useFormState } from "./hooks/useFormState";
+import { useFormSubmission } from "./hooks/useFormSubmission";
 
 export const STEPS = [
   "Personal Info",
@@ -18,67 +15,23 @@ export const STEPS = [
   "Review & Submit"
 ];
 
-export interface FormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  certificationLevel: string;
-  yearsOfExperience: number;
-  purpose: string;
-  amount: string;
-  timeline: string;
-  industry: string;
-  tscsCovered: number;
-  selectedRole?: string;
-  selectedCourse?: string;
-  selectedPrograms?: string[];
-}
-
 export const FormContainer = () => {
-  const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [currentTabStep, setCurrentTabStep] = useState(0);
-  const [formData, setFormData] = useState<FormData>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    certificationLevel: "",
-    yearsOfExperience: 0,
-    purpose: "",
-    amount: "",
-    timeline: "",
-    industry: "",
-    tscsCovered: 0,
-    selectedRole: "",
-    selectedCourse: "",
-    selectedPrograms: [],
-  });
+  const {
+    currentStep,
+    setCurrentStep,
+    currentTabStep,
+    setCurrentTabStep,
+    formData,
+    setFormData,
+    handleInputChange
+  } = useFormState();
 
-  useEffect(() => {
-    const prefs = getPreferences();
-    if (prefs.lastVisitedStep !== undefined) {
-      setCurrentStep(prefs.lastVisitedStep);
-    }
-    if (prefs.industry || prefs.certificationLevel) {
-      setFormData(prev => ({
-        ...prev,
-        industry: prefs.industry || prev.industry,
-        certificationLevel: prefs.certificationLevel || prev.certificationLevel,
-      }));
-    }
-  }, []);
-
-  const handleInputChange = (field: string, value: string | number | string[]) => {
-    setFormData((prev) => {
-      const newData = { ...prev, [field]: value };
-      if (field === 'industry' || field === 'certificationLevel') {
-        savePreferences({ [field]: value });
-      }
-      return newData;
-    });
-  };
+  const { handleSubmit } = useFormSubmission(
+    formData,
+    setFormData,
+    setCurrentStep,
+    setCurrentTabStep
+  );
 
   const validateStep = () => {
     switch (currentStep) {
@@ -88,82 +41,6 @@ export const FormContainer = () => {
         return validateApplicationDetails(formData);
       default:
         return true;
-    }
-  };
-
-  const handleSubmit = async () => {
-    try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
-
-      if (!formData.selectedRole) {
-        toast({
-          title: "Error",
-          description: "Please select a job role before submitting.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const segmentExperience = formData.yearsOfExperience;
-      if (isNaN(segmentExperience) || segmentExperience < 0) {
-        toast({
-          title: "Error",
-          description: "Please enter valid years of experience in your segment.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const { error: certError } = await supabase
-        .from('user_certifications')
-        .insert([
-          {
-            user_id: user.id,
-            job_role_id: formData.selectedRole,
-            industry_segment: formData.industry,
-            total_experience_years: parseInt(formData.amount),
-            segment_experience_years: segmentExperience,
-            status: 'submitted'
-          }
-        ]);
-
-      if (certError) {
-        console.error('Certification submission error:', certError);
-        throw certError;
-      }
-
-      toast({
-        title: "Application Submitted",
-        description: "Your certification application has been submitted successfully.",
-      });
-      
-      savePreferences({ lastVisitedStep: 0 });
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        certificationLevel: "",
-        yearsOfExperience: 0,
-        purpose: "",
-        amount: "",
-        timeline: "",
-        industry: "",
-        tscsCovered: 0,
-        selectedRole: "",
-        selectedCourse: "",
-        selectedPrograms: [],
-      });
-      setCurrentStep(0);
-      setCurrentTabStep(0);
-    } catch (error) {
-      console.error('Submission error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to submit application. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -184,7 +61,6 @@ export const FormContainer = () => {
               } else if (direction === 'next') {
                 setCurrentStep(2);
               }
-              savePreferences({ lastVisitedStep: direction === 'back' ? 0 : 2 });
             }}
           />
         );
@@ -218,7 +94,6 @@ export const FormContainer = () => {
                     if (currentStep < STEPS.length - 1) {
                       const nextStep = currentStep + 1;
                       setCurrentStep(nextStep);
-                      savePreferences({ lastVisitedStep: nextStep });
                     } else {
                       handleSubmit();
                     }
@@ -227,7 +102,6 @@ export const FormContainer = () => {
                     if (currentStep > 0) {
                       const prevStep = currentStep - 1;
                       setCurrentStep(prevStep);
-                      savePreferences({ lastVisitedStep: prevStep });
                     }
                   }}
                 />
