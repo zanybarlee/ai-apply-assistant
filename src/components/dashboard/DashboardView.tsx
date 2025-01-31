@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ClipboardList, Award, GraduationCap, TrendingUp } from "lucide-react";
 import { CertificationCard } from "./CertificationCard";
-import { TrainingDialog } from "./TrainingDialog";
+import { TrainingProgramsDialog } from "./TrainingProgramsDialog";
+import { CertificationsDialog } from "./CertificationsDialog";
+import { ProgressDialog } from "./ProgressDialog";
 import { StatisticsCard } from "./StatisticsCard";
 
 interface DashboardViewProps {
@@ -12,6 +14,8 @@ interface DashboardViewProps {
 
 export const DashboardView = ({ userId }: DashboardViewProps) => {
   const [isTrainingDialogOpen, setIsTrainingDialogOpen] = useState(false);
+  const [isCertificationsDialogOpen, setIsCertificationsDialogOpen] = useState(false);
+  const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
 
   const { data: certifications } = useQuery({
     queryKey: ["certifications", userId],
@@ -47,6 +51,7 @@ export const DashboardView = ({ userId }: DashboardViewProps) => {
           value={trainingPrograms?.length || 0}
           description="Click to view all programs"
           Icon={GraduationCap}
+          onClick={() => setIsTrainingDialogOpen(true)}
         />
         
         <StatisticsCard
@@ -54,6 +59,7 @@ export const DashboardView = ({ userId }: DashboardViewProps) => {
           value={certifications?.length || 0}
           description="Your current certifications"
           Icon={ClipboardList}
+          onClick={() => setIsCertificationsDialogOpen(true)}
         />
         
         <StatisticsCard
@@ -61,12 +67,25 @@ export const DashboardView = ({ userId }: DashboardViewProps) => {
           value="75%"
           description="Overall completion rate"
           Icon={TrendingUp}
+          onClick={() => setIsProgressDialogOpen(true)}
         />
       </div>
 
-      <TrainingDialog
+      <TrainingProgramsDialog
         open={isTrainingDialogOpen}
         onClose={() => setIsTrainingDialogOpen(false)}
+        userId={userId}
+      />
+
+      <CertificationsDialog
+        open={isCertificationsDialogOpen}
+        onClose={() => setIsCertificationsDialogOpen(false)}
+        userId={userId}
+      />
+
+      <ProgressDialog
+        open={isProgressDialogOpen}
+        onClose={() => setIsProgressDialogOpen(false)}
       />
     </div>
   );
