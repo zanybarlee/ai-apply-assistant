@@ -12,13 +12,16 @@ import {
   SidebarContent,
   SidebarProvider,
   SidebarHeader,
-  SidebarTrigger 
+  SidebarTrigger,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton
 } from "@/components/ui/sidebar";
 import { 
   FileText, 
   Target, 
   ThumbsUp, 
-  ThumbsDown, 
+  ChevronLeft,
   ClipboardList 
 } from "lucide-react";
 
@@ -125,8 +128,15 @@ const Profile = () => {
     <SidebarProvider>
       <div className="flex h-screen bg-background">
         <Sidebar>
-          <SidebarHeader className="h-[60px] flex items-center px-6">
-            <SidebarTrigger />
+          <SidebarHeader className="h-[60px] flex items-center px-6 border-b">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => navigate('/')} className="gap-2">
+                  <ChevronLeft className="h-4 w-4" />
+                  <span>Back to Dashboard</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </SidebarHeader>
           <SidebarContent>
             {/* Sidebar content can be added here if needed */}
