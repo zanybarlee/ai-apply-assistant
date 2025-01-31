@@ -12,6 +12,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SingPassLogin } from "@/components/ApplicationForm/SingPassLogin";
 import type { AuthError } from "@supabase/supabase-js";
 
 const Auth = () => {
@@ -91,7 +93,7 @@ const Auth = () => {
           </CardContent>
         </Card>
 
-        {/* Login Card */}
+        {/* Login Card with Tabs */}
         <Card>
           <CardHeader>
             <CardTitle>Welcome to IBF</CardTitle>
@@ -103,22 +105,33 @@ const Auth = () => {
                 <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
             )}
-            <SupabaseAuth
-              supabaseClient={supabase}
-              appearance={{
-                theme: ThemeSupa,
-                variables: {
-                  default: {
-                    colors: {
-                      brand: "#C5D82D",
-                      brandAccent: "#D4E157",
+            <Tabs defaultValue="singpass" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="singpass">Singpass</TabsTrigger>
+                <TabsTrigger value="email">Email</TabsTrigger>
+              </TabsList>
+              <TabsContent value="singpass">
+                <SingPassLogin />
+              </TabsContent>
+              <TabsContent value="email">
+                <SupabaseAuth
+                  supabaseClient={supabase}
+                  appearance={{
+                    theme: ThemeSupa,
+                    variables: {
+                      default: {
+                        colors: {
+                          brand: "#C5D82D",
+                          brandAccent: "#D4E157",
+                        }
+                      }
                     }
-                  }
-                }
-              }}
-              theme="light"
-              providers={[]}
-            />
+                  }}
+                  theme="light"
+                  providers={[]}
+                />
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
