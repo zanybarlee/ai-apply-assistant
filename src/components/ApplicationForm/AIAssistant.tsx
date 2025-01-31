@@ -119,7 +119,7 @@ export const AIAssistant = () => {
         >
           <ResizablePanel 
             className={cn(
-              "bg-white rounded-lg shadow-xl flex flex-col transition-all duration-300 h-full",
+              "bg-white rounded-lg shadow-xl flex flex-col transition-all duration-300 h-full relative z-50",
               isEnlarged ? "w-[600px] h-[80vh]" : ""
             )}
             defaultSize={100}
@@ -160,7 +160,7 @@ export const AIAssistant = () => {
       ) : (
         <Button
           onClick={() => setIsOpen(true)}
-          className="rounded-full w-12 h-12 flex items-center justify-center"
+          className="rounded-full w-12 h-12 flex items-center justify-center relative z-50"
         >
           <MessageCircle className="h-6 w-6" />
         </Button>
