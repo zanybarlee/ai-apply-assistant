@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { CorporateSection } from "@/components/landing/CorporateSection";
 import { UserCircle } from "lucide-react";
 import { DashboardView } from "@/components/dashboard/DashboardView";
+import { AIAssistant } from "@/components/ApplicationForm/AIAssistant";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -86,7 +87,10 @@ const Index = () => {
       </nav>
 
       {userId ? (
-        <DashboardView userId={userId} />
+        <>
+          <DashboardView userId={userId} />
+          <AIAssistant />
+        </>
       ) : (
         <div className="container mx-auto px-6 py-12">
           <div className="text-center mb-12">
