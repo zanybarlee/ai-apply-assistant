@@ -2,28 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { ProfileHeader } from "@/components/profile/ProfileHeader";
-import { ProfileForm } from "@/components/profile/ProfileForm";
-import { PersonaSection } from "@/components/profile/PersonaSection";
-import { 
-  Sidebar, 
-  SidebarContent,
-  SidebarProvider,
-  SidebarHeader,
-  SidebarTrigger,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton
-} from "@/components/ui/sidebar";
-import { 
-  FileText, 
-  Target, 
-  ThumbsUp, 
-  ChevronLeft,
-  ClipboardList 
-} from "lucide-react";
+import { ProfileLayout } from "@/components/profile/ProfileLayout";
+import { ProfileContent } from "@/components/profile/ProfileContent";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -125,82 +106,14 @@ const Profile = () => {
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex h-screen bg-background">
-        <Sidebar>
-          <SidebarHeader className="h-[60px] flex items-center px-6 border-b">
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/')} className="gap-2">
-                  <ChevronLeft className="h-4 w-4" />
-                  <span>Back to Dashboard</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarHeader>
-          <SidebarContent>
-            {/* Sidebar content can be added here if needed */}
-          </SidebarContent>
-        </Sidebar>
-        <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto px-4 py-8">
-            <div className="max-w-4xl mx-auto space-y-8">
-              <Card className="p-6 animate-fadeIn">
-                <ProfileHeader 
-                  firstName={profile.firstName} 
-                  lastName={profile.lastName} 
-                />
-              </Card>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="p-6">
-                  <ProfileForm
-                    profile={profile}
-                    loading={loading}
-                    onProfileChange={handleProfileChange}
-                    onSubmit={handleUpdate}
-                  />
-                </Card>
-
-                <div className="space-y-6">
-                  <Card className="p-6">
-                    <PersonaSection title="Bio" icon={<FileText className="w-5 h-5 text-primary" />}>
-                      <p>Finance professional with experience in {profile.firstName}'s field, focused on continuous learning and professional development.</p>
-                    </PersonaSection>
-                  </Card>
-
-                  <Card className="p-6">
-                    <PersonaSection title="Goals" icon={<Target className="w-5 h-5 text-primary" />}>
-                      <ul className="list-disc list-inside space-y-2">
-                        <li>Network and connect with industry peers</li>
-                        <li>Enhance professional qualifications</li>
-                        <li>Stay updated with industry trends</li>
-                      </ul>
-                    </PersonaSection>
-                  </Card>
-
-                  <Card className="p-6">
-                    <PersonaSection title="Motivations" icon={<ThumbsUp className="w-5 h-5 text-primary" />}>
-                      <p>Committed to professional growth and development in the financial sector, seeking opportunities to expand knowledge and expertise.</p>
-                    </PersonaSection>
-                  </Card>
-
-                  <Card className="p-6">
-                    <PersonaSection title="Expectations" icon={<ClipboardList className="w-5 h-5 text-primary" />}>
-                      <ul className="list-disc list-inside space-y-2">
-                        <li>Access to relevant industry resources</li>
-                        <li>Professional development opportunities</li>
-                        <li>Networking with industry professionals</li>
-                      </ul>
-                    </PersonaSection>
-                  </Card>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    </SidebarProvider>
+    <ProfileLayout>
+      <ProfileContent
+        profile={profile}
+        loading={loading}
+        onProfileChange={handleProfileChange}
+        onSubmit={handleUpdate}
+      />
+    </ProfileLayout>
   );
 };
 
