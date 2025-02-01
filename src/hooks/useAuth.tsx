@@ -12,13 +12,13 @@ export const useAuth = () => {
     const checkAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        setIsAuthenticated(!!session);
         
         if (!session) {
-          handleUnauthenticated("Session expired");
-          return;
+          // Clear any stale session data
+          await supabase.auth.signOut();
+          handleUnauthenticated("Please sign in");
         }
-        
-        setIsAuthenticated(true);
       } catch (error) {
         console.error('Auth error:', error);
         handleUnauthenticated("Authentication error");
@@ -28,24 +28,37 @@ export const useAuth = () => {
     const handleUnauthenticated = (message: string) => {
       setIsAuthenticated(false);
       toast({
-        title: message,
-        description: "Please log in again to continue.",
+        title: "Session Expired",
+        description: message,
         variant: "destructive",
       });
       navigate('/auth');
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
+    // Set up auth state listener
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, !!session);
+      
+      if (event === 'SIGNED_IN') {
         setIsAuthenticated(true);
-      } else {
-        handleUnauthenticated("Session ended");
+        navigate('/');
+      } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        setIsAuthenticated(!!session);
+        if (!session) {
+          handleUnauthenticated("Session ended");
+        }
       }
     });
 
+    // Initial auth check
     checkAuth();
 
-    return () => subscription.unsubscribe();
+    // Cleanup subscription
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate, toast]);
 
   return { isAuthenticated };
