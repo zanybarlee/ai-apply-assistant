@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Building2, BriefcaseBusiness, Calendar, GraduationCap } from "lucide-react";
+import { Building2, BriefcaseBusiness, Calendar, GraduationCap, Users, ChartBar, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const CorporateSection = () => {
@@ -48,15 +48,31 @@ export const CorporateSection = () => {
             </Card>
           </Link>
 
-          <Card className="p-6 hover:shadow-lg transition-shadow">
-            <BriefcaseBusiness className="h-10 w-10 text-[#C5D82D] mb-4" />
-            <h3 className="text-lg font-semibold text-[#5D4037] mb-2">Career Advisory</h3>
-            <p className="text-gray-600 mb-4">
-              Professional guidance for career development in the financial sector.
-            </p>
-            <Button variant="link" className="text-[#C5D82D] hover:text-[#004D40] p-0">
-              Learn More →
-            </Button>
+          <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
+            <div className="space-y-4">
+              <BriefcaseBusiness className="h-10 w-10 text-[#C5D82D] mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg font-semibold text-[#5D4037] mb-2">Career Advisory</h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Users className="h-4 w-4 text-[#C5D82D]" />
+                  <span>1-on-1 Career Coaching</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <ChartBar className="h-4 w-4 text-[#C5D82D]" />
+                  <span>Skills Assessment</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <BookOpen className="h-4 w-4 text-[#C5D82D]" />
+                  <span>Learning Pathways</span>
+                </div>
+              </div>
+              <Button 
+                variant="link" 
+                className="text-[#C5D82D] hover:text-[#004D40] p-0 mt-2 group-hover:translate-x-1 transition-transform"
+              >
+                Schedule Consultation →
+              </Button>
+            </div>
           </Card>
 
           <Card className="p-6 hover:shadow-lg transition-shadow">
