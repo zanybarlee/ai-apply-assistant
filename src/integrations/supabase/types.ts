@@ -81,6 +81,80 @@ export type Database = {
         }
         Relationships: []
       }
+      event_registrations: {
+        Row: {
+          event_id: string | null
+          id: string
+          registration_date: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          event_id?: string | null
+          id?: string
+          registration_date?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          event_id?: string | null
+          id?: string
+          registration_date?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          created_at: string | null
+          current_participants: number | null
+          description: string
+          end_date: string
+          event_type: Database["public"]["Enums"]["event_type"]
+          id: string
+          location: string
+          max_participants: number | null
+          start_date: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_participants?: number | null
+          description: string
+          end_date: string
+          event_type: Database["public"]["Enums"]["event_type"]
+          id?: string
+          location: string
+          max_participants?: number | null
+          start_date: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string
+          end_date?: string
+          event_type?: Database["public"]["Enums"]["event_type"]
+          id?: string
+          location?: string
+          max_participants?: number | null
+          start_date?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       examination_certificates: {
         Row: {
           created_at: string
@@ -363,6 +437,7 @@ export type Database = {
       application_type: "certification" | "funding" | "exemption"
       certification_level: "qualified" | "advanced-2" | "advanced-3"
       consultation_status: "pending" | "confirmed" | "completed" | "cancelled"
+      event_type: "workshop" | "networking" | "seminar" | "conference"
       exam_type: "CMFAS_M8" | "CMFAS_M9" | "CMFAS_M10"
     }
     CompositeTypes: {

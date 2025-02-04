@@ -7,6 +7,7 @@ import { CorporateSection } from "@/components/landing/CorporateSection";
 import { UserCircle } from "lucide-react";
 import { DashboardView } from "@/components/dashboard/DashboardView";
 import { AIAssistant } from "@/components/ApplicationForm/AIAssistant";
+import { EventsSection } from "@/components/events/EventsSection";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -89,26 +90,30 @@ const Index = () => {
       {userId ? (
         <>
           <DashboardView userId={userId} />
+          <EventsSection />
           <AIAssistant />
         </>
       ) : (
-        <div className="container mx-auto px-6 py-12">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Welcome to IBF PortalX
-            </h1>
-            <p className="text-xl text-white/90 mb-8">
-              Join over 30,818 professionals who have attained IBF certification
-            </p>
-            <Button 
-              size="lg" 
-              className="bg-white text-secondary hover:bg-white/90"
-              onClick={() => navigate("/auth")}
-            >
-              Get Started
-            </Button>
+        <>
+          <div className="container mx-auto px-6 py-12">
+            <div className="text-center mb-12">
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                Welcome to IBF PortalX
+              </h1>
+              <p className="text-xl text-white/90 mb-8">
+                Join over 30,818 professionals who have attained IBF certification
+              </p>
+              <Button 
+                size="lg" 
+                className="bg-white text-secondary hover:bg-white/90"
+                onClick={() => navigate("/auth")}
+              >
+                Get Started
+              </Button>
+            </div>
           </div>
-        </div>
+          <EventsSection />
+        </>
       )}
 
       {/* Corporate Section */}
