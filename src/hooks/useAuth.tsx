@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -13,6 +15,7 @@ export const useAuth = () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         setIsAuthenticated(!!session);
+        setUser(session?.user || null);
         
         if (!session) {
           // Clear any stale session data
@@ -27,6 +30,7 @@ export const useAuth = () => {
 
     const handleUnauthenticated = (message: string) => {
       setIsAuthenticated(false);
+      setUser(null);
       toast({
         title: "Session Expired",
         description: message,
@@ -43,9 +47,11 @@ export const useAuth = () => {
       
       if (event === 'SIGNED_IN') {
         setIsAuthenticated(true);
+        setUser(session?.user || null);
         navigate('/');
       } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
         setIsAuthenticated(!!session);
+        setUser(session?.user || null);
         if (!session) {
           handleUnauthenticated("Session ended");
         }
@@ -61,5 +67,5 @@ export const useAuth = () => {
     };
   }, [navigate, toast]);
 
-  return { isAuthenticated };
+  return { isAuthenticated, user };
 };
