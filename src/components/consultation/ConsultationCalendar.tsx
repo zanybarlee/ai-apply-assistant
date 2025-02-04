@@ -1,5 +1,5 @@
 import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { format, startOfDay } from "date-fns";
 import { Consultation } from "./types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -15,12 +15,13 @@ export const ConsultationCalendar = ({ date, onSelect, consultations }: Consulta
     consultation => new Date(consultation.consultation_date)
   );
 
-  console.log('Consultations:', consultations); // Debug log
-
   const renderDayContent = (day: Date) => {
-    const consultation = consultations.find(
-      c => format(new Date(c.consultation_date), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
-    );
+    // Convert both dates to start of day for comparison
+    const dayStart = startOfDay(day);
+    const consultation = consultations.find(c => {
+      const consultationDate = startOfDay(new Date(c.consultation_date));
+      return format(consultationDate, 'yyyy-MM-dd') === format(dayStart, 'yyyy-MM-dd');
+    });
 
     console.log('Checking day:', format(day, 'yyyy-MM-dd'), 'Consultation:', consultation); // Debug log
 
@@ -30,23 +31,19 @@ export const ConsultationCalendar = ({ date, onSelect, consultations }: Consulta
           <Popover>
             <PopoverTrigger asChild>
               <button 
-                className="absolute inset-0 w-full h-full cursor-pointer hover:bg-accent/50 rounded-md transition-colors z-10"
+                className="absolute inset-0 w-full h-full cursor-pointer hover:bg-accent/50 rounded-md transition-colors"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('Popover trigger clicked'); // Debug log
                 }}
               >
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-full" />
               </button>
             </PopoverTrigger>
             <PopoverContent 
-              className="w-80 p-4 z-50" 
+              className="w-80 p-4" 
               sideOffset={5}
-              onOpenAutoFocus={(e) => {
-                e.preventDefault();
-                console.log('Popover opened'); // Debug log
-              }}
+              onOpenAutoFocus={(e) => e.preventDefault()}
             >
               <div className="space-y-2">
                 <h4 className="font-medium">Consultation Details</h4>
@@ -105,7 +102,7 @@ export const ConsultationCalendar = ({ date, onSelect, consultations }: Consulta
       components={{
         DayContent: ({ date: dayDate }) => (
           <div className="relative w-full h-full flex items-center justify-center">
-            <span className="z-0">{dayDate.getDate()}</span>
+            <span>{dayDate.getDate()}</span>
             {renderDayContent(dayDate)}
           </div>
         ),
