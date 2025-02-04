@@ -23,10 +23,16 @@ export const ConsultationCalendar = ({ date, onSelect, consultations }: Consulta
     if (consultation) {
       return (
         <Popover>
-          <PopoverTrigger className="absolute inset-0 w-full h-full cursor-pointer">
-            <div className="w-full h-full">
+          <PopoverTrigger asChild>
+            <button 
+              className="absolute inset-0 w-full h-full cursor-pointer hover:bg-accent/50 rounded-md transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-full" />
-            </div>
+            </button>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-4">
             <div className="space-y-2">
