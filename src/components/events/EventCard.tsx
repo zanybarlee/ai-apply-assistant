@@ -20,10 +20,10 @@ interface EventCardProps {
 export const EventCard = ({ event, isRegistered, onRegister, onUnregister }: EventCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const handleRegistration = async () => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !user) {
       toast({
         title: "Authentication required",
         description: "Please log in to register for events",
@@ -38,7 +38,8 @@ export const EventCard = ({ event, isRegistered, onRegister, onUnregister }: Eve
         const { error } = await supabase
           .from("event_registrations")
           .delete()
-          .eq("event_id", event.id);
+          .eq("event_id", event.id)
+          .eq("user_id", user.id);
 
         if (error) throw error;
         onUnregister?.();
@@ -49,6 +50,8 @@ export const EventCard = ({ event, isRegistered, onRegister, onUnregister }: Eve
       } else {
         const { error } = await supabase.from("event_registrations").insert({
           event_id: event.id,
+          user_id: user.id,
+          status: "confirmed"
         });
 
         if (error) throw error;
@@ -59,6 +62,7 @@ export const EventCard = ({ event, isRegistered, onRegister, onUnregister }: Eve
         });
       }
     } catch (error) {
+      console.error("Registration error:", error);
       toast({
         title: "Error",
         description: "An error occurred while processing your registration",
