@@ -30,41 +30,18 @@ export const DocumentAnalyzer = () => {
 
     setIsAnalyzing(true);
     try {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4",
-          messages: [
-            {
-              role: "system",
-              content: "You are an expert at analyzing financial certification documents. Analyze the given text and categorize it based on relevance to financial certification, identifying key competencies and areas of expertise.",
-            },
-            {
-              role: "user",
-              content: document,
-            },
-          ],
-          temperature: 0.7,
-        }),
+      const { data, error } = await supabase.functions.invoke('analyze-document', {
+        body: { text: document }
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to analyze document");
-      }
-
-      const data = await response.json();
-      const analysis = data.choices[0].message.content;
+      if (error) throw error;
 
       // Store the analysis in Supabase
       const { error: dbError } = await supabase
         .from("document_analyses")
         .insert({
           document_text: document,
-          analysis_results: { analysis },
+          analysis_results: { analysis: data.analysis },
         });
 
       if (dbError) {
