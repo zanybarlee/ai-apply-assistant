@@ -24,6 +24,39 @@ export type Database = {
         }
         Relationships: []
       }
+      consultations: {
+        Row: {
+          consultation_date: string
+          consultation_type: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          status: Database["public"]["Enums"]["consultation_status"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          consultation_date: string
+          consultation_type: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["consultation_status"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          consultation_date?: string
+          consultation_type?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["consultation_status"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       document_analyses: {
         Row: {
           analysis_results: Json
@@ -329,6 +362,7 @@ export type Database = {
     Enums: {
       application_type: "certification" | "funding" | "exemption"
       certification_level: "qualified" | "advanced-2" | "advanced-3"
+      consultation_status: "pending" | "confirmed" | "completed" | "cancelled"
       exam_type: "CMFAS_M8" | "CMFAS_M9" | "CMFAS_M10"
     }
     CompositeTypes: {

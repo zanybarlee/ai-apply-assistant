@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Building2, BriefcaseBusiness, Calendar, GraduationCap, Users, ChartBar, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ConsultationDialog } from "@/components/consultation/ConsultationDialog";
 
 export const CorporateSection = () => {
   return (
@@ -66,12 +67,7 @@ export const CorporateSection = () => {
                   <span>Learning Pathways</span>
                 </div>
               </div>
-              <Button 
-                variant="link" 
-                className="text-[#C5D82D] hover:text-[#004D40] p-0 mt-2 group-hover:translate-x-1 transition-transform"
-              >
-                Schedule Consultation →
-              </Button>
+              <ConsultationDialog />
             </div>
           </Card>
 
