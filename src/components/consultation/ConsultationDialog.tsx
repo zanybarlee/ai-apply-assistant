@@ -1,20 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
-
-interface Consultation {
-  id: string;
-  consultation_date: string;
-  consultation_type: string;
-  notes?: string;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
-}
+import { ConsultationCalendar } from "./ConsultationCalendar";
+import { useConsultations } from "./hooks/useConsultations";
 
 export const ConsultationDialog = () => {
   const [date, setDate] = useState<Date>();
@@ -22,30 +14,8 @@ export const ConsultationDialog = () => {
   const [notes, setNotes] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [consultations, setConsultations] = useState<Consultation[]>([]);
   const { toast } = useToast();
-
-  // Fetch user's consultations
-  useEffect(() => {
-    const fetchConsultations = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("consultations")
-        .select("*")
-        .eq("user_id", user.id);
-
-      if (error) {
-        console.error("Error fetching consultations:", error);
-        return;
-      }
-
-      setConsultations(data || []);
-    };
-
-    fetchConsultations();
-  }, [isOpen]); // Refresh when dialog closes
+  const consultations = useConsultations(isOpen);
 
   const handleSubmit = async () => {
     if (!date || !consultationType) {
@@ -98,27 +68,6 @@ export const ConsultationDialog = () => {
     setNotes("");
   };
 
-  // Convert consultations to calendar modifiers
-  const bookedDates = consultations.map(
-    consultation => new Date(consultation.consultation_date)
-  );
-
-  // Custom day content renderer
-  const renderDayContent = (day: Date) => {
-    const consultation = consultations.find(
-      c => format(new Date(c.consultation_date), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
-    );
-
-    if (consultation) {
-      return (
-        <div className="relative w-full h-full">
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-full" />
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -136,27 +85,10 @@ export const ConsultationDialog = () => {
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <label className="text-sm font-medium">Select Date</label>
-            <Calendar
-              mode="single"
-              selected={date}
+            <ConsultationCalendar
+              date={date}
               onSelect={setDate}
-              className="rounded-md border"
-              disabled={(date) => date < new Date()}
-              modifiers={{ booked: bookedDates }}
-              modifiersStyles={{
-                booked: {
-                  fontWeight: "bold",
-                  color: "var(--primary)",
-                }
-              }}
-              components={{
-                DayContent: ({ date }) => (
-                  <>
-                    {date.getDate()}
-                    {renderDayContent(date)}
-                  </>
-                ),
-              }}
+              consultations={consultations}
             />
           </div>
           <div className="grid gap-2">
