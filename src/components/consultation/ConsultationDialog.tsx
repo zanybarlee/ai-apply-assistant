@@ -28,10 +28,18 @@ export const ConsultationDialog = () => {
 
     setIsSubmitting(true);
     try {
+      // Get the current user's ID
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
       const { error } = await supabase.from("consultations").insert({
         consultation_date: date.toISOString(),
         consultation_type: consultationType,
         notes: notes || null,
+        user_id: user.id, // Add the user_id to the insert operation
       });
 
       if (error) throw error;
